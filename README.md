@@ -11,7 +11,7 @@
 | Frontend | React + Vite, React Router v6, Tailwind CSS v3, Axios |
 | Backend | Python Flask, Flask-SQLAlchemy, Flask-JWT-Extended, Flask-CORS |
 | Database | PostgreSQL via Supabase |
-| AI | Google Gemini Flash 1.5 |
+| AI | Google Gemini 2.5 Flash |
 | Images | Cloudinary (unsigned upload preset) |
 | Email | Resend |
 
@@ -167,9 +167,13 @@ npm run dev
 ### Auth
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| POST | `/api/auth/register` | — | Register + returns JWT |
-| POST | `/api/auth/login` | — | Login + returns JWT |
+| POST | `/api/auth/send-otp` | — | Send email verification code |
+| POST | `/api/auth/verify-otp` | — | Verify code + login/register |
+| GET | `/api/auth/google` | — | Redirect to Google OAuth |
+| GET | `/api/auth/google/callback` | — | Google OAuth callback |
+| POST | `/api/auth/refresh` | ✅ | Refresh access token |
 | GET | `/api/auth/me` | ✅ | Current user info |
+| POST | `/api/auth/logout` | — | Clear auth cookies / logout |
 
 ### Projects
 | Method | Route | Auth | Description |
@@ -204,9 +208,6 @@ The seed script creates:
 - **8 projects** across all 3 students
 - **2 projects** with full AI analysis pre-populated
 - **3 follow** relationships
-
-All seed passwords: `password123`
-
 ---
 
 ## Credibility Levels
