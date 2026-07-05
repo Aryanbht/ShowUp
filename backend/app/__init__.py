@@ -36,7 +36,12 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app, origins=["http://localhost:5173", "http://localhost:3000"], supports_credentials=True)
+
+    allowed_origins = ["http://localhost:5173", "http://localhost:3000"]
+    if os.getenv("FRONTEND_URL"):
+        allowed_origins.append(os.getenv("FRONTEND_URL"))
+        
+    CORS(app, origins=allowed_origins, supports_credentials=True)
 
     # ── Consistent JWT error codes for frontend ─────────────────────
     @jwt.expired_token_loader
