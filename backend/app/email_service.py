@@ -10,7 +10,7 @@ def send_welcome_email(name: str, email: str):
         return  # Skip silently if not configured
 
     resend.Emails.send({
-        "from": "ShowUp <noreply@showup.dev>",
+        "from": "ShowUp <onboarding@resend.dev>",
         "to": [email],
         "subject": "Welcome to ShowUp 🎉 — Your Work Speaks First",
         "html": f"""
@@ -44,7 +44,7 @@ def send_otp_email(name: str, email: str, otp: str):
         raise RuntimeError("RESEND_API_KEY not configured")
 
     resend.Emails.send({
-        "from": "ShowUp <noreply@showup.dev>",
+        "from": "ShowUp <onboarding@resend.dev>",
         "to": [email],
         "subject": f"{otp} is your ShowUp verification code",
         "html": f"""
