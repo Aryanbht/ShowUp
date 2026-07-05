@@ -246,41 +246,7 @@ def _generate_otp(email: str) -> str:
     return otp
 
 
-def _send_otp_email(email: str, otp: str, name: str = "there"):
-    """Dispatch OTP email via Gmail SMTP."""
-    gmail_address = os.getenv("GMAIL_ADDRESS", "")
-    gmail_password = os.getenv("GMAIL_APP_PASSWORD", "")
 
-    if not gmail_address or not gmail_password:
-        raise RuntimeError("GMAIL_ADDRESS or GMAIL_APP_PASSWORD not set in environment")
-
-    html_content = f"""
-    <div style="font-family:'IBM Plex Mono',monospace;background:#fdf7ff;color:#1d1b20;padding:40px;max-width:480px;margin:0 auto;">
-      <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;border-bottom:3px solid #2A2A2A;padding-bottom:12px;">ShowUp</h1>
-      <p style="margin-top:24px;">Hey {name},</p>
-      <p>Your verification code is:</p>
-      <div style="background:#e8def8;padding:24px;text-align:center;font-size:32px;font-weight:900;letter-spacing:8px;border:2px solid #2A2A2A;box-shadow:4px 4px 0 #4f378a;margin:32px 0;">
-        {otp}
-      </div>
-      <p style="font-size:14px;color:#49454f;">Enter this code within 10 minutes to verify your account.</p>
-    </div>
-    """
-
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"{otp} is your ShowUp verification code"
-    msg["From"] = f"ShowUp <{gmail_address}>"
-    msg["To"] = email
-
-    msg.attach(MIMEText(html_content, "html"))
-
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(gmail_address, gmail_password)
-        server.send_message(msg)
-        server.quit()
-    except Exception as e:
-        raise RuntimeError(f"Failed to send email via Gmail SMTP: {str(e)}")
 
 
 def _check_ip_rate_limit(ip: str) -> bool:
@@ -339,7 +305,8 @@ def send_otp():
     otp = _generate_otp(email)
     print(f"\n[DEV / LOCAL] Your OTP for {email} is: {otp}\n")
     try:
-        _send_otp_email(email, otp, name)
+        from app.email_service import send_otp_email
+        send_otp_email(name, email, otp)
         return _success({"email": email}, f"Verification code sent to {email}")
     except Exception:
         return _success({"email": email, "dev_otp": otp}, "OTP generated (check console in dev)")

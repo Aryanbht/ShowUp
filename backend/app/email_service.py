@@ -37,3 +37,25 @@ def send_welcome_email(name: str, email: str):
         </div>
         """,
     })
+
+def send_otp_email(name: str, email: str, otp: str):
+    """Send OTP email via Resend (HTTPS API bypasses Render SMTP block)."""
+    if not resend.api_key:
+        raise RuntimeError("RESEND_API_KEY not configured")
+
+    resend.Emails.send({
+        "from": "ShowUp <noreply@showup.dev>",
+        "to": [email],
+        "subject": f"{otp} is your ShowUp verification code",
+        "html": f"""
+        <div style="font-family:'IBM Plex Mono',monospace;background:#fdf7ff;color:#1d1b20;padding:40px;max-width:480px;margin:0 auto;">
+          <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;border-bottom:3px solid #2A2A2A;padding-bottom:12px;">ShowUp</h1>
+          <p style="margin-top:24px;">Hey {name},</p>
+          <p>Your verification code is:</p>
+          <div style="background:#e8def8;padding:24px;text-align:center;font-size:32px;font-weight:900;letter-spacing:8px;border:2px solid #2A2A2A;box-shadow:4px 4px 0 #4f378a;margin:32px 0;">
+            {otp}
+          </div>
+          <p style="font-size:14px;color:#49454f;">Enter this code within 10 minutes to verify your account.</p>
+        </div>
+        """,
+    })
