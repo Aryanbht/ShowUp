@@ -29,6 +29,8 @@ Project Details:
 - Has README: {has_readme}
 - Student Year: {year_of_study}
 
+{github_section}
+
 Analyze across exactly these 7 dimensions. You MUST return a JSON object that EXACTLY matches the structure below. Do not change or omit any of the 7 keys inside the "dimensions" object. Return ONLY a valid JSON object — no markdown, no code blocks, no explanation before or after. Raw JSON only.
 
 {{
@@ -101,12 +103,56 @@ def analyze_project(
     has_live_url: bool = False,
     has_github_url: bool = False,
     has_readme: bool = False,
+    github_context: dict = None,
 ) -> dict:
     """
     Analyse a student project across 7 dimensions using Gemini 2.5 Flash.
+    If github_context is provided (from github_fetcher), the real README and
+    source files are injected into the prompt for much more accurate analysis.
     Returns a structured dict with score, dimensions, next_steps, etc.
     """
     model = genai.GenerativeModel("gemini-2.5-flash")
+
+    # Build the GitHub context section for the prompt
+    github_section = ""
+    actual_has_readme = has_readme
+
+    if github_context and not github_context.get("error"):
+        actual_has_readme = github_context.get("has_readme", False)
+        parts = []
+
+        readme_text = github_context.get("readme", "")
+        if readme_text:
+            parts.append(
+                f"README.md (actual content from repo):\n"
+                f"```\n{readme_text[:4000]}\n```"
+            )
+
+        files = github_context.get("files", [])
+        if files:
+            file_parts = []
+            for f in files:
+                file_parts.append(
+                    f"File: {f['path']}\n"
+                    f"```\n{f['content'][:2500]}\n```"
+                )
+            parts.append(
+                "Key source files from the repository:\n" + "\n\n".join(file_parts)
+            )
+
+        if parts:
+            github_section = (
+                "\n--- ACTUAL GITHUB REPOSITORY CONTENT ---\n"
+                + "\n\n".join(parts)
+                + "\n--- END GITHUB CONTENT ---\n"
+                + "Use the actual code and README above when evaluating code quality, "
+                "completeness, and problem clarity. Be specific and refer to actual "
+                "files/functions you can see."
+            )
+        else:
+            github_section = "(GitHub repository was provided but no readable content was found — evaluate based on description only.)"
+    else:
+        github_section = "(No GitHub repository content available — evaluate based on description only.)"
 
     prompt = PROMPT_TEMPLATE.format(
         title=title or "Untitled",
@@ -115,7 +161,8 @@ def analyze_project(
         year_of_study=year_of_study,
         has_live_url=has_live_url,
         has_github_url=has_github_url,
-        has_readme=has_readme,
+        has_readme=actual_has_readme,
+        github_section=github_section,
     )
 
     response = model.generate_content(

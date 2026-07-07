@@ -200,6 +200,15 @@ def analyse_project(project_id):
     body = request.get_json() or {}
     year_of_study = body.get("year_of_study", 2)
 
+    # Fetch real GitHub content if a GitHub URL is attached to the project
+    github_context = None
+    if project.github_url:
+        try:
+            from app.github_fetcher import fetch_github_context
+            github_context = fetch_github_context(project.github_url)
+        except Exception:
+            github_context = None  # Don't crash analysis if GitHub fetch fails
+
     try:
         from app.queue_manager import process_analysis
 
@@ -212,7 +221,8 @@ def analyse_project(project_id):
             year_of_study=year_of_study,
             has_live_url=bool(project.live_url),
             has_github_url=bool(project.github_url),
-            has_readme=False,
+            has_readme=github_context.get("has_readme", False) if github_context else False,
+            github_context=github_context,
         )
     except Exception as e:
         return _error(f"AI analysis failed: {str(e)}", 500)
