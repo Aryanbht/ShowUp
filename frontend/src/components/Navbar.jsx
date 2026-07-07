@@ -191,6 +191,17 @@ export default function Navbar() {
             <span className="font-mono text-[10px] uppercase">Login</span>
           </NavLink>
         )}
+
+        {/* Sign Out — only show on mobile when logged in */}
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="flex-1 flex flex-col items-center gap-1 py-3 transition-colors text-on-surface-variant hover:text-error hover:bg-error-container"
+          >
+            <span className="material-symbols-outlined text-xl">logout</span>
+            <span className="font-mono text-[10px] uppercase">Sign Out</span>
+          </button>
+        )}
       </nav>
     </>
   );
