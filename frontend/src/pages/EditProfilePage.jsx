@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import CloudinaryUpload from "../components/CloudinaryUpload";
 import { studentsApi } from "../api";
 import { useAuth } from "../context/AuthContext";
 
@@ -91,32 +90,57 @@ export default function EditProfilePage() {
 
         <div className="max-w-xl mx-auto px-4 sm:px-6 py-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar */}
             <div>
-              <label className="label-mono block mb-1.5">Profile Photo</label>
-              <div className="flex items-start gap-4">
-                {/* Current avatar preview */}
+              <label className="label-mono block mb-2">Profile Photo</label>
+              <div className="flex items-center gap-3">
+                {/* Current avatar — small fixed square */}
                 <div className="flex-shrink-0">
                   {form.avatar_url ? (
                     <img
                       src={form.avatar_url}
                       alt="Avatar"
-                      className="w-16 h-16 border-2 border-ink object-cover"
+                      className="w-14 h-14 border-2 border-ink object-cover"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-primary-container border-2 border-ink flex items-center justify-center">
+                    <div className="w-14 h-14 bg-primary-container border-2 border-ink flex items-center justify-center">
                       <span className="font-mono font-black text-xl text-on-primary-container">
                         {user?.name?.[0]?.toUpperCase()}
                       </span>
                     </div>
                   )}
                 </div>
-                <div className="flex-1">
-                  <CloudinaryUpload
-                    onUpload={handleAvatarUpload}
-                    label="Upload Photo"
-                    currentUrl={form.avatar_url || null}
+                {/* Upload button — compact, no big preview box here */}
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="avatar-upload-input"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      if (file.size > 10 * 1024 * 1024) { alert('File must be under 10MB'); return; }
+                      try {
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+                        const res = await fetch(
+                          `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                          { method: 'POST', body: formData }
+                        );
+                        const data = await res.json();
+                        handleAvatarUpload(data.secure_url);
+                      } catch { alert('Upload failed'); }
+                    }}
                   />
+                  <label
+                    htmlFor="avatar-upload-input"
+                    className="cursor-pointer inline-flex items-center gap-2 border-2 border-ink px-3 py-2 font-mono text-xs uppercase font-bold hover:bg-surface-container transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-sm">cloud_upload</span>
+                    Change Photo
+                  </label>
+                  <p className="font-mono text-xs text-on-surface-variant mt-1">PNG, JPG up to 10MB</p>
                 </div>
               </div>
             </div>
