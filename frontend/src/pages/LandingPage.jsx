@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { feedApi } from "../api";
 
@@ -23,11 +23,52 @@ const HOW_IT_WORKS = [
   },
 ];
 
+/** Animates a number from 0 → target over ~1.4 s with an ease-out curve */
+function useCountUp(target, duration = 1400) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const numTarget = parseInt(target, 10);
+    if (isNaN(numTarget) || numTarget === 0) {
+      setDisplay(0);
+      return;
+    }
+    const start = performance.now();
+    const tick = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * numTarget));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+
+  return display;
+}
+
+function AnimatedStat({ value, label, border }) {
+  const animated = useCountUp(value);
+  // If value is a plain number string, show animated; otherwise show raw (e.g. "98%")
+  const isNumeric = /^\d+$/.test(String(value));
+
+  return (
+    <div className={`py-6 px-8 text-center ${border ? "border-r-2 border-ink" : ""}`}>
+      <p className="font-mono font-black text-3xl text-on-surface">
+        {isNumeric ? animated.toLocaleString() : value}
+      </p>
+      <p className="font-mono text-xs uppercase text-on-surface-variant mt-1">{label}</p>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [stats, setStats] = useState([
     { value: "0", label: "Student Portfolios" },
     { value: "0", label: "Projects Uploaded" },
-    { value: "98%", label: "AI Accuracy" },
     { value: "0", label: "Colleges" },
   ]);
 
@@ -39,7 +80,6 @@ export default function LandingPage() {
         setStats([
           { value: data.students.toLocaleString(), label: "Student Portfolios" },
           { value: data.projects.toLocaleString(), label: "Projects Uploaded" },
-          { value: "98%", label: "AI Accuracy" },
           { value: data.colleges.toLocaleString(), label: "Colleges" },
         ]);
       } catch (err) {
@@ -91,11 +131,11 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth" className="btn-primary text-base py-4 px-8">
+            <Link to="/auth" className="btn-primary text-base py-4 px-10">
               <span className="material-symbols-outlined">person_add</span>
               Create Your Portfolio
             </Link>
-            <Link to="/feed" className="btn-secondary text-base py-4 px-8">
+            <Link to="/feed" className="btn-secondary text-base py-4 px-10">
               <span className="material-symbols-outlined">explore</span>
               Explore Projects
             </Link>
@@ -103,15 +143,14 @@ export default function LandingPage() {
         </div>
 
         {/* Stats bar */}
-        <div className="border-t-2 border-b-2 border-ink grid grid-cols-2 md:grid-cols-4">
+        <div className="border-t-2 border-b-2 border-ink grid grid-cols-2 md:grid-cols-3">
           {stats.map((stat, i) => (
-            <div
+            <AnimatedStat
               key={i}
-              className={`py-6 px-8 text-center ${i < 3 ? "border-r-2 border-ink" : ""}`}
-            >
-              <p className="font-mono font-black text-3xl text-on-surface">{stat.value}</p>
-              <p className="font-mono text-xs uppercase text-on-surface-variant mt-1">{stat.label}</p>
-            </div>
+              value={stat.value}
+              label={stat.label}
+              border={i < 2}
+            />
           ))}
         </div>
       </section>
@@ -132,7 +171,7 @@ export default function LandingPage() {
               className={`p-8 ${i < 2 ? "md:border-r-2 border-b-2 md:border-b-0 border-ink" : ""}`}
             >
               <div className="flex items-start gap-4 mb-4">
-                <span className="font-mono font-black text-4xl text-outline-variant">{item.step}</span>
+                <span className="font-mono font-black text-4xl text-on-surface-variant" style={{ opacity: 0.55 }}>{item.step}</span>
                 <span className="material-symbols-outlined text-primary text-2xl mt-2">{item.icon}</span>
               </div>
               <h3 className="font-grotesk font-bold text-lg text-on-surface mb-2">{item.title}</h3>
@@ -150,7 +189,25 @@ export default function LandingPage() {
         <p className="font-mono text-sm text-surface-variant mb-8 max-w-lg mx-auto">
           Every senior developer started with a portfolio. Start yours today and let your projects do the talking.
         </p>
-        <Link to="/auth" className="inline-flex items-center gap-2 bg-surface text-ink border-2 border-surface px-8 py-4 font-mono font-bold uppercase text-sm" style={{ boxShadow: "4px 4px 0 #4f378a" }}>
+        <Link
+          to="/auth"
+          className="inline-flex items-center gap-2 bg-surface text-ink border-2 border-surface px-8 py-4 font-mono font-bold uppercase text-sm rounded-md"
+          style={{ boxShadow: "4px 4px 0 #4f378a", transition: "all 0.2s ease" }}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = "#ede7f6";
+            e.currentTarget.style.borderColor = "#4f378a";
+            e.currentTarget.style.color = "#4f378a";
+            e.currentTarget.style.boxShadow = "4px 4px 0 #7c4dff";
+            e.currentTarget.style.transform = "translate(-2px, -2px)";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = "";
+            e.currentTarget.style.borderColor = "";
+            e.currentTarget.style.color = "";
+            e.currentTarget.style.boxShadow = "4px 4px 0 #4f378a";
+            e.currentTarget.style.transform = "";
+          }}
+        >
           <span className="material-symbols-outlined">star</span>
           Join for Free — No Experience Needed
         </Link>
