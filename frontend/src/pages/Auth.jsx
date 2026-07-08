@@ -3,16 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { TOKEN_KEYS } from '../api'
 
-/* ─── Design tokens ─────────────────────────────── */
+/* ─── Design tokens — matches ShowUp light brutalist palette ─── */
 const T = {
-  bg: '#0D0D0D',
-  surface: '#141414',
-  surfaceEl: '#1A1A1A',
-  accent: '#C8FF00',
-  border: '#2A2A2A',
-  textPrimary: '#F0F0F0',
-  textSecondary: '#666666',
-  error: '#FF4444',
+  bg: '#fdf7ff',          // ShowUp surface (lavender-white)
+  surface: '#ffffff',      // card background
+  surfaceEl: '#f8f2fa',   // subtle inset elements
+  accent: '#2A2A2A',       // ink — primary button bg (same as btn-primary)
+  accentShadow: '#4f378a', // purple offset shadow (same as btn-primary box-shadow)
+  border: '#2A2A2A',       // ink border
+  borderLight: '#cbc4d2',  // outline-variant for dividers
+  textPrimary: '#1d1b20',  // on-surface
+  textSecondary: '#494551', // on-surface-variant
+  error: '#ba1a1a',        // error token
   mono: '"IBM Plex Mono", monospace',
   serif: '"DM Serif Display", serif',
   grotesk: '"Space Grotesk", sans-serif',
@@ -22,7 +24,7 @@ const T = {
 const inputStyle = {
   width: '100%',
   background: T.bg,
-  border: `1.5px solid ${T.border}`,
+  border: `2px solid ${T.border}`,
   borderRadius: 0,
   padding: '14px 16px',
   fontFamily: T.mono,
@@ -32,25 +34,29 @@ const inputStyle = {
   boxSizing: 'border-box',
 }
 
+// Primary brutalist button — matches .btn-primary from index.css
 const btnAccent = {
   width: '100%',
   background: T.accent,
-  color: T.bg,
-  border: 'none',
-  borderRadius: 2,
-  padding: 14,
+  color: '#ffffff',
+  border: `2px solid ${T.border}`,
+  borderRadius: 0,
+  padding: '14px 16px',
   fontFamily: T.mono,
   fontSize: 13,
-  fontWeight: 600,
+  fontWeight: 700,
   textTransform: 'uppercase',
   cursor: 'pointer',
-  letterSpacing: '0.05em',
+  letterSpacing: '0.08em',
+  boxShadow: `3px 3px 0px 0px ${T.accentShadow}`,
+  transition: 'all 0.15s ease',
 }
 
 const btnDisabled = {
   ...btnAccent,
-  background: T.border,
+  background: T.borderLight,
   color: T.textSecondary,
+  boxShadow: 'none',
   cursor: 'not-allowed',
 }
 
@@ -158,15 +164,17 @@ function OTPBox({ innerRef, value, onChange, onKeyDown, onPaste, autoFocus }) {
         height: 60,
         flexShrink: 0,
         background: T.bg,
-        border: `1.5px solid ${focused ? T.accent : T.border}`,
-        borderRadius: 2,
+        border: `2px solid ${focused ? T.accent : T.borderLight}`,
+        borderRadius: 0,
         fontFamily: T.grotesk,
         fontSize: 24,
         fontWeight: 700,
         textAlign: 'center',
-        color: T.accent,
+        color: T.textPrimary,
         outline: 'none',
         cursor: 'text',
+        boxShadow: focused ? `2px 2px 0 ${T.accentShadow}` : 'none',
+        transition: 'all 0.15s ease',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -192,11 +200,11 @@ function Countdown({ secondsLeft, onExpire }) {
 function OrDivider() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-      <div style={{ flex: 1, height: 1, background: T.border }} />
+      <div style={{ flex: 1, height: 1, background: T.borderLight }} />
       <span style={{ fontFamily: T.mono, fontSize: 11, color: T.textSecondary, textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
         or continue with email
       </span>
-      <div style={{ flex: 1, height: 1, background: T.border }} />
+      <div style={{ flex: 1, height: 1, background: T.borderLight }} />
     </div>
   )
 }
@@ -374,22 +382,20 @@ export default function Auth() {
     <>
       {/* Inject keyframe for pulse on border — plain CSS */}
       <style>{`
-        @keyframes borderPulse {
-          0%, 100% { border-color: #2A2A2A; }
-          50% { border-color: #C8FF00; }
-        }
         .google-btn:hover {
-          border-color: #C8FF00 !important;
-          transform: translate(2px, 2px);
+          border-color: #4f378a !important;
+          box-shadow: 3px 3px 0 #4f378a !important;
+          transform: translate(-1px, -1px);
         }
         .accent-btn:hover:not(:disabled) {
-          transform: translate(2px, 2px);
+          transform: translate(-1px, -1px);
+          box-shadow: 4px 4px 0 #4f378a !important;
         }
         .resend-link:hover {
           text-decoration: underline;
         }
         input::placeholder {
-          color: #444;
+          color: #7a7582;
         }
       `}</style>
 
@@ -402,15 +408,16 @@ export default function Auth() {
         padding: '24px 16px',
         fontFamily: T.mono,
       }}>
-        {/* Card */}
+        {/* Card — brutalist border + offset shadow, matches card-brutal */}
         <div style={{
           width: '100%',
-          maxWidth: 420,
-          border: `1.5px solid ${T.border}`,
-          borderRadius: 4,
+          maxWidth: 440,
+          border: `2px solid ${T.border}`,
+          borderRadius: 0,
           padding: 40,
           background: T.surface,
           boxSizing: 'border-box',
+          boxShadow: `4px 4px 0px 0px ${T.accentShadow}`,
         }}>
           {/* Logo + tagline */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -423,12 +430,12 @@ export default function Auth() {
           </div>
 
           {/* Divider */}
-          <div style={{ height: 1, background: T.border, marginBottom: 28 }} />
+          <div style={{ height: 1, background: T.borderLight, marginBottom: 28 }} />
 
           {/* ══ SUCCESS ══ */}
           {step === 'success' && (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <div style={{ fontFamily: T.mono, fontSize: 20, color: T.accent, letterSpacing: '0.1em' }}>
+              <div style={{ fontFamily: T.mono, fontSize: 20, color: '#4f378a', letterSpacing: '0.1em' }}>
                 {successMsg}
               </div>
             </div>
@@ -447,17 +454,19 @@ export default function Auth() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 10,
-                  background: T.surfaceEl,
-                  border: `1.5px solid ${T.border}`,
-                  borderRadius: 2,
-                  padding: 14,
+                  background: T.surface,
+                  border: `2px solid ${T.border}`,
+                  borderRadius: 0,
+                  padding: '13px 16px',
                   fontFamily: T.mono,
                   fontSize: 13,
+                  fontWeight: 600,
                   textTransform: 'uppercase',
                   color: T.textPrimary,
                   cursor: 'pointer',
                   letterSpacing: '0.06em',
-                  transition: 'border-color 0.15s, transform 0.1s',
+                  boxShadow: `2px 2px 0 ${T.border}`,
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <GoogleIcon />
@@ -544,7 +553,7 @@ export default function Auth() {
                       border: 'none',
                       fontFamily: T.mono,
                       fontSize: 12,
-                      color: T.accent,
+                      color: '#4f378a',
                       cursor: 'pointer',
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
