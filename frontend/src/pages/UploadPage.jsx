@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import CloudinaryUpload from "../components/CloudinaryUpload";
 import TechPill from "../components/TechPill";
 import api, { projectsApi } from "../api";
+import { SKILLS_LIST } from "../data/skills";
 
 const MAX_DESC = 500;
 
@@ -63,12 +64,19 @@ export default function UploadPage({ editMode }) {
       const res = await api.post('/api/projects/github-fetch', { url: githubUrl });
       const d = res.data.data;
 
+      const rawTech = d.tech_stack 
+        ? d.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+      const filteredTech = rawTech
+        .map(t => SKILLS_LIST.find(s => s.toLowerCase() === t.toLowerCase()))
+        .filter(Boolean);
+
       // Auto-fill all form fields
       setForm((f) => ({
         ...f,
         title: d.title || "",
         description: d.description || "",
-        tech_stack: d.tech_stack ? d.tech_stack.split(",").map((t) => t.trim()).filter(Boolean) : [],
+        tech_stack: filteredTech,
         live_url: d.live_url || "",
         github_url: d.github_url || "",
         readme: d.readme || "",
