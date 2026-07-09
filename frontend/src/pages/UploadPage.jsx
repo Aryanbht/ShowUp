@@ -24,7 +24,7 @@ export default function UploadPage({ editMode }) {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(editMode);
   const [error, setError] = useState("");
-
+// Tanay Ko samajha Rha hu
   useEffect(() => {
     if (editMode && id) {
       projectsApi.getById(id)
