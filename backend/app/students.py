@@ -111,3 +111,23 @@ def submit_exit_survey():
     db.session.add(review)
     db.session.commit()
     return _success(None, "Thank you for your feedback.")
+
+
+@students_bp.route('/<string:student_id>/template', methods=['PATCH'])
+@jwt_required()
+def update_template(student_id):
+    current_user_id = get_jwt_identity()
+    if str(student_id) != str(current_user_id):
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    
+    data = request.get_json()
+    template = data.get('template')
+    
+    if template not in ['classic', 'midnight', 'blueprint', 'paper']:
+        return jsonify({"success": False, "message": "Invalid template"}), 400
+    
+    student = Student.query.get_or_404(student_id)
+    student.portfolio_template = template
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Template updated", "data": {"template": template}}), 200

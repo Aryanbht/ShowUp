@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CloudinaryUpload from "../components/CloudinaryUpload";
 import TechPill from "../components/TechPill";
-import { projectsApi } from "../api";
+import api, { projectsApi } from "../api";
 
 const MAX_DESC = 500;
 
@@ -18,6 +18,7 @@ export default function UploadPage({ editMode }) {
     github_url: "",
     screenshot_url: "",
     show_ai_analysis: true,
+    readme: "",
   });
   const [techInput, setTechInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +38,7 @@ export default function UploadPage({ editMode }) {
             github_url: p.github_url || "",
             screenshot_url: p.screenshot_url || "",
             show_ai_analysis: p.show_ai_analysis ?? true,
+            readme: p.readme || "",
           });
         })
         .catch(() => {
@@ -45,6 +47,40 @@ export default function UploadPage({ editMode }) {
         .finally(() => setLoading(false));
     }
   }, [editMode, id]);
+
+  const [githubUrl, setGithubUrl] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState('');
+  const [fetchSuccess, setFetchSuccess] = useState(false);
+
+  const handleGithubFetch = async () => {
+    if (!githubUrl.trim()) return;
+    setFetching(true);
+    setFetchError('');
+    setFetchSuccess(false);
+
+    try {
+      const res = await api.post('/api/projects/github-fetch', { url: githubUrl });
+      const d = res.data.data;
+
+      // Auto-fill all form fields
+      setForm((f) => ({
+        ...f,
+        title: d.title || "",
+        description: d.description || "",
+        tech_stack: d.tech_stack ? d.tech_stack.split(",").map((t) => t.trim()).filter(Boolean) : [],
+        live_url: d.live_url || "",
+        github_url: d.github_url || "",
+        readme: d.readme || "",
+      }));
+
+      setFetchSuccess(true);
+    } catch (err) {
+      setFetchError(err.response?.data?.message || 'Failed to fetch. Try again.');
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -110,6 +146,76 @@ export default function UploadPage({ editMode }) {
             <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase text-center mt-10">Loading project...</p>
           ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* GitHub Import Section */}
+            <div style={{
+              border: '1.5px solid #E5E5E5',
+              borderRadius: '8px',
+              padding: '20px',
+              marginBottom: '28px',
+              background: '#FAFAFA'
+            }}>
+              <p style={{ fontSize: '13px', fontWeight: '600', margin: '0 0 4px', color: '#1A1A1A' }}>
+                Import from GitHub
+              </p>
+              <p style={{ fontSize: '12px', color: '#999', margin: '0 0 14px' }}>
+                Paste your repo link — we'll fill everything automatically
+              </p>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="https://github.com/username/repo"
+                  value={githubUrl}
+                  onChange={e => {
+                    setGithubUrl(e.target.value);
+                    setFetchError('');
+                    setFetchSuccess(false);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '10px 14px',
+                    border: fetchError ? '1.5px solid #FF4444' : '1.5px solid #E5E5E5',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    outline: 'none',
+                    fontFamily: 'monospace'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleGithubFetch}
+                  disabled={fetching || !githubUrl.trim()}
+                  style={{
+                    padding: '10px 20px',
+                    background: fetching ? '#E5E5E5' : '#1A1A1A',
+                    color: fetching ? '#999' : '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: fetching ? 'not-allowed' : 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {fetching ? 'Fetching...' : 'Import →'}
+                </button>
+              </div>
+
+              {/* Error state */}
+              {fetchError && (
+                <p style={{ fontSize: '12px', color: '#FF4444', margin: '8px 0 0' }}>
+                  {fetchError}
+                </p>
+              )}
+
+              {/* Success state */}
+              {fetchSuccess && (
+                <p style={{ fontSize: '12px', color: '#16A34A', margin: '8px 0 0' }}>
+                  ✓ Form filled automatically — review and edit below before submitting
+                </p>
+              )}
+            </div>
+
             {/* Title */}
             <div>
               <label className="label-mono block mb-1.5">Project Title *</label>

@@ -1,4 +1,6 @@
 import json
+import re
+import requests
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
@@ -78,6 +80,7 @@ def create_project():
         screenshot_url=body.get("screenshot_url", "").strip() or None,
         student_id=student_id,
         show_ai_analysis=body.get("show_ai_analysis", True),
+        readme=body.get("readme", "").strip() or None,
     )
     db.session.add(project)
     db.session.commit()
@@ -158,6 +161,8 @@ def update_project(project_id):
         project.screenshot_url = body["screenshot_url"].strip() or None
     if "show_ai_analysis" in body:
         project.show_ai_analysis = bool(body["show_ai_analysis"])
+    if "readme" in body:
+        project.readme = body["readme"].strip() or None
 
     db.session.commit()
     return _success(project.to_dict(current_user_id=student_id), "Project updated!")
@@ -200,14 +205,8 @@ def analyse_project(project_id):
     body = request.get_json() or {}
     year_of_study = body.get("year_of_study", 2)
 
-    # Fetch real GitHub content if a GitHub URL is attached to the project
-    github_context = None
-    if project.github_url:
-        try:
-            from app.github_fetcher import fetch_github_context
-            github_context = fetch_github_context(project.github_url)
-        except Exception:
-            github_context = None  # Don't crash analysis if GitHub fetch fails
+    # Fetch README from stored field if exists
+    readme_content = project.readme or ''
 
     try:
         from app.queue_manager import process_analysis
@@ -221,8 +220,8 @@ def analyse_project(project_id):
             year_of_study=year_of_study,
             has_live_url=bool(project.live_url),
             has_github_url=bool(project.github_url),
-            has_readme=github_context.get("has_readme", False) if github_context else False,
-            github_context=github_context,
+            has_readme=bool(readme_content),
+            readme_content=readme_content  # pass actual README now
         )
     except Exception as e:
         return _error(f"AI analysis failed: {str(e)}", 500)
@@ -289,4 +288,90 @@ def get_analysis_history(project_id):
         "can_analyze_reason": reason,
         "last_analyzed_at": project.last_analyzed_at.isoformat() if project.last_analyzed_at else None,
     })
+
+
+@projects_bp.route('/github-fetch', methods=['POST'])
+@jwt_required()
+def github_fetch():
+    data = request.get_json() or {}
+    github_url = data.get('url', '').strip()
+
+    # Validate GitHub URL
+    pattern = r'https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?(?:/)?$'
+    match = re.match(pattern, github_url)
+    if not match:
+        return jsonify({
+            "success": False,
+            "message": "Enter a valid GitHub repository URL"
+        }), 400
+
+    owner = match.group(1)
+    repo = match.group(2)
+
+    try:
+        # Fetch repo metadata from GitHub public API
+        headers = {"Accept": "application/vnd.github.v3+json"}
+        repo_res = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}",
+            headers=headers,
+            timeout=8
+        )
+
+        if repo_res.status_code == 404:
+            return jsonify({
+                "success": False,
+                "message": "Repository not found. Make sure it's public."
+            }), 404
+
+        if repo_res.status_code != 200:
+            return jsonify({
+                "success": False,
+                "message": "Failed to fetch repository. Try again."
+            }), 500
+
+        repo_data = repo_res.json()
+
+        # Fetch README content
+        readme_content = None
+        for branch in ['main', 'master', 'dev']:
+            readme_res = requests.get(
+                f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/README.md",
+                timeout=5
+            )
+            if readme_res.status_code == 200:
+                readme_content = readme_res.text[:3000]
+                break
+
+        # Build tech stack from language + topics
+        tech_stack_parts = []
+        if repo_data.get('language'):
+            tech_stack_parts.append(repo_data['language'])
+        if repo_data.get('topics'):
+            tech_stack_parts.extend(repo_data['topics'][:5])
+        tech_stack = ', '.join(tech_stack_parts)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "title": repo_data.get('name', '').replace('-', ' ').replace('_', ' ').title(),
+                "description": repo_data.get('description') or '',
+                "tech_stack": tech_stack,
+                "github_url": github_url,
+                "live_url": repo_data.get('homepage') or '',
+                "readme": readme_content or '',
+                "stars": repo_data.get('stargazers_count', 0),
+                "has_readme": readme_content is not None
+            }
+        }), 200
+
+    except requests.Timeout:
+        return jsonify({
+            "success": False,
+            "message": "GitHub took too long to respond. Try again."
+        }), 504
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": "Something went wrong. Try again."
+        }), 500
 

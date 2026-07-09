@@ -26,6 +26,7 @@ class Student(db.Model):
     college_end_year = db.Column(db.Integer, nullable=True)
     course = db.Column(db.String(255), nullable=True)
     skills = db.Column(db.Text, nullable=True)
+    portfolio_template = db.Column(db.String(20), default='classic')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -51,6 +52,7 @@ class Student(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "project_count": len(self.projects),
             "credibility_level": self._get_credibility_level(),
+            "portfolio_template": self.portfolio_template,
         }
         if include_email:
             data["email"] = self.email
@@ -86,6 +88,7 @@ class Project(db.Model):
     analysis_history = db.Column(db.Text, nullable=True)      # JSON array of all past analyses
     last_analyzed_at = db.Column(db.DateTime, nullable=True)
     view_count = db.Column(db.Integer, default=0)
+    readme = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -116,6 +119,7 @@ class Project(db.Model):
             "can_analyze_reason": reason,
             "last_analyzed_at": self.last_analyzed_at.isoformat() if self.last_analyzed_at else None,
             "view_count": self.view_count,
+            "readme": self.readme,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
         if include_student and self.student:

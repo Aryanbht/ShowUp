@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { studentsApi } from "../api";
 import { useAuth } from "../context/AuthContext";
 
+
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
@@ -327,6 +328,8 @@ export default function EditProfilePage() {
                 View Portfolio
               </button>
             </div>
+
+
 
             {/* ── Danger Zone ── */}
             <div className="border-t-2 border-ink pt-6 mt-4">
