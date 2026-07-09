@@ -3,6 +3,14 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Student, ExitReview
+from better_profanity import profanity
+
+profanity.load_censor_words()
+if "aryan" in profanity.CENSOR_WORDSET:
+    profanity.CENSOR_WORDSET.remove("aryan")
+
+def contains_profanity(text):
+    return profanity.contains_profanity(text)
 
 students_bp = Blueprint("students", __name__)
 
@@ -41,14 +49,58 @@ def get_student(student_id):
 def update_student(student_id):
     """Update profile — owner only."""
     current_id = get_jwt_identity()
-    if current_id != student_id:
-        return _error("You can only update your own profile", 403)
+    if str(current_id) != str(student_id):
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
 
     student = Student.query.get(student_id)
     if not student:
-        return _error("Student not found", 404)
+        return jsonify({"success": False, "message": "Student not found"}), 404
 
     body = request.get_json() or {}
+
+    # Fields to validate for profanity
+    fields_to_check = {
+        'name': body.get('name', ''),
+        'college': body.get('college', ''),
+        'bio': body.get('bio', ''),
+    }
+
+    for field, value in fields_to_check.items():
+        if value and contains_profanity(value):
+            return jsonify({
+                "success": False,
+                "message": f"Inappropriate language detected in {field}. Please keep it professional.",
+                "field": field
+            }), 400
+
+    skills = body.get('skills', [])
+    if isinstance(skills, list):
+        for s in skills:
+            if s and contains_profanity(s):
+                return jsonify({
+                    "success": False,
+                    "message": "Inappropriate language detected in skills. Please keep it professional.",
+                    "field": "skills"
+                }), 400
+    elif isinstance(skills, str):
+        if skills and contains_profanity(skills):
+            return jsonify({
+                "success": False,
+                "message": "Inappropriate language detected in skills. Please keep it professional.",
+                "field": "skills"
+                }), 400
+
+
+    # Bio word limit — 500 words
+    bio = body.get('bio', '')
+    if bio:
+        word_count = len(bio.strip().split())
+        if word_count > 500:
+            return jsonify({
+                "success": False,
+                "message": f"Bio exceeds 500 word limit. Currently {word_count} words.",
+                "field": "bio"
+            }), 400
 
     if "name" in body:
         student.name = body["name"].strip()
@@ -73,11 +125,15 @@ def update_student(student_id):
     if "password" in body:
         pw = body["password"]
         if len(pw) < 6:
-            return _error("Password must be at least 6 characters")
+            return jsonify({"success": False, "message": "Password must be at least 6 characters"}), 400
         student.password_hash = bcrypt.hashpw(pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     db.session.commit()
-    return _success(student.to_dict(include_email=True), "Profile updated!")
+    return jsonify({
+        "success": True,
+        "message": "Profile updated successfully",
+        "data": student.to_dict(include_email=True)
+    }), 200
 
 
 @students_bp.route("/<string:student_id>", methods=["DELETE"])

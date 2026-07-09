@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { studentsApi } from "../api";
 import { useAuth } from "../context/AuthContext";
+import SkillsInput from "../components/SkillsInput";
 
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -17,10 +18,27 @@ export default function EditProfilePage() {
     course: user?.course || "",
     college_start_year: user?.college_start_year || "",
     college_end_year: user?.college_end_year || "",
-    skills: user?.skills ? user.skills.join(", ") : "",
     bio: user?.bio || "",
     avatar_url: user?.avatar_url || "",
   });
+  const [skills, setSkills] = useState(user?.skills || []);
+  const [bioError, setBioError] = useState("");
+
+  const countWords = (text) => {
+    if (!text.trim()) return 0;
+    return text.trim().split(/\s+/).length;
+  };
+
+  const handleBioChange = (e) => {
+    const value = e.target.value;
+    const words = countWords(value);
+    if (words > 500) {
+      setBioError(`${words}/500 words — limit exceeded`);
+    } else {
+      setBioError("");
+    }
+    setForm((f) => ({ ...f, bio: value }));
+  };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false);
   const [surveyFeedback, setSurveyFeedback] = useState("");
@@ -62,11 +80,15 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (countWords(form.bio) > 500) {
+      setError("Please fix errors before saving.");
+      return;
+    }
     setSaving(true);
     setError("");
     setSuccess("");
     try {
-      const res = await studentsApi.update(user.id, form);
+      const res = await studentsApi.update(user.id, { ...form, skills });
       updateUser(res.data.data);
       setSuccess("Profile updated successfully!");
     } catch (err) {
@@ -246,28 +268,63 @@ export default function EditProfilePage() {
 
             {/* ── Skills ── */}
             <div>
-              <label className="label-mono block mb-1.5">Skills (comma separated)</label>
-              <input
-                name="skills"
-                type="text"
-                value={form.skills}
-                onChange={handleChange}
-                className="input-brutal w-full"
-                placeholder="React, Python, Tailwind..."
+              <SkillsInput
+                value={skills}
+                onChange={setSkills}
               />
             </div>
 
             {/* ── Bio ── */}
-            <div>
-              <label className="label-mono block mb-1.5">Bio</label>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#666',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '8px'
+              }}>
+                Bio
+              </label>
               <textarea
-                name="bio"
-                rows={4}
                 value={form.bio}
-                onChange={handleChange}
-                className="input-brutal w-full resize-none"
-                placeholder="Tell the world what you build, what you're learning..."
+                onChange={handleBioChange}
+                placeholder="Tell recruiters about yourself..."
+                rows={5}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: bioError ? '1.5px solid #FF4444' : '1.5px solid #E5E5E5',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  outline: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                  lineHeight: '1.6',
+                  boxSizing: 'border-box'
+                }}
               />
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginTop: '6px'
+              }}>
+                <p style={{
+                  fontSize: '12px',
+                  color: bioError ? '#FF4444' : '#999',
+                  margin: 0
+                }}>
+                  {bioError || ''}
+                </p>
+                <p style={{
+                  fontSize: '12px',
+                  color: countWords(form.bio) > 500 ? '#FF4444' : '#999',
+                  margin: 0
+                }}>
+                  {countWords(form.bio)} / 500 words
+                </p>
+              </div>
             </div>
 
             {/* ── Portfolio Link ── */}

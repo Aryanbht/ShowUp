@@ -187,3 +187,12 @@ class ExitReview(db.Model):
             "feedback": self.feedback,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class CustomSkill(db.Model):
+    __tablename__ = 'custom_skills'
+    id = db.Column(db.Integer, primary_key=True)
+    skill = db.Column(db.String(100), unique=True, nullable=False)
+    usage_count = db.Column(db.Integer, default=1)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
