@@ -207,7 +207,7 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
             [ ANALYSING... ]
           </div>
           <div style={{ fontFamily: T.mono, fontSize: 11, color: T.textSecondary, marginTop: 6 }}>
-            Gemini 2.5 Flash is reviewing your project
+            AI is reviewing your project
           </div>
           <div style={{ fontFamily: T.mono, fontSize: 11, color: T.textSecondary, marginTop: 8 }}>
             {formatElapsed(elapsed)} elapsed

@@ -131,7 +131,7 @@ export default function EditProfilePage() {
         {/* Header */}
         <div className="border-b-2 border-ink px-4 py-4 sticky top-0 z-20 bg-surface">
           <h1 className="font-grotesk font-bold text-lg sm:text-xl text-on-surface">Edit Profile</h1>
-          <p className="label-mono text-on-surface-variant mt-0.5">Update your public portfolio info</p>
+          <p className="label-mono text-on-surface-variant mt-0.5">Update your public profile info</p>
         </div>
 
         <div className="w-full max-w-xl mx-auto px-4 py-6">
@@ -329,7 +329,7 @@ export default function EditProfilePage() {
 
             {/* ── Portfolio Link ── */}
             <div className="border-2 border-ink p-3 bg-surface-container-low">
-              <p className="label-mono mb-2">Your Portfolio Link</p>
+              <p className="label-mono mb-2">Your Profile Link</p>
               <div className="flex items-center gap-2 min-w-0">
                 <code className="font-mono text-xs text-primary flex-1 min-w-0 truncate block">
                   {window.location.origin}/u/{user?.id}
@@ -382,7 +382,7 @@ export default function EditProfilePage() {
                 onClick={() => navigate(`/u/${user?.id}`)}
                 className="btn-secondary w-full justify-center py-3"
               >
-                View Portfolio
+                View Profile
               </button>
             </div>
 

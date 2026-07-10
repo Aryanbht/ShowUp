@@ -67,9 +67,6 @@ export default function FeedPage() {
         <div className="sticky top-0 z-20 bg-surface border-b-2 border-ink px-6 py-4">
           <div className="flex items-center justify-between mb-3">
             <h1 className="font-grotesk font-bold text-xl text-on-surface">Discovery Feed</h1>
-            <span className="label-mono text-on-surface-variant">
-              {user?.name?.split(" ")[0] ? `Hey, ${user.name.split(" ")[0]} 👋` : ""}
-            </span>
           </div>
 
           {/* Filter bar */}

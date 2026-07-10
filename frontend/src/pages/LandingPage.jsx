@@ -13,13 +13,13 @@ const HOW_IT_WORKS = [
     step: "02",
     icon: "auto_awesome",
     title: "Get AI Feedback",
-    desc: "Gemini AI reviews your project and gives you a score out of 10 with strengths, improvements, and next steps.",
+    desc: "AI reviews your project and gives you a score out of 10 with strengths, improvements, and next steps.",
   },
   {
     step: "03",
     icon: "share",
-    title: "Share Your Portfolio",
-    desc: "Your unique portfolio URL is ready to share. Drop it in your resume, LinkedIn, or DM it to recruiters.",
+    title: "Share Your Profile",
+    desc: "Your unique profile URL is ready to share. Drop it in your resume, LinkedIn, or DM it to recruiters.",
   },
 ];
 
@@ -56,18 +56,18 @@ function AnimatedStat({ value, label, border }) {
   const isNumeric = /^\d+$/.test(String(value));
 
   return (
-    <div className={`py-6 px-8 text-center ${border ? "border-r-2 border-ink" : ""}`}>
-      <p className="font-mono font-black text-3xl text-on-surface">
+    <div className={`py-4 px-2 sm:py-6 sm:px-8 text-center flex-1 ${border ? "border-r-2 border-ink" : ""}`}>
+      <p className="font-mono font-black text-xl sm:text-3xl text-on-surface leading-none">
         {isNumeric ? animated.toLocaleString() : value}
       </p>
-      <p className="font-mono text-xs uppercase text-on-surface-variant mt-1">{label}</p>
+      <p className="font-mono text-[9px] sm:text-xs uppercase text-on-surface-variant mt-1 leading-tight">{label}</p>
     </div>
   );
 }
 
 export default function LandingPage() {
   const [stats, setStats] = useState([
-    { value: "0", label: "Student Portfolios" },
+    { value: "0", label: "Student Profiles" },
     { value: "0", label: "Projects Uploaded" },
     { value: "0", label: "Colleges" },
   ]);
@@ -78,7 +78,7 @@ export default function LandingPage() {
         const res = await feedApi.stats();
         const data = res.data.data;
         setStats([
-          { value: data.students.toLocaleString(), label: "Student Portfolios" },
+          { value: data.students.toLocaleString(), label: "Student Profiles" },
           { value: data.projects.toLocaleString(), label: "Projects Uploaded" },
           { value: data.colleges.toLocaleString(), label: "Colleges" },
         ]);
@@ -133,7 +133,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth" className="btn-primary text-base py-4 px-10">
               <span className="material-symbols-outlined">person_add</span>
-              Create Your Portfolio
+              Create Your Profile
             </Link>
             <Link to="/feed" className="btn-secondary text-base py-4 px-10">
               <span className="material-symbols-outlined">explore</span>
@@ -143,7 +143,7 @@ export default function LandingPage() {
         </div>
 
         {/* Stats bar */}
-        <div className="border-t-2 border-b-2 border-ink grid grid-cols-2 md:grid-cols-3">
+        <div className="border-t-2 border-b-2 border-ink grid grid-cols-3 w-full">
           {stats.map((stat, i) => (
             <AnimatedStat
               key={i}
@@ -187,7 +187,7 @@ export default function LandingPage() {
           Stop waiting for experience.
         </h2>
         <p className="font-mono text-sm text-surface-variant mb-8 max-w-lg mx-auto">
-          Every senior developer started with a portfolio. Start yours today and let your projects do the talking.
+          Every senior developer started with a profile. Start yours today and let your projects do the talking.
         </p>
         <Link
           to="/auth"

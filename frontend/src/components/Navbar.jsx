@@ -37,10 +37,9 @@ export default function Navbar() {
           <NavLink
             to="/feed"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${
-                isActive
-                  ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
-                  : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               }`
             }
           >
@@ -51,10 +50,9 @@ export default function Navbar() {
           <NavLink
             to="/upload"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${
-                isActive
-                  ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
-                  : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               }`
             }
           >
@@ -65,10 +63,9 @@ export default function Navbar() {
           <NavLink
             to="/leaderboard"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${
-                isActive
-                  ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
-                  : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               }`
             }
           >
@@ -80,25 +77,23 @@ export default function Navbar() {
             <NavLink
               to={`/u/${user.id}`}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${
-                  isActive
-                    ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
-                    : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+                `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                  ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                  : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
                 }`
               }
             >
               <span className="material-symbols-outlined text-xl">person</span>
-              <span className="font-mono uppercase tracking-tighter text-sm">PORTFOLIO</span>
+              <span className="font-mono uppercase tracking-tighter text-sm">PROFILE</span>
             </NavLink>
           )}
 
           <NavLink
             to="/profile/edit"
             className={({ isActive }) =>
-              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${
-                isActive
-                  ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
-                  : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               }`
             }
           >
@@ -145,8 +140,7 @@ export default function Navbar() {
         <NavLink
           to="/feed"
           className={({ isActive }) =>
-            `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
-              isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
+            `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
             }`
           }
         >
@@ -157,8 +151,7 @@ export default function Navbar() {
         <NavLink
           to="/upload"
           className={({ isActive }) =>
-            `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
-              isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
+            `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
             }`
           }
         >
@@ -170,8 +163,7 @@ export default function Navbar() {
           <NavLink
             to={`/u/${user.id}`}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
-                isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
+              `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
               }`
             }
           >
@@ -182,8 +174,7 @@ export default function Navbar() {
           <NavLink
             to="/auth"
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
-                isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
+              `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
               }`
             }
           >

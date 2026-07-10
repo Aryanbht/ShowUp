@@ -9,7 +9,7 @@ export default function ProjectCard({ project }) {
 
   return (
     <Link to={`/project/${id}`} className="block group">
-      <article className="card-brutal bg-surface h-full flex flex-col">
+      <article className="card-brutal bg-surface h-full flex flex-col rounded-md overflow-hidden">
         {/* Screenshot */}
         <div className="relative overflow-hidden border-b-2 border-ink aspect-video bg-surface-container">
           {screenshot_url ? (

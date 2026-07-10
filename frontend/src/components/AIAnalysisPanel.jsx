@@ -180,7 +180,7 @@ export default function AIAnalysisPanel({
           <span className="material-symbols-outlined text-primary text-xl">auto_awesome</span>
           <span className="font-mono font-bold uppercase text-sm text-on-surface">AI Analysis</span>
         </div>
-        <span className="label-mono text-on-surface-variant">Gemini 2.5 Flash</span>
+        <span className="label-mono text-on-surface-variant">AI Powered</span>
       </div>
 
       <div className="p-5 space-y-6">

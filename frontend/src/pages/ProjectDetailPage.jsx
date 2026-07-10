@@ -147,7 +147,7 @@ export default function ProjectDetailPage() {
             {/* Share button */}
             <button onClick={handleShare} className="btn-secondary py-2 px-3 text-xs">
               <span className="material-symbols-outlined text-sm">{copied ? "check" : "share"}</span>
-              {copied ? "Copied!" : "Share Portfolio"}
+              {copied ? "Copied!" : "Share Profile"}
             </button>
 
             {/* Owner actions */}
@@ -317,7 +317,7 @@ export default function ProjectDetailPage() {
             <div className="pt-4 border-t-2 border-ink">
               <Link to={`/u/${student.id}`} className="btn-secondary text-sm">
                 <span className="material-symbols-outlined text-sm">arrow_back</span>
-                Back to {student.name}'s Portfolio
+                Back to {student.name}'s Profile
               </Link>
             </div>
           )}

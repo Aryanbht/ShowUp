@@ -43,7 +43,7 @@ export default function StudentPortfolioPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase">Loading portfolio...</p>
+        <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase">Loading profile...</p>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function StudentPortfolioPage() {
               <Link to="/feed" className="font-mono font-black text-lg uppercase text-on-surface tracking-tight">ShowUp</Link>
             </div>
             <div className="hidden md:block">
-              <h1 className="font-grotesk font-bold text-xl text-on-surface">Student Portfolio</h1>
+              <h1 className="font-grotesk font-bold text-xl text-on-surface">Student Profile</h1>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -225,7 +225,7 @@ export default function StudentPortfolioPage() {
         {/* Footer */}
         <footer className="border-t-2 border-ink py-6 px-6 text-center mt-auto bg-surface">
           <p className="font-mono text-xs text-on-surface-variant">
-            <span className="font-bold text-on-surface">{student.name}</span>'s portfolio on ShowUp — built for Indian students 🇮🇳
+            <span className="font-bold text-on-surface">{student.name}</span>'s profile on ShowUp — built for Indian students 🇮🇳
           </p>
         </footer>
       </main>
