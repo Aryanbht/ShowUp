@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { studentsApi } from "../api";
+import api from "../api";
 import { useAuth } from "../context/AuthContext";
 import SkillsInput from "../components/SkillsInput";
 
@@ -47,6 +48,34 @@ export default function EditProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  // Portfolio customization state
+  const [template, setTemplate] = useState(user?.portfolio_template || 'classic');
+  const [bgColor, setBgColor] = useState(user?.portfolio_bg_color || '#FFFFFF');
+  const [textColor, setTextColor] = useState(user?.portfolio_text_color || '#1A1A1A');
+  const [accentColor, setAccentColor] = useState(user?.portfolio_accent_color || '#1A1A1A');
+  const [cardColor, setCardColor] = useState(user?.portfolio_card_color || '#F8F8F8');
+  const [portfolioFont, setPortfolioFont] = useState(user?.portfolio_font || 'Inter');
+  const [username, setUsername] = useState(user?.username || '');
+  const [custSaving, setCustSaving] = useState(false);
+  const [custMsg, setCustMsg] = useState('');
+
+  const PRESET_TEMPLATES = {
+    modern_midnight: { bg: '#101415', text: '#e0e3e5', accent: '#c0c1ff', card: '#272a2c', font: 'Sora' },
+    terminal_core: { bg: '#131313', text: '#e5e2e1', accent: '#4be277', card: '#1c1b1b', font: 'JetBrains Mono' },
+    neural_interface: { bg: '#0e131f', text: '#dde2f3', accent: '#8aebff', card: '#1a202c', font: 'Inter' },
+  };
+
+  const handleTemplateChange = (tId) => {
+    setTemplate(tId);
+    if (tId !== 'custom' && PRESET_TEMPLATES[tId]) {
+      setBgColor(PRESET_TEMPLATES[tId].bg);
+      setTextColor(PRESET_TEMPLATES[tId].text);
+      setAccentColor(PRESET_TEMPLATES[tId].accent);
+      setCardColor(PRESET_TEMPLATES[tId].card);
+      setPortfolioFont(PRESET_TEMPLATES[tId].font);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -95,6 +124,29 @@ export default function EditProfilePage() {
       setError(err.response?.data?.message || "Update failed. Try again.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveCustomization = async () => {
+    setCustSaving(true);
+    setCustMsg('');
+    try {
+      const res = await api.patch('/api/portfolio/customization', {
+        template,
+        bg_color: bgColor,
+        text_color: textColor,
+        accent_color: accentColor,
+        card_color: cardColor,
+        font: portfolioFont,
+        username,
+      });
+      updateUser({ ...user, ...res.data.data });
+      setCustMsg('Portfolio saved ✓');
+      setTimeout(() => setCustMsg(''), 3000);
+    } catch (err) {
+      setCustMsg(err.response?.data?.message || 'Failed to save');
+    } finally {
+      setCustSaving(false);
     }
   };
 
@@ -329,14 +381,14 @@ export default function EditProfilePage() {
 
             {/* ── Portfolio Link ── */}
             <div className="border-2 border-ink p-3 bg-surface-container-low">
-              <p className="label-mono mb-2">Your Profile Link</p>
+              <p className="label-mono mb-2">Your Portfolio Link</p>
               <div className="flex items-center gap-2 min-w-0">
                 <code className="font-mono text-xs text-primary flex-1 min-w-0 truncate block">
-                  {window.location.origin}/u/{user?.id}
+                  {window.location.origin}/portfolio/{username || user?.username || user?.id}
                 </code>
                 <button
                   type="button"
-                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/u/${user?.id}`)}
+                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/portfolio/${username || user?.username || user?.id}`)}
                   className="border border-ink p-1.5 hover:bg-surface-container transition-colors flex-shrink-0"
                   title="Copy link"
                 >
@@ -387,6 +439,94 @@ export default function EditProfilePage() {
             </div>
 
 
+
+            {/* ── Portfolio Customization ── */}
+            <div style={{ borderTop: '1px solid #E5E5E5', paddingTop: '32px', marginTop: '32px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 24px', letterSpacing: '0.01em' }}>
+                Portfolio Customization
+              </h3>
+
+              {/* Username / Portfolio URL */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+                  Your Portfolio URL
+                </label>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '13px', color: '#999' }}>{window.location.origin}/portfolio/</span>
+                  <input
+                    value={username}
+                    onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    style={{ padding: '8px 12px', border: '1.5px solid #E5E5E5', borderRadius: '6px', fontSize: '13px', width: '160px' }}
+                    placeholder="yourusername"
+                  />
+                </div>
+              </div>
+
+              {/* Template picker */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '12px' }}>
+                  Template
+                </label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'neural_os', name: 'Neural OS', bg: '#101415', accent: '#00f3ff' },
+                    { id: 'terminal_core', name: 'Terminal Core', bg: '#131313', accent: '#4be277' },
+                    { id: 'obsidian_iridescence', name: 'Obsidian Iridescence', bg: '#0e131f', accent: '#8aebff' },
+                  ].map(t => (
+                    <div
+                      key={t.id}
+                      onClick={() => handleTemplateChange(t.id)}
+                      style={{
+                        width: '100px', cursor: 'pointer',
+                        border: template === t.id ? '2px solid #1A1A1A' : '1.5px solid #E5E5E5',
+                        borderRadius: '6px', overflow: 'hidden'
+                      }}
+                    >
+                      <div style={{ height: '60px', background: t.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '40px', height: '6px', background: t.accent, borderRadius: '2px' }} />
+                      </div>
+                      <div style={{ padding: '6px 8px', background: '#FAFAFA' }}>
+                        <p style={{ fontSize: '12px', fontWeight: '500', margin: 0, color: '#1A1A1A', textAlign: 'center' }}>{t.name}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <a
+                  href={`/portfolio/${username || user?.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: '13px', color: '#1A1A1A', textDecoration: 'underline' }}
+                >
+                  Preview portfolio →
+                </a>
+                <button
+                  type="button"
+                  onClick={handleSaveCustomization}
+                  disabled={custSaving}
+                  style={{
+                    padding: '10px 24px',
+                    background: custSaving ? '#E5E5E5' : '#1A1A1A',
+                    color: custSaving ? '#999' : '#FFFFFF',
+                    border: 'none', borderRadius: '6px',
+                    fontSize: '13px', fontWeight: '600',
+                    cursor: custSaving ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {custSaving ? 'Saving...' : 'Save Portfolio →'}
+                </button>
+              </div>
+
+              {custMsg && (
+                <p style={{ fontSize: '13px', color: custMsg.includes('✓') ? '#16A34A' : '#FF4444', margin: '10px 0 0' }}>
+                  {custMsg}
+                </p>
+              )}
+            </div>
 
             {/* ── Danger Zone ── */}
             <div className="border-t-2 border-ink pt-6 mt-4">

@@ -66,12 +66,15 @@ def create_app():
     from app.students import students_bp
     from app.feed import feed_bp
     from app.skills import skills_bp
+    from app.portfolio import portfolio_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
     app.register_blueprint(students_bp, url_prefix="/api/students")
     app.register_blueprint(feed_bp, url_prefix="/api/feed")
     app.register_blueprint(skills_bp)
+    app.register_blueprint(portfolio_bp)
+
 
     # Google OAuth blueprint (flask-dance) — only if credentials are set
     google_client_id = os.getenv("GOOGLE_CLIENT_ID")

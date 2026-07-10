@@ -26,7 +26,13 @@ class Student(db.Model):
     college_end_year = db.Column(db.Integer, nullable=True)
     course = db.Column(db.String(255), nullable=True)
     skills = db.Column(db.Text, nullable=True)
+    username = db.Column(db.String(50), unique=True, nullable=True)
     portfolio_template = db.Column(db.String(20), default='classic')
+    portfolio_bg_color = db.Column(db.String(7), default='#FFFFFF')
+    portfolio_text_color = db.Column(db.String(7), default='#1A1A1A')
+    portfolio_accent_color = db.Column(db.String(7), default='#1A1A1A')
+    portfolio_card_color = db.Column(db.String(7), default='#F8F8F8')
+    portfolio_font = db.Column(db.String(50), default='Inter')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -39,6 +45,7 @@ class Student(db.Model):
         data = {
             "id": self.id,
             "name": self.name,
+            "username": self.username,
             "college": self.college,
             "bio": self.bio,
             "avatar_url": self.avatar_url,
@@ -53,6 +60,11 @@ class Student(db.Model):
             "project_count": len(self.projects),
             "credibility_level": self._get_credibility_level(),
             "portfolio_template": self.portfolio_template,
+            "portfolio_bg_color": self.portfolio_bg_color or '#FFFFFF',
+            "portfolio_text_color": self.portfolio_text_color or '#1A1A1A',
+            "portfolio_accent_color": self.portfolio_accent_color or '#1A1A1A',
+            "portfolio_card_color": self.portfolio_card_color or '#F8F8F8',
+            "portfolio_font": self.portfolio_font or 'Inter',
         }
         if include_email:
             data["email"] = self.email

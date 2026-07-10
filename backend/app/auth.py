@@ -14,6 +14,7 @@ from flask_jwt_extended import (
 )
 from app import db
 from app.models import Student
+from app.utils import generate_username
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -80,6 +81,8 @@ def register():
         password_hash=pw_hash,
     )
     db.session.add(student)
+    db.session.flush()  # get student.id before commit
+    student.username = generate_username(student.name, Student)
     db.session.commit()
 
     try:
@@ -124,6 +127,16 @@ def login():
          "student": student.to_dict(include_email=True)},
         "Welcome back! 👋"
     )
+
+
+@auth_bp.route("/generate-usernames", methods=["POST"])
+def generate_all_usernames():
+    """One-time backfill — call once via Postman after deploying, then delete."""
+    students = Student.query.filter_by(username=None).all()
+    for s in students:
+        s.username = generate_username(s.name, Student)
+    db.session.commit()
+    return jsonify({"success": True, "updated": len(students)}), 200
 
 
 @auth_bp.route("/me", methods=["GET"])
