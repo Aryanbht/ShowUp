@@ -181,7 +181,7 @@ export default function EditProfilePage() {
 
       <main className="flex-1 w-full md:ml-64 pb-24 md:pb-0">
         {/* Header */}
-        <div className="border-b-2 border-ink px-4 py-4 sticky top-0 z-20 bg-surface">
+        <div className="border-b-2 border-ink px-4 py-4 sticky top-0 z-20" style={{ backgroundColor: "rgba(20,20,20,0.06)" }}>
           <h1 className="font-grotesk font-bold text-lg sm:text-xl text-on-surface">Edit Profile</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">Update your public profile info</p>
         </div>

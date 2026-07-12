@@ -136,7 +136,7 @@ export default function ProjectDetailPage() {
       <Navbar />
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
         {/* Breadcrumb */}
-        <div className="border-b-2 border-ink px-6 py-3 flex items-center justify-between bg-surface">
+        <div className="border-b-2 border-ink px-6 py-3 flex items-center justify-between" style={{ backgroundColor: "rgba(20,20,20,0.28)" }}>
           <div className="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
             <Link to="/feed" className="hover:text-on-surface transition-colors uppercase">Feed</Link>
             <span>/</span>
@@ -210,7 +210,7 @@ export default function ProjectDetailPage() {
                 {created_at ? new Date(created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : ""}
               </span>
               {ai_analysis_used && ai_analysis && (
-                <span className="flex items-center gap-1 font-mono text-xs text-primary border border-primary px-2 py-0.5">
+                <span className="flex items-center gap-1 font-nunito text-xs text-primary border border-primary px-2 py-0.5">
                   <span className="material-symbols-outlined text-sm">auto_awesome</span>
                   AI Score: {ai_analysis.overall_score}/10
                 </span>

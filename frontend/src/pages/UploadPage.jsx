@@ -144,7 +144,7 @@ export default function UploadPage({ editMode }) {
       <Navbar />
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
         {/* Header */}
-        <div className="border-b-2 border-ink px-6 py-5 bg-surface sticky top-0 z-20">
+        <div className="border-b-2 border-ink px-6 py-5 sticky top-0 z-20" style={{ backgroundColor: "rgba(20,20,20,0.06)" }}>
           <h1 className="font-grotesk font-bold text-xl text-on-surface">{editMode ? "Edit Project" : "Publish Your Work"}</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">{editMode ? "Update your project details" : "Share what you've built with the world"}</p>
         </div>

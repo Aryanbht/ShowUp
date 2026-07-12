@@ -19,14 +19,14 @@ export default function Navbar() {
   return (
     <>
       {/* ─── Desktop Sidebar ─── */}
-      <nav className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64 border-r-2 border-ink bg-surface">
+      <nav className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64 border-r-2 border-ink" style={{ backgroundColor: "hsla(270, 100%, 73%, 1.00)" }}>
         {/* Brand */}
         <div className="p-8 border-b-2 border-ink">
           <NavLink to="/">
             <h1 className="font-mono font-black text-2xl uppercase text-on-surface tracking-tight">
               ShowUp
             </h1>
-            <p className="font-mono uppercase tracking-tighter text-xs text-on-surface-variant mt-1">
+            <p className="font-nunito uppercase tracking-tighter text-xs text-on-surface-variant mt-1">
               PORTFOLIO V1.0
             </p>
           </NavLink>
@@ -44,7 +44,7 @@ export default function Navbar() {
             }
           >
             <span className="material-symbols-outlined text-xl">home</span>
-            <span className="font-mono uppercase tracking-tighter text-sm">FEED</span>
+            <span className="font-nunito uppercase tracking-tighter text-sm">FEED</span>
           </NavLink>
 
           <NavLink
@@ -57,7 +57,7 @@ export default function Navbar() {
             }
           >
             <span className="material-symbols-outlined text-xl">add_circle</span>
-            <span className="font-mono uppercase tracking-tighter text-sm">UPLOAD</span>
+            <span className="font-nunito uppercase tracking-tighter text-sm">UPLOAD</span>
           </NavLink>
 
           <NavLink
@@ -70,7 +70,7 @@ export default function Navbar() {
             }
           >
             <span className="material-symbols-outlined text-xl">leaderboard</span>
-            <span className="font-mono uppercase tracking-tighter text-sm">TOP DEVS</span>
+            <span className="font-nunito uppercase tracking-tighter text-sm">TOP DEVS</span>
           </NavLink>
 
           {user && (
@@ -84,7 +84,7 @@ export default function Navbar() {
               }
             >
               <span className="material-symbols-outlined text-xl">person</span>
-              <span className="font-mono uppercase tracking-tighter text-sm">PROFILE</span>
+              <span className="font-nunito uppercase tracking-tighter text-sm">PROFILE</span>
             </NavLink>
           )}
 
@@ -98,7 +98,7 @@ export default function Navbar() {
             }
           >
             <span className="material-symbols-outlined text-xl">settings</span>
-            <span className="font-mono uppercase tracking-tighter text-sm">SETTINGS</span>
+            <span className="font-nunito uppercase tracking-tighter text-sm">SETTINGS</span>
           </NavLink>
         </div>
 
@@ -121,12 +121,12 @@ export default function Navbar() {
               )}
               <div className="min-w-0">
                 <p className="font-semibold text-sm text-on-surface truncate">{user.name}</p>
-                <p className="font-mono text-xs text-on-surface-variant truncate">{user.college}</p>
+                <p className="font-nunito text-xs text-on-surface-variant truncate">{user.college}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-error-container transition-colors font-mono text-xs uppercase"
+              className="w-full flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:text-error hover:bg-error-container transition-colors font-nunito text-xs uppercase"
             >
               <span className="material-symbols-outlined text-base">logout</span>
               SIGN OUT
@@ -145,7 +145,7 @@ export default function Navbar() {
           }
         >
           <span className="material-symbols-outlined text-xl">home</span>
-          <span className="font-mono text-[10px] uppercase">Feed</span>
+          <span className="font-nunito text-[10px] uppercase">Feed</span>
         </NavLink>
 
         <NavLink
@@ -156,7 +156,7 @@ export default function Navbar() {
           }
         >
           <span className="material-symbols-outlined text-xl">add_circle</span>
-          <span className="font-mono text-[10px] uppercase">Upload</span>
+          <span className="font-nunito text-[10px] uppercase">Upload</span>
         </NavLink>
 
         {user ? (
@@ -168,7 +168,7 @@ export default function Navbar() {
             }
           >
             <span className="material-symbols-outlined text-xl">person</span>
-            <span className="font-mono text-[10px] uppercase">Me</span>
+            <span className="font-nunito text-[10px] uppercase">Me</span>
           </NavLink>
         ) : (
           <NavLink

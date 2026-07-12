@@ -68,7 +68,7 @@ export default function StudentPortfolioPage() {
       <main className="flex-1 md:ml-64 pb-20 md:pb-0 min-h-screen flex flex-col">
         <div className="flex-1 w-full">
           {/* Header */}
-          <header className="sticky top-0 z-20 border-b-2 border-ink bg-surface flex items-center justify-between px-6 py-4">
+          <header className="sticky top-0 z-20 border-b-2 border-ink flex items-center justify-between px-6 py-4" style={{ backgroundColor: "rgba(20,20,20,0.06)" }}>
             <div className="md:hidden">
               <Link to="/feed" className="font-mono font-black text-lg uppercase text-on-surface tracking-tight">ShowUp</Link>
             </div>

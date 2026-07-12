@@ -70,6 +70,7 @@ export default {
         serif: ["DM Serif Display", "serif"],
         mono: ["IBM Plex Mono", "monospace"],
         grotesk: ["Space Grotesk", "sans-serif"],
+        nunito: ["Nunito Sans", "sans-serif"],
       },
       boxShadow: {
         brutal: "4px 4px 0px 0px #2A2A2A",

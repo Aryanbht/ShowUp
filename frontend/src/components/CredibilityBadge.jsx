@@ -11,7 +11,7 @@ export default function CredibilityBadge({ score, level, showScore = true }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 border font-mono text-xs font-bold uppercase ${style.color}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 border font-nunito text-xs font-bold uppercase ${style.color}`}
     >
       <span>{style.icon}</span>
       <span>{lvl}</span>
