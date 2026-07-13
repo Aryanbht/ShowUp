@@ -63,6 +63,7 @@ def update_student(student_id):
         'name': body.get('name', ''),
         'college': body.get('college', ''),
         'bio': body.get('bio', ''),
+        'location': body.get('location', ''),
     }
 
     for field, value in fields_to_check.items():
@@ -116,6 +117,8 @@ def update_student(student_id):
         student.college_end_year = body.get("college_end_year")
     if "course" in body:
         student.course = body.get("course", "").strip() or None
+    if "location" in body:
+        student.location = body.get("location", "").strip() or None
     if "skills" in body:
         skills = body.get("skills")
         if isinstance(skills, list):
@@ -187,3 +190,47 @@ def update_template(student_id):
     db.session.commit()
     
     return jsonify({"success": True, "message": "Template updated", "data": {"template": template}}), 200
+
+@students_bp.route("/find-teammates", methods=["POST"])
+def find_teammates():
+    """Search for teammates by region and skills."""
+    body = request.get_json() or {}
+    hackathon_type = body.get("type", "Online")
+    region = body.get("region", "").strip().lower()
+    
+    # Skills logic: we receive an array of strings, or comma separated string
+    skills_raw = body.get("skills", [])
+    if isinstance(skills_raw, str):
+        required_skills = [s.strip().lower() for s in skills_raw.split(",") if s.strip()]
+    else:
+        required_skills = [s.strip().lower() for s in skills_raw if s.strip()]
+        
+    query = Student.query
+    
+    # If offline, filter by location
+    if hackathon_type == "Offline" and region:
+        query = query.filter(Student.location.ilike(f"%{region}%"))
+        
+    students = query.all()
+    results = []
+    
+    for s in students:
+        student_skills = [sk.strip().lower() for sk in (s.skills.split(",") if s.skills else [])]
+        matched_skills = [sk for sk in required_skills if sk in student_skills]
+        
+        # We might want to sort by matched count later, so we compute it
+        match_count = len(matched_skills)
+        
+        # We can either return all users if no skills were specified, 
+        # or only return users who matched at least one skill. Let's return everyone matching region
+        # and sort them by the match count, putting users with more matched skills first.
+        
+        s_dict = s.to_dict()
+        s_dict["matched_skills_count"] = match_count
+        s_dict["matched_skills"] = matched_skills
+        results.append(s_dict)
+        
+    # Sort results primarily by match count descending, then by credibility descending
+    results.sort(key=lambda x: (x["matched_skills_count"], x["credibility_score"]), reverse=True)
+    
+    return _success(results)

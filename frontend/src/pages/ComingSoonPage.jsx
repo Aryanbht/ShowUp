@@ -1,7 +1,10 @@
 import Navbar from "../components/Navbar";
 import { Link } from "react-router-dom";
 
-export default function ComingSoonPage() {
+export default function ComingSoonPage({ 
+  title = "Top Devs", 
+  message = "We're building a definitive leaderboard for India's best student developers. Keep shipping projects and improving your credibility score — you might just be #1 when we launch!"
+}) {
   return (
     <div className="flex min-h-screen bg-surface">
       <Navbar />
@@ -11,13 +14,13 @@ export default function ComingSoonPage() {
             construction
           </span>
           <h1 className="font-grotesk font-black text-4xl text-on-surface uppercase mb-3">
-            Top Devs
+            {title}
           </h1>
           <h2 className="font-mono font-bold text-xl text-on-surface-variant mb-6 uppercase">
             Coming Soon
           </h2>
           <p className="text-on-surface mb-8 leading-relaxed">
-            We're building a definitive leaderboard for India's best student developers. Keep shipping projects and improving your credibility score — you might just be #1 when we launch!
+            {message}
           </p>
           <Link to="/feed" className="btn-primary py-3 px-8 text-sm inline-flex">
             <span className="material-symbols-outlined text-base">rocket_launch</span>

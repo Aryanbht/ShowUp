@@ -146,6 +146,7 @@ export const studentsApi = {
   delete: (id) => api.delete(`/api/students/${id}`),
   submitExitSurvey: (data) => api.post("/api/students/exit-survey", data),
   updateTemplate: (id, template) => api.patch(`/api/students/${id}/template`, { template }),
+  findTeammates: (data) => api.post("/api/students/find-teammates", data),
 };
 
 // ─── Feed ────────────────────────────────────────────

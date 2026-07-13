@@ -25,6 +25,7 @@ class Student(db.Model):
     college_start_year = db.Column(db.Integer, nullable=True)
     college_end_year = db.Column(db.Integer, nullable=True)
     course = db.Column(db.String(255), nullable=True)
+    location = db.Column(db.String(255), nullable=True)
     skills = db.Column(db.Text, nullable=True)
     username = db.Column(db.String(50), unique=True, nullable=True)
     portfolio_template = db.Column(db.String(20), default='classic')
@@ -55,6 +56,7 @@ class Student(db.Model):
             "college_start_year": self.college_start_year,
             "college_end_year": self.college_end_year,
             "course": self.course,
+            "location": self.location,
             "skills": self.skills.split(",") if self.skills else [],
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "project_count": len(self.projects),

@@ -19,7 +19,7 @@ export default function Navbar() {
   return (
     <>
       {/* ─── Desktop Sidebar ─── */}
-      <nav className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64 border-r-2 border-ink" style={{ backgroundColor: "hsla(270, 100%, 73%, 1.00)" }}>
+      <nav className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64 border-r-2 border-ink" style={{ backgroundColor: "hsla(270, 60%, 95%, 1.00)" }}>
         {/* Brand */}
         <div className="p-8 border-b-2 border-ink">
           <NavLink to="/">
@@ -71,6 +71,19 @@ export default function Navbar() {
           >
             <span className="material-symbols-outlined text-xl">leaderboard</span>
             <span className="font-nunito uppercase tracking-tighter text-sm">TOP DEVS</span>
+          </NavLink>
+
+          <NavLink
+            to="/find-teammate"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-6 py-4 transition-all duration-75 active:translate-x-0.5 active:translate-y-0.5 border-l-4 ${isActive
+                ? "border-tertiary-container text-on-surface font-bold bg-surface-container-high"
+                : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+              }`
+            }
+          >
+            <span className="material-symbols-outlined text-xl">group</span>
+            <span className="font-nunito uppercase tracking-tighter text-sm">FIND TEAMMATE</span>
           </NavLink>
 
           {user && (
@@ -157,6 +170,17 @@ export default function Navbar() {
         >
           <span className="material-symbols-outlined text-xl">add_circle</span>
           <span className="font-nunito text-[10px] uppercase">Upload</span>
+        </NavLink>
+
+        <NavLink
+          to="/find-teammate"
+          className={({ isActive }) =>
+            `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-on-surface bg-surface-container-high" : "text-on-surface-variant"
+            }`
+          }
+        >
+          <span className="material-symbols-outlined text-xl">group</span>
+          <span className="font-nunito text-[10px] uppercase">Team</span>
         </NavLink>
 
         {user ? (

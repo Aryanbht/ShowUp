@@ -12,6 +12,7 @@ import ProjectDetailPage from "./pages/ProjectDetailPage";
 import StudentPortfolioPage from "./pages/StudentPortfolioPage";
 import EditProfilePage from "./pages/EditProfilePage";
 import ComingSoonPage from "./pages/ComingSoonPage";
+import FindTeammatePage from "./pages/FindTeammatePage";
 import PublicPortfolio from "./pages/PublicPortfolio";
 
 // Redirects logged-in users away from public-only pages (/ and /auth)
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/portfolio/:username" element={<PublicPortfolio />} />
           <Route path="/project/:id" element={<ProjectDetailPage />} />
           <Route path="/leaderboard" element={<ComingSoonPage />} />
+          <Route path="/find-teammate" element={<FindTeammatePage />} />
 
           {/* Protected routes */}
           <Route path="/feed" element={<AuthGuard><FeedPage /></AuthGuard>} />

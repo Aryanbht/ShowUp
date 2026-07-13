@@ -64,7 +64,7 @@ export default function FeedPage() {
       {/* Main content */}
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
         {/* Page header */}
-        <div className="sticky top-0 z-20 border-b-2 border-ink px-6 py-4" style={{ backgroundColor: "rgba(20,20,20,0.28)" }}>
+        <div className="sticky top-0 z-20 border-b-2 border-ink px-6 py-4 bg-surface">
           <div className="flex items-center justify-between mb-3">
             <h1 className="font-grotesk font-bold text-xl text-on-surface">Discovery Feed</h1>
           </div>
