@@ -592,7 +592,7 @@ export default function EditProfilePage() {
                       </div>
                       <iframe
                         key={`desktop-${username || user?.username}-${template}`}
-                        src={`/portfolio/${username || user?.username}`}
+                        src={`/portfolio/${username || user?.username}?preview=true`}
                         style={{ width: '100%', height: '380px', border: 'none', display: 'block' }}
                         title="Portfolio Desktop Preview"
                       />
@@ -609,7 +609,7 @@ export default function EditProfilePage() {
                         <div style={{ width: '256px', height: '520px', overflow: 'hidden', position: 'relative' }}>
                           <iframe
                             key={`mobile-${username || user?.username}-${template}`}
-                            src={`/portfolio/${username || user?.username}`}
+                            src={`/portfolio/${username || user?.username}?preview=true`}
                             style={{
                               width: '390px',
                               height: '844px',

@@ -25,7 +25,12 @@ export default function PublicPortfolio() {
       .finally(() => setLoading(false))
   }, [username])
 
-  const handleJoinShowUp = () => {
+  const handleJoinShowUp = (e) => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('preview') === 'true') {
+      if (e && e.preventDefault) e.preventDefault();
+      return;
+    }
     const token = localStorage.getItem('showup_access_token')
     navigate(token ? '/feed' : '/auth')
   }
