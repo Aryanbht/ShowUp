@@ -255,7 +255,7 @@ export default function TerminalCore({ data, handleJoinShowUp, selectedProject, 
       <footer className="w-full border-t border-outline-variant bg-background/90 py-8 relative z-10">
           <div className="max-w-4xl mx-auto px-6 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="font-jetbrains text-xs text-on-surface/50">
-                  SYSTEM_HALTED. EOF.
+                  CREATED_BY_SHOWUP
               </div>
               <div className="font-jetbrains text-xs text-primary">
                   © {new Date().getFullYear()} {student.name}

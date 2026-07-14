@@ -198,7 +198,7 @@ export default function NeuralOS({ data, handleJoinShowUp, selectedProject, setS
         <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-20 max-w-7xl mx-auto gap-8 text-center md:text-left">
           <div className="font-space font-bold text-3xl md:text-4xl text-on-surface">Create With Showup</div>
           <div className="font-jetbrains text-xs font-medium uppercase tracking-widest text-on-surface-variant">
-            © {new Date().getFullYear()} TERMINAL. ALL RIGHTS RESERVED.
+            © {new Date().getFullYear()} SHOWUP ALL RIGHTS RESERVED.
           </div>
         </div>
       </footer>
