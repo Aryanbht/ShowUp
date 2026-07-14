@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { studentsApi } from "../api";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 import SkillsInput from "../components/SkillsInput";
+import LocationInput from "../components/LocationInput";
 
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -58,8 +59,12 @@ export default function EditProfilePage() {
   const [cardColor, setCardColor] = useState(user?.portfolio_card_color || '#F8F8F8');
   const [portfolioFont, setPortfolioFont] = useState(user?.portfolio_font || 'Inter');
   const [username, setUsername] = useState(user?.username || '');
+  const [usernameError, setUsernameError] = useState('');
+  const [usernameChecking, setUsernameChecking] = useState(false);
   const [custSaving, setCustSaving] = useState(false);
   const [custMsg, setCustMsg] = useState('');
+  const [previewView, setPreviewView] = useState('desktop');
+  const usernameTimer = useRef(null);
 
   const PRESET_TEMPLATES = {
     modern_midnight: { bg: '#101415', text: '#e0e3e5', accent: '#c0c1ff', card: '#272a2c', font: 'Sora' },
@@ -67,7 +72,7 @@ export default function EditProfilePage() {
     neural_interface: { bg: '#0e131f', text: '#dde2f3', accent: '#8aebff', card: '#1a202c', font: 'Inter' },
   };
 
-  const handleTemplateChange = (tId) => {
+  const handleTemplateChange = async (tId) => {
     setTemplate(tId);
     if (tId !== 'custom' && PRESET_TEMPLATES[tId]) {
       setBgColor(PRESET_TEMPLATES[tId].bg);
@@ -76,6 +81,11 @@ export default function EditProfilePage() {
       setCardColor(PRESET_TEMPLATES[tId].card);
       setPortfolioFont(PRESET_TEMPLATES[tId].font);
     }
+    // Auto-save template selection immediately
+    try {
+      const res = await api.patch('/api/portfolio/customization', { template: tId });
+      updateUser({ ...user, ...res.data.data });
+    } catch { /* silent */ }
   };
 
   const handleChange = (e) => {
@@ -129,6 +139,7 @@ export default function EditProfilePage() {
   };
 
   const handleSaveCustomization = async () => {
+    if (usernameError) return;
     setCustSaving(true);
     setCustMsg('');
     try {
@@ -149,6 +160,28 @@ export default function EditProfilePage() {
     } finally {
       setCustSaving(false);
     }
+  };
+
+  const checkUsernameAvailability = useCallback(async (val) => {
+    if (!val || val === user?.username) { setUsernameError(''); return; }
+    if (val.length < 3) { setUsernameError('Username must be at least 3 characters'); return; }
+    setUsernameChecking(true);
+    try {
+      await api.get(`/api/portfolio/check-username?username=${val}`);
+      setUsernameError('');
+    } catch (err) {
+      setUsernameError(err.response?.data?.message || 'Username already taken — choose another');
+    } finally {
+      setUsernameChecking(false);
+    }
+  }, [user?.username]);
+
+  const handleUsernameChange = (e) => {
+    const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    setUsername(val);
+    setUsernameError('');
+    clearTimeout(usernameTimer.current);
+    usernameTimer.current = setTimeout(() => checkUsernameAvailability(val), 600);
   };
 
   const handleDeleteAccount = async () => {
@@ -267,15 +300,12 @@ export default function EditProfilePage() {
 
             {/* ── Location / State ── */}
             <div>
-              <label className="label-mono block mb-1.5">Location / State</label>
-              <input
-                name="location"
-                type="text"
+              <label className="label-mono block mb-1.5">Location</label>
+              <LocationInput
                 value={form.location}
-                onChange={handleChange}
-                className="input-brutal w-full"
-                placeholder="Maharashtra, Karnataka, etc."
+                onChange={(val) => setForm(f => ({ ...f, location: val }))}
               />
+              <p className="font-mono text-xs text-on-surface-variant mt-1">City or State in India</p>
             </div>
 
             {/* ── Course & Timeline — stack on very small screens ── */}
@@ -467,13 +497,17 @@ export default function EditProfilePage() {
                 </label>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '13px', color: '#999' }}>{window.location.origin}/portfolio/</span>
-                  <input
-                    value={username}
-                    onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                    style={{ padding: '8px 12px', border: '1.5px solid #E5E5E5', borderRadius: '6px', fontSize: '13px', width: '160px' }}
-                    placeholder="yourusername"
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      value={username}
+                      onChange={handleUsernameChange}
+                      style={{ padding: '8px 12px', border: `1.5px solid ${usernameError ? '#FF4444' : usernameError === '' && username && username !== user?.username ? '#16A34A' : '#E5E5E5'}`, borderRadius: '6px', fontSize: '13px', width: '160px' }}
+                      placeholder="yourusername"
+                    />
+                    {usernameChecking && <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#999' }}>…</span>}
+                  </div>
                 </div>
+                {usernameError && <p style={{ fontSize: '11px', color: '#FF4444', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: '4px' }}>⚠ {usernameError}</p>}
               </div>
 
               {/* Template picker */}
@@ -509,37 +543,92 @@ export default function EditProfilePage() {
 
 
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-                <a
-                  href={`/portfolio/${username || user?.username}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: '13px', color: '#1A1A1A', textDecoration: 'underline' }}
-                >
-                  Preview portfolio →
-                </a>
-                <button
-                  type="button"
-                  onClick={handleSaveCustomization}
-                  disabled={custSaving}
-                  style={{
-                    padding: '10px 24px',
-                    background: custSaving ? '#E5E5E5' : '#1A1A1A',
-                    color: custSaving ? '#999' : '#FFFFFF',
-                    border: 'none', borderRadius: '6px',
-                    fontSize: '13px', fontWeight: '600',
-                    cursor: custSaving ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  {custSaving ? 'Saving...' : 'Save Portfolio →'}
-                </button>
-              </div>
 
               {custMsg && (
                 <p style={{ fontSize: '13px', color: custMsg.includes('✓') ? '#16A34A' : '#FF4444', margin: '10px 0 0' }}>
                   {custMsg}
                 </p>
               )}
+
+              {/* ── Live Portfolio Preview ── */}
+              <div style={{ marginTop: '32px', borderTop: '1px solid #E5E5E5', paddingTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>Live Preview</p>
+                    <p style={{ fontSize: '11px', color: '#999', margin: 0 }}>See how your portfolio looks</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '4px', background: '#F0F0F0', borderRadius: '8px', padding: '3px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewView('desktop')}
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '6px', border: 'none', fontSize: '12px', fontWeight: '500', cursor: 'pointer', background: previewView === 'desktop' ? '#FFFFFF' : 'transparent', color: previewView === 'desktop' ? '#1A1A1A' : '#777', boxShadow: previewView === 'desktop' ? '0 1px 4px rgba(0,0,0,0.12)' : 'none', transition: 'all 0.2s' }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>desktop_windows</span>
+                      Desktop
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewView('mobile')}
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '6px', border: 'none', fontSize: '12px', fontWeight: '500', cursor: 'pointer', background: previewView === 'mobile' ? '#FFFFFF' : 'transparent', color: previewView === 'mobile' ? '#1A1A1A' : '#777', boxShadow: previewView === 'mobile' ? '0 1px 4px rgba(0,0,0,0.12)' : 'none', transition: 'all 0.2s' }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>smartphone</span>
+                      Mobile
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview frame */}
+                <div style={{ background: '#F5F5F5', borderRadius: '10px', padding: previewView === 'desktop' ? '12px' : '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: previewView === 'desktop' ? '420px' : '580px' }}>
+                  {previewView === 'desktop' ? (
+                    <div style={{ width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #DDD', boxShadow: '0 4px 24px rgba(0,0,0,0.10)', background: '#fff' }}>
+                      {/* Browser chrome */}
+                      <div style={{ background: '#E8E8E8', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#FF5F57' }} />
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#FEBC2E' }} />
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#28C840' }} />
+                        <div style={{ flex: 1, background: '#FFF', borderRadius: '4px', padding: '2px 8px', fontSize: '10px', color: '#999', marginLeft: '8px' }}>
+                          {window.location.origin}/portfolio/{username || user?.username}
+                        </div>
+                      </div>
+                      <iframe
+                        key={`desktop-${username || user?.username}-${template}`}
+                        src={`/portfolio/${username || user?.username}`}
+                        style={{ width: '100%', height: '380px', border: 'none', display: 'block' }}
+                        title="Portfolio Desktop Preview"
+                      />
+                    </div>
+                  ) : (
+                    // Mobile: scale iframe to simulate 390px phone viewport inside 268px phone frame
+                    <div style={{ width: '268px' }}>
+                      {/* Phone frame */}
+                      <div style={{ border: '6px solid #1A1A1A', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: '#000', position: 'relative' }}>
+                        <div style={{ background: '#1A1A1A', height: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <div style={{ width: '60px', height: '4px', borderRadius: '2px', background: '#444' }} />
+                        </div>
+                        {/* Clipping container at phone width */}
+                        <div style={{ width: '256px', height: '520px', overflow: 'hidden', position: 'relative' }}>
+                          <iframe
+                            key={`mobile-${username || user?.username}-${template}`}
+                            src={`/portfolio/${username || user?.username}`}
+                            style={{
+                              width: '390px',
+                              height: '844px',
+                              border: 'none',
+                              display: 'block',
+                              transformOrigin: 'top left',
+                              transform: 'scale(0.6564)',
+                            }}
+                            title="Portfolio Mobile Preview"
+                          />
+                        </div>
+                        <div style={{ background: '#1A1A1A', height: '18px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: '#444' }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* ── Danger Zone ── */}

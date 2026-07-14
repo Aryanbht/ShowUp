@@ -1,6 +1,6 @@
 import bcrypt
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from app import db
 from app.models import Student, ExitReview
 from better_profanity import profanity
@@ -210,6 +210,17 @@ def find_teammates():
     # If offline, filter by location
     if hackathon_type == "Offline" and region:
         query = query.filter(Student.location.ilike(f"%{region}%"))
+        
+    # Exclude current user if logged in
+    current_user_id = None
+    try:
+        verify_jwt_in_request(optional=True)
+        current_user_id = get_jwt_identity()
+    except:
+        pass
+
+    if current_user_id:
+        query = query.filter(Student.id != current_user_id)
         
     students = query.all()
     results = []

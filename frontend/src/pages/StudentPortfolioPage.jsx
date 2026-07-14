@@ -35,7 +35,8 @@ export default function StudentPortfolioPage() {
   }, [student_id]);
 
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const portfolioUrl = `${window.location.origin}/portfolio/${student.username || student.id}`;
+    navigator.clipboard.writeText(portfolioUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -68,52 +69,65 @@ export default function StudentPortfolioPage() {
       <main className="flex-1 md:ml-64 pb-20 md:pb-0 min-h-screen flex flex-col">
         <div className="flex-1 w-full">
           {/* Header */}
-          <header className="sticky top-0 z-20 border-b-2 border-ink flex items-center justify-between px-6 py-4 bg-surface">
+          <header className="sticky top-0 z-20 border-b-2 border-ink flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-surface">
             <div className="md:hidden">
-              <Link to="/feed" className="font-mono font-black text-lg uppercase text-on-surface tracking-tight">ShowUp</Link>
+              <Link to="/feed" className="font-mono font-black text-base uppercase text-on-surface tracking-tight">ShowUp</Link>
             </div>
             <div className="hidden md:block">
               <h1 className="font-grotesk font-bold text-xl text-on-surface">Student Profile</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 border border-ink px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                title="Share Portfolio"
               >
                 <span className="material-symbols-outlined text-sm">{copied ? "check" : "share"}</span>
-                {copied ? "Copied!" : "Share"}
+                <span className="hidden sm:inline">{copied ? "Copied!" : "Share Portfolio"}</span>
               </button>
               {isOwn && (
-                <Link to="/profile/edit" className="btn-primary py-1.5 px-3 text-xs">
+                <a
+                  href={`/portfolio/${student.username || student.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                  title="View Portfolio"
+                >
+                  <span className="material-symbols-outlined text-sm">open_in_new</span>
+                  <span>View Portfolio</span>
+                </a>
+              )}
+              {isOwn && (
+                <Link to="/profile/edit" className="btn-primary py-1.5 px-2 sm:px-3 text-xs" title="Edit Profile">
                   <span className="material-symbols-outlined text-sm">edit</span>
-                  Edit Profile
+                  <span className="hidden sm:inline">Edit Profile</span>
                 </Link>
               )}
               {!user && (
-                <Link to="/auth" className="btn-primary py-1.5 px-3 text-xs">Join ShowUp</Link>
+                <Link to="/auth" className="btn-primary py-1.5 px-2 sm:px-3 text-xs">Join ShowUp</Link>
               )}
             </div>
           </header>
 
           {/* Profile header */}
-          <div className="border-b-2 border-ink bg-surface-container-low px-6 py-10">
+          <div className="border-b-2 border-ink bg-surface-container-low px-4 sm:px-6 py-6 sm:py-10">
             <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col sm:flex-row items-start gap-6">
+              <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                   {student.avatar_url ? (
                     <img
                       src={student.avatar_url}
                       alt={student.name}
-                      className="w-24 h-24 border-2 border-ink object-cover"
+                      className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-ink object-cover"
                       style={{ boxShadow: "4px 4px 0 #4f378a" }}
                     />
                   ) : (
                     <div
-                      className="w-24 h-24 bg-primary-container border-2 border-ink flex items-center justify-center"
+                      className="w-20 h-20 sm:w-24 sm:h-24 bg-primary-container border-2 border-ink flex items-center justify-center"
                       style={{ boxShadow: "4px 4px 0 #4f378a" }}
                     >
-                      <span className="font-mono font-black text-3xl text-on-primary-container">
+                      <span className="font-mono font-black text-2xl sm:text-3xl text-on-primary-container">
                         {student.name?.[0]?.toUpperCase()}
                       </span>
                     </div>
@@ -121,9 +135,9 @@ export default function StudentPortfolioPage() {
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <h1 className="font-grotesk font-bold text-3xl text-on-surface">{student.name}</h1>
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                    <h1 className="font-grotesk font-bold text-2xl sm:text-3xl text-on-surface leading-tight">{student.name}</h1>
                     <CredibilityBadge score={student.credibility_score} level={student.credibility_level} />
                     {student.is_verified_senior && (
                       <span className="inline-flex items-center gap-1 border border-primary bg-primary-fixed px-2 py-0.5 font-mono text-xs text-on-primary-fixed">
@@ -133,14 +147,14 @@ export default function StudentPortfolioPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-1 mb-4 text-on-surface-variant font-mono text-sm">
-                    <p>
-                      <span className="material-symbols-outlined text-sm align-middle mr-2">school</span>
+                  <div className="flex flex-col gap-1 mb-3 sm:mb-4 text-on-surface-variant font-mono text-xs sm:text-sm">
+                    <p className="truncate">
+                      <span className="material-symbols-outlined text-sm align-middle mr-1">school</span>
                       {student.college}
                     </p>
                     {(student.course || student.college_start_year) && (
                       <p>
-                        <span className="material-symbols-outlined text-sm align-middle mr-2">menu_book</span>
+                        <span className="material-symbols-outlined text-sm align-middle mr-1">menu_book</span>
                         {student.course}{student.college_start_year && student.college_end_year
                           ? ` (${student.college_start_year} - ${student.college_end_year})`
                           : ""}
@@ -149,9 +163,9 @@ export default function StudentPortfolioPage() {
                   </div>
 
                   {student.skills && student.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                       {student.skills.map((skill, idx) => (
-                        <span key={idx} className="bg-surface-container border border-ink px-2 py-0.5 font-mono text-xs text-on-surface">
+                        <span key={idx} className="bg-surface-container border border-ink px-2 py-0.5 font-mono text-[10px] sm:text-xs text-on-surface">
                           {skill}
                         </span>
                       ))}
@@ -159,24 +173,24 @@ export default function StudentPortfolioPage() {
                   )}
 
                   {student.bio && (
-                    <p className="text-on-surface leading-relaxed max-w-2xl">{student.bio}</p>
+                    <p className="text-on-surface leading-relaxed text-sm sm:text-base max-w-2xl break-words">{student.bio}</p>
                   )}
 
                   {/* Stats row */}
-                  <div className="flex gap-6 mt-4">
+                  <div className="flex gap-4 sm:gap-6 mt-3 sm:mt-4">
                     <div>
-                      <p className="font-mono font-bold text-xl text-on-surface">{projects.length}</p>
-                      <p className="font-mono text-xs text-on-surface-variant uppercase">Projects</p>
+                      <p className="font-mono font-bold text-lg sm:text-xl text-on-surface">{projects.length}</p>
+                      <p className="font-mono text-[10px] sm:text-xs text-on-surface-variant uppercase">Projects</p>
                     </div>
                     <div>
-                      <p className="font-mono font-bold text-xl text-on-surface">{student.credibility_score}</p>
-                      <p className="font-mono text-xs text-on-surface-variant uppercase">Credibility</p>
+                      <p className="font-mono font-bold text-lg sm:text-xl text-on-surface">{student.credibility_score}</p>
+                      <p className="font-mono text-[10px] sm:text-xs text-on-surface-variant uppercase">Credibility</p>
                     </div>
                     <div>
-                      <p className="font-mono font-bold text-xl text-on-surface">
+                      <p className="font-mono font-bold text-lg sm:text-xl text-on-surface">
                         {projects.filter((p) => p.ai_analysis_used).length}
                       </p>
-                      <p className="font-mono text-xs text-on-surface-variant uppercase">AI Reviews</p>
+                      <p className="font-mono text-[10px] sm:text-xs text-on-surface-variant uppercase">AI Reviews</p>
                     </div>
                   </div>
                 </div>
@@ -185,15 +199,15 @@ export default function StudentPortfolioPage() {
           </div>
 
           {/* Projects grid */}
-          <div className="max-w-5xl mx-auto px-6 py-10">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-grotesk font-bold text-xl text-on-surface">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="font-grotesk font-bold text-lg sm:text-xl text-on-surface">
                 Projects <span className="text-on-surface-variant font-normal">({projects.length})</span>
               </h2>
               {isOwn && (
-                <Link to="/upload" className="btn-primary text-sm py-2">
+                <Link to="/upload" className="btn-primary text-xs sm:text-sm py-1.5 sm:py-2">
                   <span className="material-symbols-outlined text-sm">add</span>
-                  Add Project
+                  <span className="hidden xs:inline">Add Project</span>
                 </Link>
               )}
             </div>

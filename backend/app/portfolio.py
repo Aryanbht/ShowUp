@@ -17,6 +17,19 @@ def _error(message, status=400):
     return jsonify({"success": False, "message": message}), status
 
 
+@portfolio_bp.route('/check-username', methods=['GET'])
+def check_username():
+    """Check if a username is available. Returns 200 if available, 409 if taken."""
+    username = request.args.get('username', '').strip().lower()
+    username = re.sub(r'[^a-z0-9_]', '', username)
+    if len(username) < 3:
+        return _error("Username must be at least 3 characters")
+    existing = Student.query.filter_by(username=username).first()
+    if existing:
+        return _error("Username already taken — choose another", 409)
+    return _success({"available": True}, "Username is available")
+
+
 @portfolio_bp.route('/<username>', methods=['GET'])
 def get_portfolio(username):
     """Public portfolio page data. No auth required."""

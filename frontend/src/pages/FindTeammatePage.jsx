@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import SkillsInput from "../components/SkillsInput";
+import LocationInput from "../components/LocationInput";
 import { studentsApi } from "../api";
 import { Link } from "react-router-dom";
 
@@ -67,13 +68,10 @@ export default function FindTeammatePage() {
 
               {hackathonType === "Offline" && (
                 <div>
-                  <label className="label-mono block mb-1.5">State / Region</label>
-                  <input
-                    type="text"
+                  <label className="label-mono block mb-1.5">Location</label>
+                  <LocationInput
                     value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    className="input-brutal w-full"
-                    placeholder="e.g. Maharashtra, Bangalore, Delhi"
+                    onChange={setRegion}
                     required
                   />
                 </div>
