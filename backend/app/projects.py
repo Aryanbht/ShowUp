@@ -190,6 +190,11 @@ def delete_project(project_id):
     if project.student_id != student_id:
         return _error("You can only delete your own projects", 403)
 
+    if project.ai_analysis_used:
+        student = Student.query.get(student_id)
+        if student:
+            student.credibility_score = max(0, student.credibility_score - 5)
+
     db.session.delete(project)
     db.session.commit()
     return _success(None, "Project deleted")
