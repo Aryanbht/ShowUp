@@ -119,6 +119,11 @@ def update_student(student_id):
         student.course = body.get("course", "").strip() or None
     if "location" in body:
         student.location = body.get("location", "").strip() or None
+    if "github_url" in body:
+        gh = body.get("github_url", "").strip()
+        if gh and not gh.startswith("http"):
+            gh = f"https://github.com/{gh.lstrip('@')}"
+        student.github_url = gh or None
     if "skills" in body:
         skills = body.get("skills")
         if isinstance(skills, list):

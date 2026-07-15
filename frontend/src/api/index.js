@@ -156,4 +156,12 @@ export const feedApi = {
   stats: () => api.get("/api/feed/stats"),
 };
 
+// ─── GitHub OAuth ─────────────────────────────────────
+export const githubApi = {
+  getConnectUrl: () => api.get("/api/github/connect"),
+  listRepos: (page = 1) => api.get("/api/github/repos", { params: { page } }),
+  importRepo: (fullName) => api.post("/api/github/import", { full_name: fullName }),
+  disconnect: () => api.post("/api/github/disconnect"),
+};
+
 export default api;

@@ -67,6 +67,7 @@ def create_app():
     from app.feed import feed_bp
     from app.skills import skills_bp
     from app.portfolio import portfolio_bp
+    from app.github_oauth import github_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
@@ -74,6 +75,8 @@ def create_app():
     app.register_blueprint(feed_bp, url_prefix="/api/feed")
     app.register_blueprint(skills_bp)
     app.register_blueprint(portfolio_bp)
+    app.register_blueprint(github_bp, url_prefix="/api/github")
+
 
 
     # Google OAuth blueprint (flask-dance) — only if credentials are set

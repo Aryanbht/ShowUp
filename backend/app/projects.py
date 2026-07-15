@@ -71,12 +71,18 @@ def create_project():
     tech_tags = body.get("tech_stack", [])
     tech_stack_str = ",".join(t.strip() for t in tech_tags if t.strip()) if isinstance(tech_tags, list) else body.get("tech_stack", "")
 
+    github_url = body.get("github_url", "").strip() or None
+    if github_url:
+        existing = Project.query.filter_by(github_url=github_url).first()
+        if existing:
+            return _error("This GitHub repository has already been uploaded as a project.")
+
     project = Project(
         title=title,
         description=description,
         tech_stack=tech_stack_str,
         live_url=body.get("live_url", "").strip() or None,
-        github_url=body.get("github_url", "").strip() or None,
+        github_url=github_url,
         screenshot_url=body.get("screenshot_url", "").strip() or None,
         student_id=student_id,
         show_ai_analysis=body.get("show_ai_analysis", True),
@@ -156,7 +162,12 @@ def update_project(project_id):
     if "live_url" in body:
         project.live_url = body["live_url"].strip() or None
     if "github_url" in body:
-        project.github_url = body["github_url"].strip() or None
+        new_github_url = body["github_url"].strip() or None
+        if new_github_url and new_github_url != project.github_url:
+            existing = Project.query.filter_by(github_url=new_github_url).first()
+            if existing:
+                return _error("This GitHub repository has already been uploaded as a project.")
+        project.github_url = new_github_url
     if "screenshot_url" in body:
         project.screenshot_url = body["screenshot_url"].strip() or None
     if "show_ai_analysis" in body:

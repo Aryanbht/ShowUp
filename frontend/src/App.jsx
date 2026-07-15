@@ -6,6 +6,7 @@ import { useAuth } from "./context/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
+import GitHubCallback from "./pages/GitHubCallback";
 import FeedPage from "./pages/FeedPage";
 import UploadPage from "./pages/UploadPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
           {/* Always public */}
           <Route path="/u/:student_id" element={<StudentPortfolioPage />} />

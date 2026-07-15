@@ -79,16 +79,7 @@ def get_portfolio(username):
     skills = student.skills.split(",") if student.skills else []
 
     return _success({
-        "student": {
-            "id": str(student.id),
-            "name": student.name,
-            "username": student.username,
-            "college": student.college,
-            "bio": student.bio,
-            "avatar_url": student.avatar_url,
-            "credibility_score": student.credibility_score,
-            "skills": skills,
-        },
+        "student": student.to_dict(),
         "customization": {
             "template": student.portfolio_template or 'classic',
             "bg_color": student.portfolio_bg_color or '#FFFFFF',

@@ -3,12 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CloudinaryUpload from "../components/CloudinaryUpload";
 import TechPill from "../components/TechPill";
-import api, { projectsApi } from "../api";
+import api, { projectsApi, githubApi } from "../api";
 import { SKILLS_LIST } from "../data/skills";
+import { useAuth } from "../context/AuthContext";
 
 const MAX_DESC = 500;
 
 export default function UploadPage({ editMode }) {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const [form, setForm] = useState({
@@ -49,44 +51,33 @@ export default function UploadPage({ editMode }) {
     }
   }, [editMode, id]);
 
-  const [githubUrl, setGithubUrl] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [fetchError, setFetchError] = useState('');
-  const [fetchSuccess, setFetchSuccess] = useState(false);
+  const [repos, setRepos] = useState([]);
+  const [loadingRepos, setLoadingRepos] = useState(false);
+  const [importingRepo, setImportingRepo] = useState(null); // stores repo full_name
+  const [githubError, setGithubError] = useState('');
 
-  const handleGithubFetch = async () => {
-    if (!githubUrl.trim()) return;
-    setFetching(true);
-    setFetchError('');
-    setFetchSuccess(false);
+  // Fetch repos if user is connected
+  useEffect(() => {
+    if (user?.github_username && !editMode) {
+      setLoadingRepos(true);
+      githubApi.listRepos(1)
+        .then(res => setRepos(res.data.data))
+        .catch(err => setGithubError("Failed to fetch your GitHub repositories."))
+        .finally(() => setLoadingRepos(false));
+    }
+  }, [user, editMode]);
 
+  const handleImportRepo = async (fullName) => {
+    setImportingRepo(fullName);
+    setGithubError('');
     try {
-      const res = await api.post('/api/projects/github-fetch', { url: githubUrl });
-      const d = res.data.data;
-
-      const rawTech = d.tech_stack 
-        ? d.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
-        : [];
-      const filteredTech = rawTech
-        .map(t => SKILLS_LIST.find(s => s.toLowerCase() === t.toLowerCase()))
-        .filter(Boolean);
-
-      // Auto-fill all form fields
-      setForm((f) => ({
-        ...f,
-        title: d.title || "",
-        description: d.description || "",
-        tech_stack: filteredTech,
-        live_url: d.live_url || "",
-        github_url: d.github_url || "",
-        readme: d.readme || "",
-      }));
-
-      setFetchSuccess(true);
+      const res = await githubApi.importRepo(fullName);
+      const newProject = res.data.data;
+      navigate(`/project/${newProject.id}/edit`);
     } catch (err) {
-      setFetchError(err.response?.data?.message || 'Failed to fetch. Try again.');
+      setGithubError(err.response?.data?.message || 'Failed to import repository.');
     } finally {
-      setFetching(false);
+      setImportingRepo(null);
     }
   };
 
@@ -154,75 +145,67 @@ export default function UploadPage({ editMode }) {
             <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase text-center mt-10">Loading project...</p>
           ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* GitHub Import Section */}
-            <div style={{
-              border: '1.5px solid #E5E5E5',
-              borderRadius: '8px',
-              padding: '20px',
-              marginBottom: '28px',
-              background: '#FAFAFA'
-            }}>
-              <p style={{ fontSize: '13px', fontWeight: '600', margin: '0 0 4px', color: '#1A1A1A' }}>
-                Import from GitHub
-              </p>
-              <p style={{ fontSize: '12px', color: '#999', margin: '0 0 14px' }}>
-                Paste your repo link — we'll fill everything automatically
-              </p>
+            {/* ── Quick Import ── */}
+            {!editMode && (
+              <div className="mb-8 p-4 md:p-6 border-2 border-[#1A1A1A] bg-[#FAFAFA]" style={{ borderRadius: '4px' }}>
+                <h2 className="font-grotesk font-bold text-lg mb-2 flex items-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                  </svg>
+                  Import from GitHub
+                </h2>
+                <p className="font-mono text-sm text-[#666] mb-4">
+                  Quickly import your public repositories directly as ShowUp projects.
+                </p>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <input
-                  type="text"
-                  placeholder="https://github.com/username/repo"
-                  value={githubUrl}
-                  onChange={e => {
-                    setGithubUrl(e.target.value);
-                    setFetchError('');
-                    setFetchSuccess(false);
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '10px 14px',
-                    border: fetchError ? '1.5px solid #FF4444' : '1.5px solid #E5E5E5',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    outline: 'none',
-                    fontFamily: 'monospace'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleGithubFetch}
-                  disabled={fetching || !githubUrl.trim()}
-                  style={{
-                    padding: '10px 20px',
-                    background: fetching ? '#E5E5E5' : '#1A1A1A',
-                    color: fetching ? '#999' : '#FFFFFF',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: fetching ? 'not-allowed' : 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {fetching ? 'Fetching...' : 'Import →'}
-                </button>
+                {user?.github_username ? (
+                  <div>
+                    {loadingRepos ? (
+                      <p className="font-mono text-sm text-[#666]">Loading repositories...</p>
+                    ) : repos.length > 0 ? (
+                      <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+                        {repos.map(repo => (
+                          <div key={repo.id} className="min-w-[280px] p-4 border border-[#E5E5E5] bg-white rounded-md flex flex-col justify-between">
+                            <div>
+                              <div className="font-bold text-[15px] truncate" title={repo.name}>{repo.name}</div>
+                              <p className="font-mono text-xs text-[#666] mt-1 line-clamp-2 min-h-[32px]">
+                                {repo.description || "No description provided."}
+                              </p>
+                              <div className="flex items-center gap-4 mt-3 mb-4 font-mono text-[11px] text-[#666]">
+                                {repo.language && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary"></span>{repo.language}</span>}
+                                <span>⭐ {repo.stars}</span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleImportRepo(repo.full_name)}
+                              disabled={importingRepo === repo.full_name}
+                              className="w-full py-1.5 bg-[#F4F4F5] hover:bg-[#E4E4E7] text-[#1A1A1A] font-mono text-xs font-bold rounded transition-colors disabled:opacity-50 border border-[#E5E5E5]"
+                            >
+                              {importingRepo === repo.full_name ? 'Importing...' : 'Import Project'}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="font-mono text-sm text-[#666]">No public repositories found.</p>
+                    )}
+                    
+                    {githubError && (
+                      <p className="font-mono text-xs text-[#EF4444] mt-2">{githubError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/profile/edit')}
+                    className="py-2 px-4 bg-[#1A1A1A] hover:bg-[#333] text-white font-mono text-sm font-bold rounded flex items-center gap-2 transition-colors"
+                  >
+                    Connect GitHub in Settings
+                  </button>
+                )}
               </div>
-
-              {/* Error state */}
-              {fetchError && (
-                <p style={{ fontSize: '12px', color: '#FF4444', margin: '8px 0 0' }}>
-                  {fetchError}
-                </p>
-              )}
-
-              {/* Success state */}
-              {fetchSuccess && (
-                <p style={{ fontSize: '12px', color: '#16A34A', margin: '8px 0 0' }}>
-                  ✓ Form filled automatically — review and edit below before submitting
-                </p>
-              )}
-            </div>
+            )}
 
             {/* Title */}
             <div>
