@@ -2,7 +2,7 @@ import bcrypt
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from app import db
-from app.models import Student, ExitReview
+from app.models import Student, ExitReview, BlockedUser
 from better_profanity import profanity
 
 profanity.load_censor_words()
@@ -226,6 +226,16 @@ def find_teammates():
 
     if current_user_id:
         query = query.filter(Student.id != current_user_id)
+        
+        # Exclude blocked users (either direction)
+        blocks = BlockedUser.query.filter(
+            (BlockedUser.blocker_id == current_user_id) | 
+            (BlockedUser.blocked_id == current_user_id)
+        ).all()
+        blocked_ids = [b.blocked_id if b.blocker_id == current_user_id else b.blocker_id for b in blocks]
+        
+        if blocked_ids:
+            query = query.filter(~Student.id.in_(blocked_ids))
         
     students = query.all()
     results = []

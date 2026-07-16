@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { studentsApi, projectsApi } from "../api";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { studentsApi, projectsApi, chatApi } from "../api";
 import Navbar from "../components/Navbar";
 import ProjectCard from "../components/ProjectCard";
 import CredibilityBadge from "../components/CredibilityBadge";
@@ -9,11 +9,19 @@ import { useAuth } from "../context/AuthContext";
 export default function StudentPortfolioPage() {
   const { student_id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+
+  // Connect / chat state
+  const [connectStatus, setConnectStatus] = useState(null); // null | 'none' | 'pending' | 'connected' | 'incoming'
+  const [connectConvoId, setConnectConvoId] = useState(null);
+  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [connectNote, setConnectNote] = useState("");
+  const [connectLoading, setConnectLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,11 +42,48 @@ export default function StudentPortfolioPage() {
     fetchData();
   }, [student_id]);
 
+  // Fetch connection status when viewing someone else's profile
+  useEffect(() => {
+    if (!user || !student_id || user.id === student_id) return;
+    chatApi.getRequestStatus(student_id)
+      .then((res) => {
+        const d = res.data.data;
+        setConnectStatus(d.status);
+        if (d.conversation_id) setConnectConvoId(d.conversation_id);
+      })
+      .catch(() => {});
+  }, [user, student_id]);
+
   const handleShare = () => {
     const portfolioUrl = `${window.location.origin}/portfolio/${student.username || student.id}`;
     navigator.clipboard.writeText(portfolioUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSendConnect = async () => {
+    if (!user) { navigate("/auth"); return; }
+    setConnectLoading(true);
+    try {
+      await chatApi.sendRequest(student_id, connectNote);
+      setConnectStatus('pending');
+      setShowConnectModal(false);
+      setConnectNote("");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to send request");
+    } finally {
+      setConnectLoading(false);
+    }
+  };
+
+  const handleUnblock = async () => {
+    if (!window.confirm("Are you sure you want to unblock this user?")) return;
+    try {
+      await chatApi.unblockUser(student_id);
+      setConnectStatus('none');
+    } catch (e) {
+      alert("Failed to unblock user");
+    }
   };
 
   if (loading) {
@@ -98,6 +143,50 @@ export default function StudentPortfolioPage() {
                   </svg>
                   <span className="hidden sm:inline">GitHub</span>
                 </a>
+              )}
+              {/* Connect / Chat button — only for other users */}
+              {user && !isOwn && (
+                <div className="flex gap-2 w-full sm:w-auto">
+                  {connectStatus === 'blocked' ? (
+                    <button
+                      onClick={handleUnblock}
+                      className="border-2 border-ink bg-surface px-4 py-2 flex items-center justify-center gap-2 font-mono font-bold text-sm hover:bg-surface-container transition-all"
+                      style={{ boxShadow: "4px 4px 0 #1A1A1A" }}
+                    >
+                      <span className="material-symbols-outlined text-sm">lock_open</span>
+                      <span className="hidden sm:inline">Unblock</span>
+                    </button>
+                  ) : connectStatus === 'connected' ? (
+                    <button
+                      onClick={() => navigate(`/inbox/chat/${connectConvoId}`)}
+                      className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors bg-primary-container text-on-primary-container"
+                    >
+                      <span className="material-symbols-outlined text-sm">chat</span>
+                      <span className="hidden sm:inline">Message</span>
+                    </button>
+                  ) : connectStatus === 'pending' ? (
+                    <span className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase text-on-surface-variant bg-surface-container">
+                      <span className="material-symbols-outlined text-sm">schedule</span>
+                      <span className="hidden sm:inline">Pending</span>
+                    </span>
+                  ) : connectStatus === 'incoming' ? (
+                    <button
+                      onClick={() => navigate('/inbox')}
+                      className="flex items-center gap-1 sm:gap-1.5 btn-primary py-1.5 px-2 sm:px-3 text-xs"
+                    >
+                      <span className="material-symbols-outlined text-sm">person_add</span>
+                      <span className="hidden sm:inline">Respond</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowConnectModal(true)}
+                      className="flex items-center gap-1 sm:gap-1.5 btn-primary py-1.5 px-2 sm:px-3 text-xs"
+                    >
+                      <span className="material-symbols-outlined text-sm">person_add</span>
+                      <span className="hidden sm:inline">Connect</span>
+                    </button>
+                  )}
+                </div>
               )}
               {isOwn && (
                 <a
@@ -276,6 +365,55 @@ export default function StudentPortfolioPage() {
           </p>
         </footer>
       </main>
+
+      {/* Connect Modal */}
+      {showConnectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="bg-surface border-2 border-ink w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
+            <div className="border-b-2 border-ink px-5 py-4 flex items-center justify-between">
+              <h3 className="font-grotesk font-bold text-base uppercase">Connect with {student?.name}</h3>
+              <button onClick={() => setShowConnectModal(false)} className="p-1 hover:bg-surface-container">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-sm font-mono text-on-surface-variant mb-4">
+                Send a connection request with an optional note explaining why you want to connect.
+              </p>
+              <label className="label-mono block mb-1.5">Note (optional)</label>
+              <textarea
+                value={connectNote}
+                onChange={(e) => setConnectNote(e.target.value)}
+                placeholder="Hi! I'd love to collaborate on a hackathon project..."
+                maxLength={500}
+                rows={3}
+                className="input-brutal w-full resize-none text-sm"
+              />
+              <p className="text-[10px] font-mono text-on-surface-variant mt-1 text-right">{connectNote.length}/500</p>
+            </div>
+            <div className="border-t-2 border-ink px-5 py-4 flex gap-3">
+              <button
+                onClick={handleSendConnect}
+                disabled={connectLoading}
+                className="btn-primary flex-1 justify-center"
+              >
+                {connectLoading ? (
+                  <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                ) : (
+                  <span className="material-symbols-outlined text-sm">send</span>
+                )}
+                Send Request
+              </button>
+              <button
+                onClick={() => setShowConnectModal(false)}
+                className="border-2 border-ink px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,6 +15,8 @@ import EditProfilePage from "./pages/EditProfilePage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import FindTeammatePage from "./pages/FindTeammatePage";
 import PublicPortfolio from "./pages/PublicPortfolio";
+import InboxPage from "./pages/InboxPage";
+import ChatPage from "./pages/ChatPage";
 
 // Redirects logged-in users away from public-only pages (/ and /auth)
 function PublicRoute({ children }) {
@@ -47,6 +49,8 @@ export default function App() {
           <Route path="/upload" element={<AuthGuard><UploadPage /></AuthGuard>} />
           <Route path="/project/:id/edit" element={<AuthGuard><UploadPage editMode={true} /></AuthGuard>} />
           <Route path="/profile/edit" element={<AuthGuard><EditProfilePage /></AuthGuard>} />
+          <Route path="/inbox" element={<AuthGuard><InboxPage /></AuthGuard>} />
+          <Route path="/inbox/chat/:conversationId" element={<AuthGuard><ChatPage /></AuthGuard>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

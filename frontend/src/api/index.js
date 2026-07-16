@@ -164,4 +164,28 @@ export const githubApi = {
   disconnect: () => api.post("/api/github/disconnect"),
 };
 
+// ─── Chat ──────────────────────────────────────────────
+export const chatApi = {
+  // Requests
+  sendRequest: (receiverId, note) => api.post("/api/chat/request/send", { receiver_id: receiverId, note }),
+  getInboxRequests: () => api.get("/api/chat/request/inbox"),
+  getSentRequests: () => api.get("/api/chat/request/sent"),
+  getRequestStatus: (targetUserId) => api.get(`/api/chat/request/status/${targetUserId}`),
+  acceptRequest: (reqId) => api.post(`/api/chat/request/${reqId}/accept`),
+  declineRequest: (reqId) => api.post(`/api/chat/request/${reqId}/decline`),
+  // Conversations
+  listConversations: () => api.get("/api/chat/conversations"),
+  getMessages: (convoId, page = 1) => api.get(`/api/chat/conversations/${convoId}/messages`, { params: { page } }),
+  sendMessage: (convoId, data) => api.post(`/api/chat/conversations/${convoId}/messages`, data),
+  // Notifications
+  getNotifications: () => api.get("/api/chat/notifications"),
+  markNotificationsRead: () => api.post("/api/chat/notifications/read"),
+  getUnreadCount: () => api.get("/api/chat/unread-count"),
+  // Trust & Safety
+  stopConversation: (convoId) => api.post(`/api/chat/stop/${convoId}`),
+  blockUser: (userId) => api.post(`/api/chat/block/${userId}`),
+  unblockUser: (userId) => api.post(`/api/chat/unblock/${userId}`),
+  reportUser: (userId, reason) => api.post(`/api/chat/report/${userId}`, { reason }),
+};
+
 export default api;

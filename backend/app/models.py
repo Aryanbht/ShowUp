@@ -99,7 +99,7 @@ class Project(db.Model):
     live_url = db.Column(db.String(500), nullable=True)
     github_url = db.Column(db.String(500), nullable=True)
     screenshot_url = db.Column(db.String(500), nullable=True)
-    student_id = db.Column(db.String(36), db.ForeignKey("students.id"), nullable=False)
+    student_id = db.Column(db.String(36), db.ForeignKey("students.id"), index=True, nullable=False)
     ai_analysis = db.Column(db.Text, nullable=True)          # JSON string of latest analysis
     ai_analysis_used = db.Column(db.Boolean, default=False)
     show_ai_analysis = db.Column(db.Boolean, default=True)
@@ -150,8 +150,8 @@ class Review(db.Model):
     __tablename__ = "reviews"
 
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
-    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
-    reviewer_id = db.Column(db.String(36), db.ForeignKey("students.id"), nullable=False)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), index=True, nullable=False)
+    reviewer_id = db.Column(db.String(36), db.ForeignKey("students.id"), index=True, nullable=False)
     feedback = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)  # 1-5
     is_verified_review = db.Column(db.Boolean, default=False)
@@ -174,8 +174,8 @@ class Follow(db.Model):
     __tablename__ = "follows"
 
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
-    follower_id = db.Column(db.String(36), db.ForeignKey("students.id"), nullable=False)
-    following_id = db.Column(db.String(36), db.ForeignKey("students.id"), nullable=False)
+    follower_id = db.Column(db.String(36), db.ForeignKey("students.id"), index=True, nullable=False)
+    following_id = db.Column(db.String(36), db.ForeignKey("students.id"), index=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (
@@ -214,4 +214,177 @@ class CustomSkill(db.Model):
     skill = db.Column(db.String(100), unique=True, nullable=False)
     usage_count = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ChatRequest(db.Model):
+    __tablename__ = 'chat_requests'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    sender_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    receiver_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    note = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='pending')  # pending | accepted | declined
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sender = db.relationship('Student', foreign_keys=[sender_id])
+    receiver = db.relationship('Student', foreign_keys=[receiver_id])
+
+    __table_args__ = (
+        db.UniqueConstraint('sender_id', 'receiver_id', name='unique_chat_request'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sender': self.sender.to_dict() if self.sender else None,
+            'receiver': self.receiver.to_dict() if self.receiver else None,
+            'note': self.note,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class Conversation(db.Model):
+    __tablename__ = 'conversations'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    participant_a = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    participant_b = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_message_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    student_a = db.relationship('Student', foreign_keys=[participant_a])
+    student_b = db.relationship('Student', foreign_keys=[participant_b])
+    messages = db.relationship('Message', backref='conversation', lazy=True, cascade='all, delete-orphan')
+
+    __table_args__ = (
+        db.UniqueConstraint('participant_a', 'participant_b', name='unique_conversation'),
+    )
+
+    def to_dict(self, current_user_id=None):
+        other = self.student_b if self.participant_a == current_user_id else self.student_a
+        unread = 0
+        is_blocked_by_me = False
+        is_blocked_by_them = False
+        
+        if current_user_id and other:
+            unread = Message.query.filter_by(
+                conversation_id=self.id, is_read=False
+            ).filter(Message.sender_id != current_user_id).count()
+            
+            block_by_me = BlockedUser.query.filter_by(blocker_id=current_user_id, blocked_id=other.id).first()
+            if block_by_me:
+                is_blocked_by_me = True
+                
+            block_by_them = BlockedUser.query.filter_by(blocker_id=other.id, blocked_id=current_user_id).first()
+            if block_by_them:
+                is_blocked_by_them = True
+
+        last_msg = Message.query.filter_by(conversation_id=self.id).order_by(Message.created_at.desc()).first()
+        return {
+            'id': self.id,
+            'other_user': other.to_dict() if other else None,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_message_at': self.last_message_at.isoformat() if self.last_message_at else None,
+            'last_message': last_msg.to_dict() if last_msg else None,
+            'unread_count': unread,
+            'is_blocked_by_me': is_blocked_by_me,
+            'is_blocked_by_them': is_blocked_by_them,
+        }
+
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    conversation_id = db.Column(db.String(36), db.ForeignKey('conversations.id'), index=True, nullable=False)
+    sender_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    content = db.Column(db.Text, nullable=True)          # text content
+    voice_url = db.Column(db.String(500), nullable=True)  # cloudinary URL for voice notes
+    message_type = db.Column(db.String(10), default='text')  # text | voice
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sender = db.relationship('Student', foreign_keys=[sender_id])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'conversation_id': self.conversation_id,
+            'sender_id': self.sender_id,
+            'sender': self.sender.to_dict() if self.sender else None,
+            'content': self.content,
+            'voice_url': self.voice_url,
+            'message_type': self.message_type,
+            'is_read': self.is_read,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    user_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    actor_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=True)
+    notification_type = db.Column(db.String(30), nullable=False)  # request_accepted | request_declined
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    conversation_id = db.Column(db.String(36), nullable=True)  # for accepted requests
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('Student', foreign_keys=[user_id])
+    actor = db.relationship('Student', foreign_keys=[actor_id])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'actor': self.actor.to_dict() if self.actor else None,
+            'notification_type': self.notification_type,
+            'message': self.message,
+            'is_read': self.is_read,
+            'conversation_id': self.conversation_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class BlockedUser(db.Model):
+    __tablename__ = 'blocked_users'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    blocker_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    blocked_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('blocker_id', 'blocked_id', name='unique_block'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'blocker_id': self.blocker_id,
+            'blocked_id': self.blocked_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class Report(db.Model):
+    __tablename__ = 'reports'
+
+    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    reporter_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    reported_id = db.Column(db.String(36), db.ForeignKey('students.id'), index=True, nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'reporter_id': self.reporter_id,
+            'reported_id': self.reported_id,
+            'reason': self.reason,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
 

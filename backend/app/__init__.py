@@ -68,6 +68,7 @@ def create_app():
     from app.skills import skills_bp
     from app.portfolio import portfolio_bp
     from app.github_oauth import github_bp
+    from app.chat import chat_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(projects_bp, url_prefix="/api/projects")
@@ -76,6 +77,7 @@ def create_app():
     app.register_blueprint(skills_bp)
     app.register_blueprint(portfolio_bp)
     app.register_blueprint(github_bp, url_prefix="/api/github")
+    app.register_blueprint(chat_bp)
 
 
 
@@ -97,6 +99,9 @@ def create_app():
     @app.route("/api/health")
     def health():
         return {"success": True, "message": "ShowUp API is running 🚀"}
+
+    with app.app_context():
+        db.create_all()
 
     return app
 

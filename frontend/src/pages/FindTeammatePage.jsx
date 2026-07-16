@@ -2,17 +2,26 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import SkillsInput from "../components/SkillsInput";
 import LocationInput from "../components/LocationInput";
-import { studentsApi } from "../api";
-import { Link } from "react-router-dom";
+import { studentsApi, chatApi } from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function FindTeammatePage() {
   const [hackathonType, setHackathonType] = useState("Online");
   const [region, setRegion] = useState("");
   const [skills, setSkills] = useState([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Connect Modal State
+  const [connectingId, setConnectingId] = useState(null);
+  const [connectingStudentName, setConnectingStudentName] = useState("");
+  const [connectNote, setConnectNote] = useState("");
+  const [connectLoading, setConnectLoading] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -31,6 +40,26 @@ export default function FindTeammatePage() {
       console.error("Search failed:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenConnect = (student) => {
+    if (!user) { navigate("/auth"); return; }
+    setConnectingId(student.id);
+    setConnectingStudentName(student.name);
+    setConnectNote("");
+  };
+
+  const handleSendConnect = async () => {
+    setConnectLoading(true);
+    try {
+      await chatApi.sendRequest(connectingId, connectNote);
+      setResults((prev) => prev.map((s) => s.id === connectingId ? { ...s, _requestSent: true } : s));
+      setConnectingId(null);
+    } catch (e) {
+      alert(e.response?.data?.message || "Failed to send request");
+    } finally {
+      setConnectLoading(false);
     }
   };
 
@@ -154,9 +183,28 @@ export default function FindTeammatePage() {
                         <div className="text-xs font-mono text-on-surface-variant">
                           Score: <span className="font-bold text-on-surface">{student.credibility_score}</span>
                         </div>
-                        <Link to={`/u/${student.id}`} className="text-xs font-bold uppercase hover:text-primary transition-colors flex items-center gap-1">
-                          View Profile <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          {user && user.id !== student.id && (
+                            <button
+                              onClick={() => handleOpenConnect(student)}
+                              disabled={student._requestSent}
+                              className={`text-xs font-bold uppercase flex items-center gap-1 border px-2 py-1 transition-colors ${
+                                student._requestSent
+                                  ? 'border-ink text-on-surface-variant bg-surface-container cursor-default'
+                                  : 'border-ink hover:bg-primary hover:text-on-primary'
+                              }`}
+                            >
+                              {student._requestSent ? (
+                                <><span className="material-symbols-outlined text-[12px]">check</span> Sent</>
+                              ) : (
+                                <><span className="material-symbols-outlined text-[12px]">person_add</span> Connect</>
+                              )}
+                            </button>
+                          )}
+                          <Link to={`/u/${student.id}`} className="text-xs font-bold uppercase hover:text-primary transition-colors flex items-center gap-1">
+                            View <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -165,6 +213,55 @@ export default function FindTeammatePage() {
             </div>
           )}
         </div>
+
+        {/* Connect Modal */}
+        {connectingId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+            <div className="bg-surface border-2 border-ink w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
+              <div className="border-b-2 border-ink px-5 py-4 flex items-center justify-between">
+                <h3 className="font-grotesk font-bold text-base uppercase">Connect with {connectingStudentName}</h3>
+                <button onClick={() => setConnectingId(null)} className="p-1 hover:bg-surface-container">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div className="p-5">
+                <p className="text-sm font-mono text-on-surface-variant mb-4">
+                  Send a connection request with an optional note explaining why you want to connect.
+                </p>
+                <label className="label-mono block mb-1.5">Note (optional)</label>
+                <textarea
+                  value={connectNote}
+                  onChange={(e) => setConnectNote(e.target.value)}
+                  placeholder="Hi! I'd love to collaborate on a hackathon project..."
+                  maxLength={500}
+                  rows={3}
+                  className="input-brutal w-full resize-none text-sm"
+                />
+                <p className="text-[10px] font-mono text-on-surface-variant mt-1 text-right">{connectNote.length}/500</p>
+              </div>
+              <div className="border-t-2 border-ink px-5 py-4 flex gap-3">
+                <button
+                  onClick={handleSendConnect}
+                  disabled={connectLoading}
+                  className="btn-primary flex-1 justify-center"
+                >
+                  {connectLoading ? (
+                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">send</span>
+                  )}
+                  Send Request
+                </button>
+                <button
+                  onClick={() => setConnectingId(null)}
+                  className="border-2 border-ink px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
