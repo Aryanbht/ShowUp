@@ -48,12 +48,12 @@ export default function CloudinaryUpload({ onUpload, label = "Upload Image", cur
     <div>
       {/* Preview */}
       {preview && (
-        <div className="relative mb-3 border-2 border-ink aspect-video overflow-hidden bg-surface-container">
+        <div className="relative mb-3 border-2 border-outline-variant aspect-video overflow-hidden bg-surface-container">
           <img src={preview} alt="Preview" className="w-full h-full object-cover" />
           <button
             type="button"
             onClick={() => { setPreview(null); onUpload(null); }}
-            className="absolute top-2 right-2 bg-error text-white border border-ink p-1"
+            className="absolute top-2 right-2 bg-error text-white border border-outline-variant p-1"
             title="Remove"
           >
             <span className="material-symbols-outlined text-sm">close</span>
@@ -67,7 +67,7 @@ export default function CloudinaryUpload({ onUpload, label = "Upload Image", cur
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className={`w-full border-2 border-dashed border-ink p-8 flex flex-col items-center gap-2 bg-surface-container hover:bg-surface-container-high transition-colors ${uploading ? "opacity-60 cursor-wait" : "cursor-pointer"}`}
+          className={`w-full border-2 border-dashed border-outline-variant p-8 flex flex-col items-center gap-2 bg-surface-container hover:bg-surface-container-high transition-colors ${uploading ? "opacity-60 cursor-wait" : "cursor-pointer"}`}
         >
           {uploading ? (
             <>

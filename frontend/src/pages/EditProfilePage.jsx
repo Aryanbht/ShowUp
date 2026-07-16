@@ -243,12 +243,12 @@ export default function EditProfilePage() {
 
 
   return (
-    <div className="flex min-h-screen w-full bg-surface overflow-x-hidden">
+    <div className="flex min-h-screen w-full bg-surface-container overflow-x-hidden">
       <Navbar />
 
       <main className="flex-1 w-full md:ml-64 pb-24 md:pb-0">
         {/* Header */}
-        <div className="border-b-2 border-ink px-4 py-4 sticky top-0 z-20 bg-surface">
+        <div className="border-b-2 border-outline-variant px-4 py-4 sticky top-0 z-20 bg-surface-container">
           <h1 className="font-grotesk font-bold text-lg sm:text-xl text-on-surface">Edit Profile</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">Update your public profile info</p>
         </div>
@@ -262,7 +262,7 @@ export default function EditProfilePage() {
 
               {/* Big photo preview */}
               {form.avatar_url && (
-                <div className="relative w-full mb-3 overflow-hidden border-2 border-ink bg-surface-container"
+                <div className="relative w-full mb-3 overflow-hidden border-2 border-outline-variant bg-surface-container"
                      style={{ paddingTop: "56.25%" /* 16:9 */ }}>
                   <img
                     src={form.avatar_url}
@@ -272,7 +272,7 @@ export default function EditProfilePage() {
                   <button
                     type="button"
                     onClick={() => setForm((f) => ({ ...f, avatar_url: "" }))}
-                    className="absolute top-2 right-2 bg-error text-white border border-ink p-1"
+                    className="absolute top-2 right-2 bg-error text-white border border-outline-variant p-1"
                     title="Remove"
                   >
                     <span className="material-symbols-outlined text-sm">close</span>
@@ -283,7 +283,7 @@ export default function EditProfilePage() {
               {/* Upload button */}
               <label
                 htmlFor="avatar-file"
-                className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-ink py-3 font-mono text-xs uppercase font-bold cursor-pointer transition-colors ${
+                className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-outline-variant py-3 font-mono text-xs uppercase font-bold cursor-pointer transition-colors ${
                   uploading ? "opacity-60 cursor-wait bg-surface-container" : "hover:bg-surface-container"
                 }`}
               >
@@ -346,7 +346,7 @@ export default function EditProfilePage() {
               <label className="label-mono block mb-1.5">GitHub Profile</label>
               
               {user?.github_username ? (
-                <div className="flex items-center justify-between border-2 border-ink p-3 bg-surface-container-low">
+                <div className="flex items-center justify-between border-2 border-outline-variant p-3 bg-surface-container-low">
                   <div className="flex items-center gap-2">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
@@ -368,7 +368,7 @@ export default function EditProfilePage() {
                     type="button" 
                     onClick={handleConnectGithub}
                     disabled={githubLoading}
-                    className="w-full flex items-center justify-center gap-2 border-2 border-ink p-3 bg-[#1A1A1A] text-white hover:bg-[#333] transition-colors disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 border-2 border-outline-variant p-3 bg-[#1A1A1A] text-white hover:bg-[#333] transition-colors disabled:opacity-50"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
@@ -504,7 +504,7 @@ export default function EditProfilePage() {
             </div>
 
             {/* ── Portfolio Link ── */}
-            <div className="border-2 border-ink p-3 bg-surface-container-low">
+            <div className="border-2 border-outline-variant p-3 bg-surface-container-low">
               <p className="label-mono mb-2">Your Portfolio Link</p>
               <div className="flex items-center gap-2 min-w-0">
                 <code className="font-mono text-xs text-primary flex-1 min-w-0 truncate block">
@@ -513,7 +513,7 @@ export default function EditProfilePage() {
                 <button
                   type="button"
                   onClick={() => navigator.clipboard.writeText(`${window.location.origin}/portfolio/${username || user?.username || user?.id}`)}
-                  className="border border-ink p-1.5 hover:bg-surface-container transition-colors flex-shrink-0"
+                  className="border border-outline-variant p-1.5 hover:bg-surface-container transition-colors flex-shrink-0"
                   title="Copy link"
                 >
                   <span className="material-symbols-outlined text-sm">content_copy</span>
@@ -712,7 +712,7 @@ export default function EditProfilePage() {
             </div>
 
             {/* ── Danger Zone ── */}
-            <div className="border-t-2 border-ink pt-6 mt-4">
+            <div className="border-t-2 border-outline-variant pt-6 mt-4">
               <h2 className="font-grotesk font-bold text-lg text-error mb-2">Danger Zone</h2>
               <p className="font-mono text-sm text-on-surface-variant mb-4">
                 Once you delete your account, there is no going back.
@@ -732,7 +732,7 @@ export default function EditProfilePage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-ink/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface border-4 border-ink p-6 w-full max-w-sm shadow-[8px_8px_0px_#111]">
+          <div className="bg-surface-container border-4 border-outline-variant p-6 w-full max-w-sm shadow-glow-violet-sm">
             <h2 className="font-grotesk font-bold text-xl text-error mb-2">Are you absolutely sure?</h2>
             <p className="text-on-surface text-sm mb-6">
               This will permanently delete your account, projects, and reviews from ShowUp.
@@ -740,7 +740,7 @@ export default function EditProfilePage() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={handleDeleteAccount}
-                className="bg-error text-white border-2 border-ink px-4 py-2 font-mono text-xs uppercase font-bold hover:opacity-90 w-full"
+                className="bg-error text-white border-2 border-outline-variant px-4 py-2 font-mono text-xs uppercase font-bold hover:opacity-90 w-full"
                 disabled={deleting}
               >
                 {deleting ? "Deleting..." : "Yes, Delete My Account"}
@@ -760,7 +760,7 @@ export default function EditProfilePage() {
       {/* Exit Survey Modal */}
       {showSurveyModal && (
         <div className="fixed inset-0 bg-ink/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-surface border-4 border-ink p-6 w-full max-w-sm shadow-[8px_8px_0px_#111]">
+          <div className="bg-surface-container border-4 border-outline-variant p-6 w-full max-w-sm shadow-glow-violet-sm">
             <h2 className="font-grotesk font-bold text-xl text-on-surface mb-2">We're sorry to see you go</h2>
             <p className="text-on-surface-variant text-sm mb-4">
               Your account has been deleted. Could you tell us why you decided to leave?

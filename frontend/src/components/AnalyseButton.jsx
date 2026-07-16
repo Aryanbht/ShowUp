@@ -2,14 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 /* ─── Design tokens ─────────────────────────────── */
 const T = {
-  bg: '#0D0D0D',
-  surface: '#141414',
-  surfaceEl: '#1A1A1A',
-  accent: '#C8FF00',
-  border: '#2A2A2A',
-  textPrimary: '#F0F0F0',
-  textSecondary: '#666666',
-  error: '#FF4444',
+  bg: '#09090F',
+  surface: '#111122',
+  surfaceEl: '#18182E',
+  accent: '#8B5CF6',
+  accentDim: '#7C3AED',
+  border: 'rgba(255,255,255,0.08)',
+  textPrimary: '#ECEEF5',
+  textSecondary: '#8A8AAE',
+  error: '#F87171',
   mono: '"IBM Plex Mono", monospace',
   grotesk: '"Space Grotesk", sans-serif',
 }
@@ -115,17 +116,19 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
   /* ── CSS injected once ── */
   const borderPulseCSS = `
     @keyframes borderPulse {
-      0%, 100% { border-color: #2A2A2A; }
-      50% { border-color: #C8FF00; }
+      0%, 100% { border-color: rgba(255,255,255,0.08); }
+      50% { border-color: rgba(139,92,246,0.6); }
     }
     .analyse-queued-box {
       animation: borderPulse 2s ease-in-out infinite;
     }
     .analyse-accent-btn:hover {
-      transform: translate(2px, 2px);
+      background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+      box-shadow: 0 0 28px rgba(124,58,237,0.5) !important;
+      transform: translateY(-1px);
     }
     .analyse-retry-btn:hover {
-      transform: translate(2px, 2px);
+      background: rgba(139,92,246,0.15) !important;
     }
   `
 
@@ -134,8 +137,8 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
     <div
       className={className}
       style={{
-        border: `1.5px solid ${borderColor}`,
-        borderRadius: 4,
+        border: `1px solid ${borderColor}`,
+        borderRadius: '0.75rem',
         padding: 16,
         background: T.surface,
       }}
@@ -167,10 +170,10 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
           onClick={handleAnalyse}
           style={{
             width: '100%',
-            background: T.accent,
-            color: T.bg,
-            border: 'none',
-            borderRadius: 2,
+            background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)',
+            color: '#FFFFFF',
+            border: '1px solid rgba(139,92,246,0.4)',
+            borderRadius: '0.75rem',
             padding: 14,
             fontFamily: T.mono,
             fontSize: 13,
@@ -178,7 +181,8 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
             cursor: 'pointer',
-            transition: 'transform 0.1s',
+            boxShadow: '0 0 18px rgba(124,58,237,0.3)',
+            transition: 'all 0.2s ease',
           }}
         >
           ANALYSE WITH AI →
@@ -228,17 +232,17 @@ export default function AnalyseButton({ projectId, canAnalyze, canAnalyzeReason,
             className="analyse-retry-btn"
             onClick={handleRetry}
             style={{
-              background: 'none',
-              border: `1.5px solid ${T.accent}`,
-              borderRadius: 2,
+              background: 'rgba(139,92,246,0.08)',
+              border: `1px solid rgba(139,92,246,0.35)`,
+              borderRadius: '0.75rem',
               padding: '8px 14px',
               fontFamily: T.mono,
               fontSize: 12,
-              color: T.accent,
+              color: '#C4B5FD',
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
               cursor: 'pointer',
-              transition: 'transform 0.1s',
+              transition: 'background 0.2s ease',
             }}
           >
             TRY AGAIN →

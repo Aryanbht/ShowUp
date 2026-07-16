@@ -7,7 +7,7 @@ export default function AuthGuard({ children }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-surface">
+      <div className="flex items-center justify-center min-h-screen bg-transparent">
         <div className="text-center">
           <p className="font-mono font-bold uppercase text-sm text-on-surface-variant animate-pulse">
             Loading...

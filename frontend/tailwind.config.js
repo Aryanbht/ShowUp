@@ -77,6 +77,10 @@ export default {
         "brutal-sm": "2px 2px 0px 0px #2A2A2A",
         "brutal-lg": "6px 6px 0px 0px #2A2A2A",
         "brutal-primary": "4px 4px 0px 0px #4f378a",
+        "glow-violet": "0 0 20px rgba(124, 58, 237, 0.4), 0 4px 24px rgba(0, 0, 0, 0.5)",
+        "glow-violet-sm": "0 0 10px rgba(124, 58, 237, 0.25), 0 2px 12px rgba(0, 0, 0, 0.35)",
+        "glow-violet-lg": "0 0 40px rgba(124, 58, 237, 0.5), 0 8px 40px rgba(0, 0, 0, 0.6)",
+        "card-dark": "0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-in-out",

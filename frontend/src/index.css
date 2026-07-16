@@ -1,11 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Public+Sans:wght@400;600;800&family=Space+Grotesk:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Public+Sans:wght@400;500;600;800&family=Space+Grotesk:wght@600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Base ─────────────────────────────────────────── */
+/* ─── Dark Theme CSS Variables ─────────────────────────── */
+:root {
+  /* Surface layers (near-black page + elevated cards) */
+  --color-background:                   #09090F;
+  --color-surface:                      #09090F;
+  --color-surface-dim:                  #05050A;
+  --color-surface-bright:               #1C1C30;
+  --color-surface-variant:              #14142A;
+  --color-surface-container-lowest:     #050508;
+  --color-surface-container-low:        #0D0D1A;
+  --color-surface-container:            #111122;
+  --color-surface-container-high:       #18182E;
+  --color-surface-container-highest:    #21213A;
+
+  /* Text */
+  --color-on-background:                #ECEEF5;
+  --color-on-surface:                   #ECEEF5;
+  --color-on-surface-variant:           #8A8AAE;
+
+  /* Primary — Violet */
+  --color-primary:                      #8B5CF6;
+  --color-on-primary:                   #FFFFFF;
+  --color-primary-container:            #3B1585;
+  --color-on-primary-container:         #DDD6FE;
+  --color-primary-fixed:                #2D1172;
+  --color-primary-fixed-dim:            #7C3AED;
+  --color-on-primary-fixed:             #EDE9FE;
+  --color-on-primary-fixed-variant:     #A78BFA;
+  --color-inverse-primary:              #C4B5FD;
+  --color-surface-tint:                 #8B5CF6;
+
+  /* Secondary — Lavender */
+  --color-secondary:                    #A78BFA;
+  --color-on-secondary:                 #1A0A40;
+  --color-secondary-container:          #2D1D6B;
+  --color-on-secondary-container:       #DDD6FE;
+  --color-secondary-fixed:              #2D1D6B;
+  --color-secondary-fixed-dim:          #7C3AED;
+  --color-on-secondary-fixed:           #EDE9FE;
+  --color-on-secondary-fixed-variant:   #C4B5FD;
+
+  /* Tertiary — Amber (for badges & highlights) */
+  --color-tertiary:                     #FBBF24;
+  --color-on-tertiary:                  #140900;
+  --color-tertiary-container:           #8B5CF6;
+  --color-on-tertiary-container:        #DDD6FE;
+  --color-tertiary-fixed:               #FCD34D;
+  --color-tertiary-fixed-dim:           #F59E0B;
+  --color-on-tertiary-fixed:            #140900;
+  --color-on-tertiary-fixed-variant:    #92400E;
+
+  /* Error */
+  --color-error:                        #F87171;
+  --color-on-error:                     #3B0000;
+  --color-error-container:              #3B0A0A;
+  --color-on-error-container:           #FCA5A5;
+
+  /* Borders */
+  --color-outline:                      rgba(255, 255, 255, 0.14);
+  --color-outline-variant:              rgba(255, 255, 255, 0.07);
+
+  /* Inverse */
+  --color-inverse-surface:              #ECEEF5;
+  --color-inverse-on-surface:           #111122;
+
+  /* Ink — subtle white border */
+  --color-ink:                          rgba(255, 255, 255, 0.10);
+}
+
+/* ─── Base ───────────────────────────────────────────────── */
 @layer base {
   * {
     box-sizing: border-box;
@@ -14,6 +83,8 @@
   body {
     @apply bg-surface text-on-surface font-body overflow-x-hidden min-h-screen;
     -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124, 58, 237, 0.07), transparent 70%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -21,99 +92,159 @@
   }
 }
 
-/* ─── Components ────────────────────────────────────── */
+/* ─── Components ─────────────────────────────────────────── */
 @layer components {
-  /* Brutalist card */
+
+  /* Dark glass card */
   .card-brutal {
-    @apply border-2 border-ink bg-surface;
-    box-shadow: 4px 4px 0px 0px #2A2A2A;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    @apply bg-surface-container border border-outline-variant rounded-2xl overflow-hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .card-brutal:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px 0px #2A2A2A;
+    transform: translateY(-3px);
+    border-color: rgba(139, 92, 246, 0.35);
+    box-shadow: 0 8px 36px rgba(0, 0, 0, 0.55), 0 0 20px rgba(124, 58, 237, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
-  /* Brutalist button primary */
+  .glass-card {
+    @apply bg-surface-container border border-outline-variant rounded-2xl;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* Primary button — violet gradient */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-3 bg-ink text-white font-mono font-bold uppercase text-sm tracking-wider border-2 border-ink rounded-md;
-    box-shadow: 3px 3px 0px 0px #4f378a;
-    transition: all 0.15s ease;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 text-white font-mono font-semibold text-sm tracking-wide rounded-xl;
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 18px rgba(124, 58, 237, 0.30), 0 4px 12px rgba(0, 0, 0, 0.35);
+    transition: all 0.2s ease;
   }
   .btn-primary:hover {
-    @apply bg-primary border-primary;
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0px 0px #2A2A2A;
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+    box-shadow: 0 0 28px rgba(124, 58, 237, 0.50), 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
   }
   .btn-primary:active {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0px 0px #2A2A2A;
+    transform: translateY(0);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
   }
 
-  /* Brutalist button secondary */
+  /* Secondary button — outlined violet */
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-3 bg-surface text-ink font-mono font-bold uppercase text-sm tracking-wider border-2 border-ink rounded-md;
-    box-shadow: 3px 3px 0px 0px #2A2A2A;
-    transition: all 0.15s ease;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-transparent text-violet-300 font-mono font-semibold text-sm tracking-wide rounded-xl;
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    transition: all 0.2s ease;
   }
   .btn-secondary:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0px 0px #4f378a;
+    background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(139, 92, 246, 0.55);
+    box-shadow: 0 0 14px rgba(124, 58, 237, 0.18);
+    color: #DDD6FE;
+  }
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 
-  /* Brutalist button danger */
+  /* Danger button */
   .btn-danger {
-    @apply inline-flex items-center gap-2 px-5 py-3 bg-error text-white font-mono font-bold uppercase text-sm tracking-wider border-2 border-error rounded-md;
-    box-shadow: 3px 3px 0px 0px #2A2A2A;
-    transition: all 0.15s ease;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 text-white font-mono font-semibold text-sm tracking-wide rounded-xl;
+    background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%);
+    border: 1px solid rgba(248, 113, 113, 0.30);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    transition: all 0.2s ease;
   }
   .btn-danger:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0px 0px #2A2A2A;
+    background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+    box-shadow: 0 0 18px rgba(248, 113, 113, 0.28), 0 4px 14px rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
+  }
+  .btn-danger:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
   }
 
-  /* Form input */
+  /* Form input — dark */
   .input-brutal {
-    @apply w-full px-4 py-3 bg-surface border-2 border-ink font-body text-on-surface placeholder-on-surface-variant outline-none;
-    transition: box-shadow 0.15s ease;
+    @apply w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl font-body text-on-surface outline-none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input-brutal::placeholder {
+    color: rgba(138, 138, 174, 0.55);
   }
   .input-brutal:focus {
-    box-shadow: 3px 3px 0px 0px #4f378a;
+    border-color: rgba(139, 92, 246, 0.55);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
   }
 
   /* Mono label */
   .label-mono {
-    @apply font-mono font-bold uppercase tracking-wider text-xs text-on-surface-variant;
+    @apply font-mono font-medium uppercase tracking-widest text-xs text-on-surface-variant;
   }
 
-  /* Tech pill */
+  /* Tech pill — dark violet */
   .tech-pill {
-    @apply inline-flex items-center px-2.5 py-1 font-mono text-xs font-semibold border border-ink bg-surface-container;
+    @apply inline-flex items-center px-2.5 py-1 font-mono text-xs font-medium rounded-full;
+    background: rgba(109, 40, 217, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: #C4B5FD;
   }
 
-  /* Section header */
   .section-title {
     @apply font-grotesk font-bold text-2xl text-on-surface;
   }
 
-  /* Hard border utility */
+  /* Subtle border utility */
   .brutalist-border {
-    border: 1.5px solid #2A2A2A;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 0.75rem;
   }
 
-  /* Score color utilities */
-  .score-low { @apply text-error; }
-  .score-mid { @apply text-tertiary; }
-  .score-high { @apply text-green-700; }
+  /* Score colors */
+  .score-low  { @apply text-red-400; }
+  .score-mid  { @apply text-amber-400; }
+  .score-high { @apply text-emerald-400; }
+
+  /* Sticky top bar — glassmorphic dark */
+  .topbar-dark {
+    @apply sticky top-0 z-20 px-6 py-4;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(9, 9, 15, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Gradient text utility */
+  .gradient-text {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow utilities */
+  .glow-violet {
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  }
+  .glow-violet-sm {
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.25);
+  }
 }
 
-/* ─── Utilities ─────────────────────────────────────── */
+/* ─── Utilities ──────────────────────────────────────────── */
 @layer utilities {
   .text-balance { text-wrap: balance; }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #f2ecf4; }
-::-webkit-scrollbar-thumb { background: #cbc4d2; }
-::-webkit-scrollbar-thumb:hover { background: #7a7582; }
+/* ─── Scrollbar — dark violet ────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #09090F; }
+::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.55); }

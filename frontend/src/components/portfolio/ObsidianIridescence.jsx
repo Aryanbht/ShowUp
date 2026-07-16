@@ -76,7 +76,7 @@ export default function ObsidianIridescence({ data, handleJoinShowUp, selectedPr
       `}} />
 
       {/* TopNavBar */}
-      <header className="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-[20px] border-b border-white/10 shadow-[0_0_60px_rgba(99,102,241,0.05)]">
+      <header className="fixed top-0 w-full z-50 bg-surface-container/60 backdrop-blur-[20px] border-b border-white/10 shadow-[0_0_60px_rgba(99,102,241,0.05)]">
         <div className="flex justify-between items-center max-w-7xl mx-auto px-6 md:px-20 h-20">
           <span className="font-bricolage text-2xl md:text-3xl font-medium text-on-surface tracking-tight">Portfolio</span>
           <nav className="hidden md:flex gap-8 items-center">
@@ -255,7 +255,7 @@ export default function ObsidianIridescence({ data, handleJoinShowUp, selectedPr
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-surface-dim border-t border-outline-variant/30 w-full py-8 md:py-12 mb-16 md:mb-0">
+      <footer className="relative z-10 bg-surface-container-dim border-t border-outline-variant/30 w-full py-8 md:py-12 mb-16 md:mb-0">
         <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-20 gap-4 max-w-7xl mx-auto text-center md:text-left">
           <span className="font-bricolage text-xl md:text-2xl font-medium text-on-surface tracking-tight">ShowUp</span>
           <p className="font-geist text-[10px] md:text-xs text-on-tertiary-fixed-variant uppercase tracking-widest">© {new Date().getFullYear()} {student.name}. Built with ShowUp.</p>

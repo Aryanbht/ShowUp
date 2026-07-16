@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { TOKEN_KEYS } from '../api'
 
-/* ─── Design tokens — matches ShowUp light brutalist palette ─── */
+/* ─── Design tokens — matches ShowUp dark glassmorphic palette ─── */
 const T = {
-  bg: '#fdf7ff',          // ShowUp surface (lavender-white)
-  surface: '#ffffff',      // card background
-  surfaceEl: '#f8f2fa',   // subtle inset elements
-  accent: '#2A2A2A',       // ink — primary button bg (same as btn-primary)
-  accentShadow: '#4f378a', // purple offset shadow (same as btn-primary box-shadow)
-  border: '#2A2A2A',       // ink border
-  borderLight: '#cbc4d2',  // outline-variant for dividers
-  textPrimary: '#1d1b20',  // on-surface
-  textSecondary: '#494551', // on-surface-variant
-  error: '#ba1a1a',        // error token
+  bg: '#09090F',          // near-black background
+  surface: '#111122',     // dark surface container
+  surfaceEl: '#18182E',   // surface container high
+  accent: '#8B5CF6',      // primary violet
+  accentShadow: 'rgba(124, 58, 237, 0.3)', // violet glow
+  border: 'rgba(255, 255, 255, 0.14)',      // outline
+  borderLight: 'rgba(255, 255, 255, 0.07)', // outline-variant
+  textPrimary: '#ECEEF5', // on-surface
+  textSecondary: '#8A8AAE', // on-surface-variant
+  error: '#F87171',       // error token
   mono: '"IBM Plex Mono", monospace',
   serif: '"DM Serif Display", serif',
   grotesk: '"Space Grotesk", sans-serif',
@@ -23,24 +23,25 @@ const T = {
 /* ─── Shared style fragments ─────────────────────── */
 const inputStyle = {
   width: '100%',
-  background: T.bg,
-  border: `2px solid ${T.border}`,
-  borderRadius: 0,
+  background: T.surfaceEl,
+  border: `1px solid ${T.border}`,
+  borderRadius: '0.75rem',
   padding: '14px 16px',
   fontFamily: T.mono,
   fontSize: 14,
   color: T.textPrimary,
   outline: 'none',
   boxSizing: 'border-box',
+  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
 }
 
 // Primary brutalist button — matches .btn-primary from index.css
 const btnAccent = {
   width: '100%',
-  background: T.accent,
+  background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
   color: '#ffffff',
-  border: `2px solid ${T.border}`,
-  borderRadius: 0,
+  border: `1px solid rgba(139, 92, 246, 0.4)`,
+  borderRadius: '0.75rem',
   padding: '14px 16px',
   fontFamily: T.mono,
   fontSize: 13,
@@ -48,13 +49,14 @@ const btnAccent = {
   textTransform: 'uppercase',
   cursor: 'pointer',
   letterSpacing: '0.08em',
-  boxShadow: `3px 3px 0px 0px ${T.accentShadow}`,
-  transition: 'all 0.15s ease',
+  boxShadow: `0 0 18px rgba(124, 58, 237, 0.30), 0 4px 12px rgba(0, 0, 0, 0.35)`,
+  transition: 'all 0.2s ease',
 }
 
 const btnDisabled = {
   ...btnAccent,
-  background: T.borderLight,
+  background: 'transparent',
+  borderColor: T.borderLight,
   color: T.textSecondary,
   boxShadow: 'none',
   cursor: 'not-allowed',
@@ -92,6 +94,7 @@ function InputField({ label, value, onChange, placeholder, type = 'text', autoFo
         style={{
           ...inputStyle,
           borderColor: focused ? T.accent : T.border,
+          boxShadow: focused ? `0 0 0 3px rgba(124, 58, 237, 0.12)` : 'none',
         }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -163,9 +166,9 @@ function OTPBox({ innerRef, value, onChange, onKeyDown, onPaste, autoFocus }) {
         width: 52,
         height: 60,
         flexShrink: 0,
-        background: T.bg,
-        border: `2px solid ${focused ? T.accent : T.borderLight}`,
-        borderRadius: 0,
+        background: T.surfaceEl,
+        border: `1px solid ${focused ? T.accent : T.borderLight}`,
+        borderRadius: '0.75rem',
         fontFamily: T.grotesk,
         fontSize: 24,
         fontWeight: 700,
@@ -173,8 +176,8 @@ function OTPBox({ innerRef, value, onChange, onKeyDown, onPaste, autoFocus }) {
         color: T.textPrimary,
         outline: 'none',
         cursor: 'text',
-        boxShadow: focused ? `2px 2px 0 ${T.accentShadow}` : 'none',
-        transition: 'all 0.15s ease',
+        boxShadow: focused ? `0 0 10px rgba(124, 58, 237, 0.2)` : 'none',
+        transition: 'all 0.2s ease',
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
@@ -383,13 +386,19 @@ export default function Auth() {
       {/* Inject keyframe for pulse on border — plain CSS */}
       <style>{`
         .google-btn:hover {
-          border-color: #4f378a !important;
-          box-shadow: 3px 3px 0 #4f378a !important;
-          transform: translate(-1px, -1px);
+          border-color: rgba(139, 92, 246, 0.5) !important;
+          background: rgba(139, 92, 246, 0.05) !important;
+          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1) !important;
+          transform: translateY(-1px);
         }
         .accent-btn:hover:not(:disabled) {
-          transform: translate(-1px, -1px);
-          box-shadow: 4px 4px 0 #4f378a !important;
+          background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%) !important;
+          box-shadow: 0 0 28px rgba(124, 58, 237, 0.50), 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+          transform: translateY(-1px);
+        }
+        .accent-btn:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: 0 0 12px rgba(124, 58, 237, 0.25) !important;
         }
         .resend-link:hover {
           text-decoration: underline;
@@ -408,16 +417,16 @@ export default function Auth() {
         padding: '24px 16px',
         fontFamily: T.mono,
       }}>
-        {/* Card — brutalist border + offset shadow, matches card-brutal */}
+        {/* Card — brutalist border + offset shadow, matches glass-card */}
         <div style={{
           width: '100%',
           maxWidth: 440,
-          border: `2px solid ${T.border}`,
-          borderRadius: 0,
+          border: `1px solid ${T.border}`,
+          borderRadius: '1rem',
           padding: 40,
           background: T.surface,
           boxSizing: 'border-box',
-          boxShadow: `4px 4px 0px 0px ${T.accentShadow}`,
+          boxShadow: `0 4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04)`,
         }}>
           {/* Logo + tagline */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -454,9 +463,9 @@ export default function Auth() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 10,
-                  background: T.surface,
-                  border: `2px solid ${T.border}`,
-                  borderRadius: 0,
+                  background: T.surfaceEl,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: '0.75rem',
                   padding: '13px 16px',
                   fontFamily: T.mono,
                   fontSize: 13,
@@ -465,8 +474,7 @@ export default function Auth() {
                   color: T.textPrimary,
                   cursor: 'pointer',
                   letterSpacing: '0.06em',
-                  boxShadow: `2px 2px 0 ${T.border}`,
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.2s ease',
                 }}
               >
                 <GoogleIcon />

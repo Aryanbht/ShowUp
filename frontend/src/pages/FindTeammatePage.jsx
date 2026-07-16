@@ -64,17 +64,17 @@ export default function FindTeammatePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-transparent">
       <Navbar />
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
-        <header className="sticky top-0 z-20 border-b-2 border-ink px-6 py-4 bg-surface">
+        <header className="sticky top-0 z-20 border-b-2 border-outline-variant px-6 py-4 bg-surface-container">
           <h1 className="font-grotesk font-bold text-xl text-on-surface">Find Teammate</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">Find the perfect partner for your next hackathon</p>
         </header>
 
         <div className="p-6 max-w-4xl mx-auto">
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="card-brutal p-6 mb-8">
+          <form onSubmit={handleSearch} className="glass-card p-6 mb-8">
             <h2 className="font-grotesk font-bold text-lg mb-4 uppercase">Search Criteria</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -131,18 +131,18 @@ export default function FindTeammatePage() {
               </h2>
 
               {results.length === 0 ? (
-                <div className="text-center p-10 border-2 border-dashed border-ink text-on-surface-variant font-mono text-sm bg-surface-container">
+                <div className="text-center p-10 border-2 border-dashed border-outline-variant text-on-surface-variant font-mono text-sm bg-surface-container">
                   No teammates found matching your criteria. Try loosening your search.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {results.map((student) => (
-                    <div key={student.id} className="card-brutal p-5 flex flex-col bg-surface">
+                    <div key={student.id} className="glass-card p-5 flex flex-col bg-surface-container">
                       <div className="flex items-start gap-4 mb-3">
                         {student.avatar_url ? (
                           <img src={student.avatar_url} alt={student.name} className="w-12 h-12 brutalist-border object-cover" />
                         ) : (
-                          <div className="w-12 h-12 bg-primary-container border-2 border-ink flex items-center justify-center">
+                          <div className="w-12 h-12 bg-primary-container border-2 border-outline-variant flex items-center justify-center">
                             <span className="font-mono font-bold text-lg text-on-primary-container">
                               {student.name?.[0]?.toUpperCase()}
                             </span>
@@ -166,7 +166,7 @@ export default function FindTeammatePage() {
                           {student.skills.slice(0, 5).map((sk) => {
                             const isMatch = student.matched_skills?.includes(sk.toLowerCase());
                             return (
-                              <span key={sk} className={`text-[10px] px-1.5 py-0.5 border border-ink ${isMatch ? 'bg-[#4f378a] text-white font-bold' : 'bg-surface-container text-on-surface-variant'}`}>
+                              <span key={sk} className={`text-[10px] px-1.5 py-0.5 border border-outline-variant ${isMatch ? 'bg-[#4f378a] text-white font-bold' : 'bg-surface-container text-on-surface-variant'}`}>
                                 {sk}
                               </span>
                             );
@@ -179,7 +179,7 @@ export default function FindTeammatePage() {
                         </div>
                       </div>
 
-                      <div className="mt-auto flex items-center justify-between pt-3 border-t-2 border-ink border-dashed">
+                      <div className="mt-auto flex items-center justify-between pt-3 border-t-2 border-outline-variant border-dashed">
                         <div className="text-xs font-mono text-on-surface-variant">
                           Score: <span className="font-bold text-on-surface">{student.credibility_score}</span>
                         </div>
@@ -190,8 +190,8 @@ export default function FindTeammatePage() {
                               disabled={student._requestSent}
                               className={`text-xs font-bold uppercase flex items-center gap-1 border px-2 py-1 transition-colors ${
                                 student._requestSent
-                                  ? 'border-ink text-on-surface-variant bg-surface-container cursor-default'
-                                  : 'border-ink hover:bg-primary hover:text-on-primary'
+                                  ? 'border-outline-variant text-on-surface-variant bg-surface-container cursor-default'
+                                  : 'border-outline-variant hover:bg-primary hover:text-on-primary'
                               }`}
                             >
                               {student._requestSent ? (
@@ -217,8 +217,8 @@ export default function FindTeammatePage() {
         {/* Connect Modal */}
         {connectingId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-            <div className="bg-surface border-2 border-ink w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
-              <div className="border-b-2 border-ink px-5 py-4 flex items-center justify-between">
+            <div className="bg-surface-container border-2 border-outline-variant w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
+              <div className="border-b-2 border-outline-variant px-5 py-4 flex items-center justify-between">
                 <h3 className="font-grotesk font-bold text-base uppercase">Connect with {connectingStudentName}</h3>
                 <button onClick={() => setConnectingId(null)} className="p-1 hover:bg-surface-container">
                   <span className="material-symbols-outlined">close</span>
@@ -239,7 +239,7 @@ export default function FindTeammatePage() {
                 />
                 <p className="text-[10px] font-mono text-on-surface-variant mt-1 text-right">{connectNote.length}/500</p>
               </div>
-              <div className="border-t-2 border-ink px-5 py-4 flex gap-3">
+              <div className="border-t-2 border-outline-variant px-5 py-4 flex gap-3">
                 <button
                   onClick={handleSendConnect}
                   disabled={connectLoading}
@@ -254,7 +254,7 @@ export default function FindTeammatePage() {
                 </button>
                 <button
                   onClick={() => setConnectingId(null)}
-                  className="border-2 border-ink px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
+                  className="border-2 border-outline-variant px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
                 >
                   Cancel
                 </button>

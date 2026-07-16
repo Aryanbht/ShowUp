@@ -12,15 +12,16 @@ const DIMENSION_ICONS = {
 };
 
 const scoreColor = (s) =>
-  s >= 8 ? "text-green-700" : s >= 6 ? "text-tertiary" : "text-error";
+  s >= 8 ? "text-emerald-400" : s >= 6 ? "text-amber-400" : "text-red-400";
+
 const barColor = (s) =>
-  s >= 8 ? "bg-green-600" : s >= 6 ? "bg-tertiary" : "bg-error";
+  s >= 8 ? "bg-emerald-500" : s >= 6 ? "bg-amber-500" : "bg-red-500";
 
 function ScoreBar({ score, max = 10 }) {
   return (
-    <div className="h-2 bg-surface-container border border-ink flex-1">
+    <div className="h-1.5 flex-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
       <div
-        className={`h-full ${barColor(score)} transition-all duration-700`}
+        className={`h-full ${barColor(score)} rounded-full transition-all duration-700`}
         style={{ width: `${(score / max) * 100}%` }}
       />
     </div>
@@ -32,13 +33,14 @@ function DimensionCard({ dim, data }) {
   const icon = DIMENSION_ICONS[dim] || "analytics";
 
   return (
-    <div className="border border-ink">
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.07)", background: "#111122" }}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
+        style={{ hover: { background: "rgba(255,255,255,0.03)" } }}
       >
-        <span className="material-symbols-outlined text-primary text-base flex-shrink-0">{icon}</span>
-        <span className="font-mono text-xs font-bold uppercase flex-1">{data.label}</span>
+        <span className="material-symbols-outlined text-violet-400 text-base flex-shrink-0">{icon}</span>
+        <span className="font-mono text-xs font-semibold uppercase tracking-wide text-on-surface flex-1">{data.label}</span>
         <div className="flex items-center gap-2 flex-shrink-0">
           <ScoreBar score={data.score} />
           <span className={`font-mono font-black text-sm ${scoreColor(data.score)} w-6 text-right`}>
@@ -50,8 +52,8 @@ function DimensionCard({ dim, data }) {
         </span>
       </button>
       {open && (
-        <div className="px-4 pb-4 border-t border-ink bg-surface-container-lowest">
-          <p className="text-sm text-on-surface leading-relaxed pt-3">{data.feedback}</p>
+        <div className="px-4 pb-4 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#0D0D1A" }}>
+          <p className="text-sm text-on-surface leading-relaxed">{data.feedback}</p>
         </div>
       )}
     </div>
@@ -78,12 +80,12 @@ function HistoryMiniChart({ history }) {
           <polyline
             points={points}
             fill="none"
-            stroke="#4f378a"
+            stroke="#8B5CF6"
             strokeWidth="2"
             strokeLinejoin="round"
           />
           {scores.map((s, i) => (
-            <circle key={i} cx={i * step} cy={h - (s / max) * h} r="2.5" fill="#4f378a" />
+            <circle key={i} cx={i * step} cy={h - (s / max) * h} r="2.5" fill="#8B5CF6" />
           ))}
         </svg>
         <div className="flex gap-4 font-mono text-xs text-on-surface-variant">
@@ -100,15 +102,17 @@ export default function AIAnalysisPanel({
   onAnalyse,
   loading,
   canAnalyse,
-  canAnalyzeResult,   // {can_analyze, can_analyze_reason}
+  canAnalyzeResult,
   queueMessage,
   analysisHistory,
   aiAnalysisHidden,
 }) {
   if (aiAnalysisHidden) {
     return (
-      <div className="border border-outline bg-surface-container-low p-8 text-center rounded-sm">
-        <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-2 block">lock</span>
+      <div className="glass-card p-8 text-center">
+        <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(138,138,174,0.1)", border: "1px solid rgba(138,138,174,0.2)" }}>
+          <span className="material-symbols-outlined text-3xl text-on-surface-variant">lock</span>
+        </div>
         <h3 className="font-grotesk font-bold text-base text-on-surface mb-1">Analysis Hidden</h3>
         <p className="text-sm text-on-surface-variant max-w-sm mx-auto">
           The author has chosen to keep the AI feedback for this project private.
@@ -119,24 +123,26 @@ export default function AIAnalysisPanel({
 
   if (!analysis) {
     return (
-      <div className="border-2 border-ink p-6 text-center" style={{ boxShadow: "4px 4px 0 #4f378a" }}>
-        <span className="material-symbols-outlined text-5xl text-primary mb-3 block">psychology</span>
+      <div className="glass-card p-6 text-center">
+        <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>
+          <span className="material-symbols-outlined text-3xl text-violet-400">psychology</span>
+        </div>
         <h3 className="font-grotesk font-bold text-lg text-on-surface mb-2">Get AI Feedback</h3>
-        <p className="text-sm text-on-surface-variant mb-4 max-w-sm mx-auto">
-          AI will review your project across 7 dimensions and give you a brutally honest score.
+        <p className="text-sm text-on-surface-variant mb-5 max-w-sm mx-auto">
+          AI will review your project across 7 dimensions and give you an honest score.
         </p>
 
         {canAnalyse ? (
           <>
             {queueMessage && (
-              <div className="border border-primary bg-primary-container px-3 py-2 mb-3 text-left">
-                <p className="font-mono text-xs text-on-primary-container flex items-start gap-1">
+              <div className="rounded-xl mb-4 px-3 py-2 text-left" style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>
+                <p className="font-mono text-xs text-violet-300 flex items-start gap-1">
                   <span className="material-symbols-outlined text-sm flex-shrink-0">queue</span>
                   {queueMessage}
                 </p>
               </div>
             )}
-            <button onClick={onAnalyse} disabled={loading} className="btn-primary">
+            <button onClick={onAnalyse} disabled={loading} className="btn-primary mx-auto">
               {loading ? (
                 <>
                   <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
@@ -173,11 +179,11 @@ export default function AIAnalysisPanel({
   const reanalyzeReason = canAnalyzeResult?.can_analyze_reason;
 
   return (
-    <div className="border-2 border-ink" style={{ boxShadow: "4px 4px 0 #4f378a" }}>
+    <div className="glass-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b-2 border-ink bg-surface-container-high">
+      <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(139,92,246,0.08)" }}>
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+          <span className="material-symbols-outlined text-violet-400 text-xl">auto_awesome</span>
           <span className="font-mono font-bold uppercase text-sm text-on-surface">AI Analysis</span>
         </div>
         <span className="label-mono text-on-surface-variant">AI Powered</span>
@@ -185,7 +191,7 @@ export default function AIAnalysisPanel({
 
       <div className="p-5 space-y-6">
         {/* Score + label */}
-        <div className="flex items-start justify-between gap-4 border-b-2 border-ink pb-5">
+        <div className="flex items-start justify-between gap-4 pb-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
           <div>
             <div className={`font-mono font-black text-5xl ${scoreColor(overall_score)}`}>
               {overall_score}
@@ -197,8 +203,12 @@ export default function AIAnalysisPanel({
             )}
           </div>
           <div className="text-right">
-            <div className="h-20 w-20 flex items-center justify-center border-2 border-ink"
-              style={{ boxShadow: `3px 3px 0 ${overall_score >= 8 ? "#16a34a" : overall_score >= 6 ? "#7965af" : "#b3261e"}` }}>
+            <div className="h-20 w-20 rounded-2xl flex items-center justify-center"
+              style={{
+                background: overall_score >= 8 ? "rgba(16,185,129,0.12)" : overall_score >= 6 ? "rgba(251,191,36,0.12)" : "rgba(248,113,113,0.12)",
+                border: `1px solid ${overall_score >= 8 ? "rgba(16,185,129,0.3)" : overall_score >= 6 ? "rgba(251,191,36,0.3)" : "rgba(248,113,113,0.3)"}`,
+                boxShadow: `0 0 20px ${overall_score >= 8 ? "rgba(16,185,129,0.15)" : overall_score >= 6 ? "rgba(251,191,36,0.15)" : "rgba(248,113,113,0.15)"}`,
+              }}>
               <span className={`font-mono font-black text-3xl ${scoreColor(overall_score)}`}>{overall_score}</span>
             </div>
           </div>
@@ -211,7 +221,7 @@ export default function AIAnalysisPanel({
         {dimensions && (
           <div>
             <p className="label-mono mb-3">7 Dimensions</p>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {Object.entries(dimensions).map(([key, val]) => (
                 <DimensionCard key={key} dim={key} data={val} />
               ))}
@@ -221,9 +231,9 @@ export default function AIAnalysisPanel({
 
         {/* Brutal honest line */}
         {brutal_honest_line && (
-          <div className="border-2 border-ink bg-ink text-surface px-4 py-4">
-            <p className="label-mono text-surface-variant mb-2">Honest take</p>
-            <p className="font-grotesk font-bold text-base leading-snug">"{brutal_honest_line}"</p>
+          <div className="rounded-xl px-4 py-4" style={{ background: "rgba(109,40,217,0.12)", border: "1px solid rgba(139,92,246,0.25)" }}>
+            <p className="label-mono text-violet-400 mb-2">Honest take</p>
+            <p className="font-grotesk font-bold text-base leading-snug text-on-surface">"{brutal_honest_line}"</p>
           </div>
         )}
 
@@ -234,7 +244,7 @@ export default function AIAnalysisPanel({
             <ul className="space-y-1.5">
               {strengths.map((s, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-on-surface">
-                  <span className="material-symbols-outlined text-green-600 text-base mt-0.5 flex-shrink-0">check_circle</span>
+                  <span className="material-symbols-outlined text-emerald-400 text-base mt-0.5 flex-shrink-0">check_circle</span>
                   {s}
                 </li>
               ))}
@@ -249,7 +259,7 @@ export default function AIAnalysisPanel({
             <ol className="space-y-2">
               {next_steps.map((step, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-on-surface">
-                  <span className="font-mono font-bold text-primary flex-shrink-0 mt-0.5">0{i + 1}.</span>
+                  <span className="font-mono font-bold text-violet-400 flex-shrink-0 mt-0.5">0{i + 1}.</span>
                   <span>{step}</span>
                 </li>
               ))}
@@ -259,11 +269,11 @@ export default function AIAnalysisPanel({
 
         {/* Re-analyse */}
         {canAnalyse && (
-          <div className="border-t-2 border-ink pt-4">
+          <div className="pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             {canReanalyze ? (
               <>
                 {queueMessage && (
-                  <p className="font-mono text-xs text-primary mb-2 flex items-center gap-1">
+                  <p className="font-mono text-xs text-violet-400 mb-2 flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">queue</span>
                     {queueMessage}
                   </p>

@@ -292,11 +292,11 @@ export default function ChatPage() {
   }, -1);
 
   return (
-    <div className="flex h-[100dvh] bg-surface overflow-hidden">
+    <div className="flex h-[100dvh] bg-surface-container overflow-hidden">
       <Navbar />
       <main className="flex-1 md:ml-64 flex flex-col min-w-0 h-[100dvh]">
         {/* ── Header ── */}
-        <header className="flex-shrink-0 border-b-2 border-ink px-3 sm:px-4 py-2.5 bg-surface flex items-center gap-2 sm:gap-3">
+        <header className="flex-shrink-0 border-b-2 border-outline-variant px-3 sm:px-4 py-2.5 bg-surface-container flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => navigate("/inbox")}
             className="p-1.5 hover:bg-surface-container transition-colors rounded flex-shrink-0"
@@ -310,10 +310,10 @@ export default function ChatPage() {
                   <img
                     src={otherUser.avatar_url}
                     alt={otherUser.name}
-                    className="w-9 h-9 border-2 border-ink object-cover rounded-full flex-shrink-0"
+                    className="w-9 h-9 border-2 border-outline-variant object-cover rounded-full flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-9 h-9 bg-primary-container border-2 border-ink rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 bg-primary-container border-2 border-outline-variant rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="font-mono font-bold text-sm">{otherUser.name?.[0]?.toUpperCase()}</span>
                   </div>
                 )}
@@ -333,9 +333,9 @@ export default function ChatPage() {
                 {showMenu && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-surface border-2 border-ink z-20 shadow-[4px_4px_0_#4f378a] flex flex-col font-mono text-sm">
-                      <button onClick={handleStop} className="px-4 py-3 text-left hover:bg-surface-container transition-colors font-bold text-on-surface-variant border-b border-ink/20">Stop Conversation</button>
-                      <button onClick={handleBlock} className="px-4 py-3 text-left hover:bg-error hover:text-on-error transition-colors text-error font-bold border-b border-ink/20">Block User</button>
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-surface-container border-2 border-outline-variant z-20 shadow-[4px_4px_0_#4f378a] flex flex-col font-mono text-sm">
+                      <button onClick={handleStop} className="px-4 py-3 text-left hover:bg-surface-container transition-colors font-bold text-on-surface-variant border-b border-outline-variant/20">Stop Conversation</button>
+                      <button onClick={handleBlock} className="px-4 py-3 text-left hover:bg-error hover:text-on-error transition-colors text-error font-bold border-b border-outline-variant/20">Block User</button>
                       <button onClick={() => { setShowMenu(false); setShowReportModal(true); }} className="px-4 py-3 text-left hover:bg-surface-container transition-colors text-error font-bold">Report User</button>
                     </div>
                   </>
@@ -344,7 +344,7 @@ export default function ChatPage() {
             </>
           ) : (
             <div className="flex items-center gap-2 flex-1">
-              <div className="w-9 h-9 bg-surface-container border-2 border-ink rounded-full animate-pulse" />
+              <div className="w-9 h-9 bg-surface-container border-2 border-outline-variant rounded-full animate-pulse" />
               <div className="space-y-1">
                 <div className="h-3 w-28 bg-surface-container animate-pulse rounded" />
                 <div className="h-2 w-20 bg-surface-container animate-pulse rounded" />
@@ -366,15 +366,15 @@ export default function ChatPage() {
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
               {otherUser?.avatar_url ? (
-                <img src={otherUser.avatar_url} alt="" className="w-16 h-16 rounded-full border-2 border-ink object-cover mb-3" />
+                <img src={otherUser.avatar_url} alt="" className="w-16 h-16 rounded-full border-2 border-outline-variant object-cover mb-3" />
               ) : (
-                <div className="w-16 h-16 bg-primary-container border-2 border-ink rounded-full flex items-center justify-center mb-3">
+                <div className="w-16 h-16 bg-primary-container border-2 border-outline-variant rounded-full flex items-center justify-center mb-3">
                   <span className="font-mono font-bold text-2xl">{otherUser?.name?.[0]?.toUpperCase()}</span>
                 </div>
               )}
               <p className="font-bold text-base">{otherUser?.name}</p>
               <p className="font-mono text-xs text-on-surface-variant mt-1">{otherUser?.college}</p>
-              <p className="font-mono text-xs text-on-surface-variant mt-4 bg-surface-container px-4 py-2 border border-ink">
+              <p className="font-mono text-xs text-on-surface-variant mt-4 bg-surface-container px-4 py-2 border border-outline-variant">
                 You're now connected 🎉 Say hi!
               </p>
             </div>
@@ -403,9 +403,9 @@ export default function ChatPage() {
                         {/* Avatar — show only for first in group for other user */}
                         {!own && isLastInGroup ? (
                           otherUser?.avatar_url ? (
-                            <img src={otherUser.avatar_url} alt="" className="w-6 h-6 rounded-full border border-ink object-cover flex-shrink-0 mb-0.5" />
+                            <img src={otherUser.avatar_url} alt="" className="w-6 h-6 rounded-full border border-outline-variant object-cover flex-shrink-0 mb-0.5" />
                           ) : (
-                            <div className="w-6 h-6 bg-primary-container border border-ink rounded-full flex items-center justify-center flex-shrink-0 mb-0.5">
+                            <div className="w-6 h-6 bg-primary-container border border-outline-variant rounded-full flex items-center justify-center flex-shrink-0 mb-0.5">
                               <span className="font-mono font-bold text-[9px]">{otherUser?.name?.[0]?.toUpperCase()}</span>
                             </div>
                           )
@@ -418,7 +418,7 @@ export default function ChatPage() {
                           className={`px-3 py-2 text-sm leading-relaxed break-words
                             ${own
                               ? `bg-primary text-on-primary ${isFirstInGroup ? "rounded-tl-2xl rounded-tr-md" : "rounded-tl-2xl rounded-tr-2xl"} rounded-bl-2xl rounded-br-sm`
-                              : `bg-surface-container border border-ink text-on-surface ${isFirstInGroup ? "rounded-tl-md rounded-tr-2xl" : "rounded-tl-2xl rounded-tr-2xl"} rounded-bl-sm rounded-br-2xl`
+                              : `bg-surface-container border border-outline-variant text-on-surface ${isFirstInGroup ? "rounded-tl-md rounded-tr-2xl" : "rounded-tl-2xl rounded-tr-2xl"} rounded-bl-sm rounded-br-2xl`
                             }`}
                         >
                           {msg.message_type === "voice" ? (
@@ -464,7 +464,7 @@ export default function ChatPage() {
         </div>
 
         {/* ── Input area ── */}
-        <div className="flex-shrink-0 border-t-2 border-ink bg-surface">
+        <div className="flex-shrink-0 border-t-2 border-outline-variant bg-surface-container">
           {(uploading || recording) && (
             <div className="px-4 pt-2 pb-1">
               {uploading && (
@@ -507,7 +507,7 @@ export default function ChatPage() {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) handleSendText(e); }}
               placeholder="Message..."
               disabled={recording || uploading}
-              className="flex-1 min-w-0 border-2 border-ink px-3 py-2 text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-on-surface-variant"
+              className="flex-1 min-w-0 border-2 border-outline-variant px-3 py-2 text-sm bg-surface-container focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-on-surface-variant"
             />
 
             {/* Mic button — hold to record */}
@@ -518,7 +518,7 @@ export default function ChatPage() {
               onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
               onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
               disabled={uploading || sending}
-              className={`flex-shrink-0 w-10 h-10 border-2 border-ink flex items-center justify-center transition-all select-none
+              className={`flex-shrink-0 w-10 h-10 border-2 border-outline-variant flex items-center justify-center transition-all select-none
                 ${recording ? "bg-error text-on-error scale-110" : "hover:bg-surface-container active:scale-95"}`}
               title="Hold to record"
             >
@@ -529,7 +529,7 @@ export default function ChatPage() {
             <button
               type="submit"
               disabled={!text.trim() || sending || recording}
-              className="flex-shrink-0 w-10 h-10 bg-primary text-on-primary border-2 border-ink flex items-center justify-center disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
+              className="flex-shrink-0 w-10 h-10 bg-primary text-on-primary border-2 border-outline-variant flex items-center justify-center disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
             >
               {sending ? (
                 <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
@@ -545,8 +545,8 @@ export default function ChatPage() {
       {/* Report Modal */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-          <div className="bg-surface border-2 border-ink w-full max-w-md" style={{ boxShadow: "6px 6px 0 #ba1a1a" }}>
-            <div className="border-b-2 border-ink px-5 py-4 flex items-center justify-between">
+          <div className="bg-surface-container border-2 border-outline-variant w-full max-w-md" style={{ boxShadow: "6px 6px 0 #ba1a1a" }}>
+            <div className="border-b-2 border-outline-variant px-5 py-4 flex items-center justify-between">
               <h3 className="font-grotesk font-bold text-base uppercase text-error">Report {otherUser?.name}</h3>
               <button onClick={() => setShowReportModal(false)} className="p-1 hover:bg-surface-container">
                 <span className="material-symbols-outlined">close</span>
@@ -566,7 +566,7 @@ export default function ChatPage() {
               />
               <p className="text-[10px] font-mono text-on-surface-variant mt-1 text-right">{reportReason.length}/500</p>
             </div>
-            <div className="border-t-2 border-ink px-5 py-4 flex gap-3">
+            <div className="border-t-2 border-outline-variant px-5 py-4 flex gap-3">
               <button
                 onClick={handleReport}
                 disabled={reportLoading}
@@ -581,7 +581,7 @@ export default function ChatPage() {
               </button>
               <button
                 onClick={() => setShowReportModal(false)}
-                className="border-2 border-ink px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
+                className="border-2 border-outline-variant px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
               >
                 Cancel
               </button>

@@ -136,15 +136,20 @@ export default function AuthPage() {
 
   // ─── Render ───────────────────────────────────────
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
-      <header className="border-b-2 border-ink px-6 h-16 flex items-center justify-between">
-        <a href="/" className="font-mono font-black text-xl uppercase text-on-surface">ShowUp</a>
+    <div className="min-h-screen bg-transparent flex flex-col">
+      <header className="px-6 h-16 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(9,9,15,0.9)", backdropFilter: "blur(12px)" }}>
+        <a href="/" className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+            <span className="material-symbols-outlined text-white text-xs" style={{ fontSize: "14px" }}>bolt</span>
+          </div>
+          <span className="font-mono font-black text-base uppercase text-on-surface tracking-tight">ShowUp</span>
+        </a>
         <span className="font-mono text-xs text-on-surface-variant uppercase tracking-widest">Auth</span>
       </header>
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
-          <div className="border-2 border-ink bg-surface" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
+          <div className="glass-card overflow-hidden">
 
             {/* ── CHOOSE MODE ── */}
             {mode === "choose" && (
@@ -159,8 +164,8 @@ export default function AuthPage() {
                 {/* Google */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center gap-3 border-2 border-ink px-4 py-3.5 font-mono font-bold text-sm uppercase hover:bg-surface-container transition-colors mb-3"
-                  style={{ boxShadow: "3px 3px 0 #2A2A2A" }}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 font-mono font-semibold text-sm uppercase transition-colors mb-3 rounded-xl text-on-surface"
+                  style={{ background: "#111122", border: "1px solid rgba(255,255,255,0.1)" }}
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -271,8 +276,8 @@ export default function AuthPage() {
                           value={digit}
                           onChange={(e) => handleOtpDigit(i, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                          className="w-full aspect-square text-center font-mono font-black text-xl border-2 border-ink bg-surface focus:outline-none focus:shadow-brutal-primary transition-shadow"
-                          style={digit ? { boxShadow: "3px 3px 0 #4f378a" } : {}}
+                          className="w-full aspect-square text-center font-mono font-black text-xl rounded-xl bg-surface-container-low text-on-surface outline-none transition-all"
+                          style={digit ? { border: "1px solid rgba(139,92,246,0.6)", boxShadow: "0 0 10px rgba(124,58,237,0.2)" } : { border: "1px solid rgba(255,255,255,0.1)" }}
                           autoFocus={i === 0}
                         />
                       ))}
@@ -281,7 +286,7 @@ export default function AuthPage() {
 
                   {/* New user: name + college */}
                   {requiresProfile && (
-                    <div className="space-y-3 border-t-2 border-ink pt-4">
+                    <div className="space-y-3 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
                       <p className="label-mono text-on-surface-variant">Create your profile</p>
                       <div>
                         <label className="label-mono block mb-1.5">Full Name</label>
@@ -336,20 +341,22 @@ export default function AuthPage() {
             {(mode === "password" || mode === "register") && (
               <>
                 {/* Tabs */}
-                <div className="grid grid-cols-2 border-b-2 border-ink">
+                <div className="grid grid-cols-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
                   <button
                     onClick={() => { setPwTab("login"); clearError(); }}
-                    className={`py-4 font-mono font-bold text-sm uppercase tracking-wider transition-colors border-r-2 border-ink ${
-                      pwTab === "login" ? "bg-ink text-surface" : "bg-surface text-on-surface-variant hover:bg-surface-container"
+                    className={`py-4 font-mono font-bold text-sm uppercase tracking-wider transition-all ${
+                      pwTab === "login" ? "text-white" : "text-on-surface-variant hover:text-on-surface"
                     }`}
+                    style={pwTab === "login" ? { background: "rgba(139,92,246,0.15)", borderBottom: "2px solid #8b5cf6" } : { borderRight: "1px solid rgba(255,255,255,0.07)" }}
                   >
                     Sign In
                   </button>
                   <button
                     onClick={() => { setPwTab("register"); clearError(); }}
-                    className={`py-4 font-mono font-bold text-sm uppercase tracking-wider transition-colors ${
-                      pwTab === "register" ? "bg-ink text-surface" : "bg-surface text-on-surface-variant hover:bg-surface-container"
+                    className={`py-4 font-mono font-bold text-sm uppercase tracking-wider transition-all ${
+                      pwTab === "register" ? "text-white" : "text-on-surface-variant hover:text-on-surface"
                     }`}
+                    style={pwTab === "register" ? { background: "rgba(139,92,246,0.15)", borderBottom: "2px solid #8b5cf6" } : {}}
                   >
                     Register
                   </button>
@@ -399,8 +406,8 @@ export default function AuthPage() {
                     </div>
 
                     {error && (
-                      <div className="border border-error bg-error-container px-3 py-2">
-                        <p className="font-mono text-xs text-on-error-container">{error}</p>
+                      <div className="rounded-xl px-3 py-2" style={{ background: "rgba(58,10,10,0.6)", border: "1px solid rgba(248,113,113,0.3)" }}>
+                        <p className="font-mono text-xs text-red-400">{error}</p>
                       </div>
                     )}
 

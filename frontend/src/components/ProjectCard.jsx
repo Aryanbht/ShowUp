@@ -5,35 +5,49 @@ export default function ProjectCard({ project }) {
   const { id, title, description, tech_stack, screenshot_url, view_count, ai_analysis, ai_analysis_used, student, created_at } = project;
 
   const score = ai_analysis?.overall_score;
-  const scoreColor = score >= 8 ? "text-green-700 bg-green-50 border-green-700" : score >= 6 ? "text-tertiary bg-tertiary-fixed border-tertiary" : "text-error bg-error-container border-error";
+
+  // Score badge color (dark theme)
+  const scoreBadge =
+    score >= 8
+      ? { bg: "rgba(16, 185, 129, 0.15)", border: "rgba(16, 185, 129, 0.35)", text: "#6EE7B7" }
+      : score >= 6
+      ? { bg: "rgba(251, 191, 36, 0.12)", border: "rgba(251, 191, 36, 0.35)", text: "#FCD34D" }
+      : { bg: "rgba(248, 113, 113, 0.12)", border: "rgba(248, 113, 113, 0.35)", text: "#FCA5A5" };
 
   return (
     <Link to={`/project/${id}`} className="block group">
-      <article className="card-brutal bg-surface h-full flex flex-col rounded-md overflow-hidden">
+      <article className="glass-card h-full flex flex-col">
         {/* Screenshot */}
-        <div className="relative overflow-hidden border-b-2 border-ink aspect-video bg-surface-container">
+        <div className="relative overflow-hidden aspect-video"
+          style={{ background: "#0D0D1A", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           {screenshot_url ? (
             <img
               src={screenshot_url}
               alt={title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-surface-container-high">
-              <span className="material-symbols-outlined text-5xl text-outline">image</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-on-surface-variant opacity-30">image</span>
             </div>
           )}
 
+          {/* Gradient overlay on screenshot */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
           {/* AI Score Badge */}
           {ai_analysis_used && score !== undefined && (
-            <div className={`absolute top-2 right-2 border font-mono font-bold text-xs px-2 py-1 ${scoreColor}`}>
+            <div
+              className="absolute top-2.5 right-2.5 font-mono font-bold text-xs px-2.5 py-1 rounded-full"
+              style={{ background: scoreBadge.bg, border: `1px solid ${scoreBadge.border}`, color: scoreBadge.text }}
+            >
               AI {score}/10
             </div>
           )}
         </div>
 
         {/* Content */}
-        <div className="p-4 flex flex-col flex-1 gap-3">
+        <div className="p-4 flex flex-col flex-1 gap-2.5">
           {/* Student info */}
           {student && (
             <div className="flex items-center gap-2">
@@ -41,11 +55,13 @@ export default function ProjectCard({ project }) {
                 <img
                   src={student.avatar_url}
                   alt={student.name}
-                  className="w-6 h-6 brutalist-border object-cover flex-shrink-0"
+                  className="w-6 h-6 rounded-lg object-cover flex-shrink-0"
+                  style={{ border: "1px solid rgba(255,255,255,0.12)" }}
                 />
               ) : (
-                <div className="w-6 h-6 bg-primary-container border border-ink flex items-center justify-center flex-shrink-0">
-                  <span className="font-mono font-bold text-[10px] text-on-primary-container">
+                <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                  <span className="font-mono font-bold text-[10px] text-white">
                     {student.name?.[0]?.toUpperCase()}
                   </span>
                 </div>
@@ -64,7 +80,7 @@ export default function ProjectCard({ project }) {
 
           {/* Description */}
           {description && (
-            <p className="text-sm text-on-surface-variant line-clamp-2 flex-1">
+            <p className="text-sm text-on-surface-variant line-clamp-2 flex-1 leading-relaxed">
               {description}
             </p>
           )}
@@ -82,7 +98,8 @@ export default function ProjectCard({ project }) {
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-outline-variant">
+          <div className="flex items-center justify-between pt-2.5"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <span className="flex items-center gap-1 font-mono text-xs text-on-surface-variant">
               <span className="material-symbols-outlined text-sm">visibility</span>
               {view_count?.toLocaleString() || 0}

@@ -124,16 +124,17 @@ export default function InboxPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-transparent">
       <Navbar />
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
-        <header className="sticky top-0 z-20 border-b-2 border-ink px-6 py-4 bg-surface flex items-center justify-between">
+        <header className="topbar-dark flex items-center justify-between">
           <div>
             <h1 className="font-grotesk font-bold text-xl text-on-surface flex items-center gap-2">
               <span className="material-symbols-outlined">inbox</span>
               Inbox
               {totalUnread > 0 && (
-                <span className="bg-primary text-on-primary text-xs font-mono font-bold px-2 py-0.5 rounded-full">
+                <span className="text-white text-xs font-mono font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
                   {totalUnread}
                 </span>
               )}
@@ -144,19 +145,20 @@ export default function InboxPage() {
 
         <div className="max-w-3xl mx-auto p-4 sm:p-6">
           {/* Tabs */}
-          <div className="flex border-2 border-ink mb-6 divide-x-2 divide-ink bg-surface">
+          <div className="flex gap-1.5 mb-6 p-1 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 font-mono text-[10px] sm:text-xs uppercase font-bold transition-colors
-                  ${tab === t.id ? "bg-primary text-on-primary" : "hover:bg-surface-container text-on-surface"}`}
+                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs uppercase font-semibold tracking-wide rounded-lg transition-all ${
+                  tab === t.id ? "text-white" : "text-on-surface-variant hover:text-on-surface"}`}
+                style={tab === t.id ? { background: "linear-gradient(135deg,#7c3aed,#8b5cf6)", boxShadow: "0 0 12px rgba(124,58,237,0.3)" } : {}}
               >
                 <div className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[16px] sm:text-sm">{t.icon}</span>
                   {t.count > 0 && (
-                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none
-                      ${tab === t.id ? "bg-on-primary text-primary" : "bg-primary text-on-primary"}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none ${
+                      tab === t.id ? "bg-white/20 text-white" : "bg-violet-900/50 text-violet-300"}`}>
                       {t.count}
                     </span>
                   )}
@@ -177,19 +179,21 @@ export default function InboxPage() {
               {tab === "requests" && (
                 <div className="space-y-4">
                   {requests.length === 0 ? (
-                    <div className="text-center py-16 border-2 border-dashed border-ink bg-surface-container">
-                      <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-3 block">person_add</span>
+                    <div className="text-center py-16 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(139,92,246,0.2)" }}>
+                      <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
+                        <span className="material-symbols-outlined text-3xl text-violet-400">person_add</span>
+                      </div>
                       <p className="font-mono text-sm text-on-surface-variant">No pending connection requests</p>
                     </div>
                   ) : (
                     requests.map((req) => (
-                      <div key={req.id} className="card-brutal p-5">
+                      <div key={req.id} className="glass-card p-5">
                         <div className="flex items-start gap-4">
                           {req.sender?.avatar_url ? (
-                            <img src={req.sender.avatar_url} alt={req.sender.name} className="w-12 h-12 border-2 border-ink object-cover flex-shrink-0" />
+                            <img src={req.sender.avatar_url} alt={req.sender.name} className="w-12 h-12 rounded-xl object-cover flex-shrink-0" style={{ border: "1px solid rgba(255,255,255,0.12)" }} />
                           ) : (
-                            <div className="w-12 h-12 bg-primary-container border-2 border-ink flex items-center justify-center flex-shrink-0">
-                              <span className="font-mono font-bold text-lg text-on-primary-container">{req.sender?.name?.[0]?.toUpperCase()}</span>
+                            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                              <span className="font-mono font-bold text-lg text-white">{req.sender?.name?.[0]?.toUpperCase()}</span>
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
@@ -199,14 +203,14 @@ export default function InboxPage() {
                             </div>
                             <p className="text-xs font-mono text-on-surface-variant">{req.sender?.college}</p>
                             {req.note && (
-                              <div className="mt-2 p-3 bg-surface-container border border-ink text-sm font-mono">
+                              <div className="mt-2 p-3 bg-surface-container border border-outline-variant text-sm font-mono">
                                 <span className="text-on-surface-variant text-[10px] uppercase font-bold block mb-1">Note</span>
                                 "{req.note}"
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-3 mt-4 pt-3 border-t border-dashed border-ink">
+                        <div className="flex gap-3 mt-4 pt-3 border-t border-dashed border-outline-variant">
                           <button
                             onClick={() => handleAccept(req.id)}
                             disabled={actionLoading === req.id + "_accept"}
@@ -222,7 +226,7 @@ export default function InboxPage() {
                           <button
                             onClick={() => handleDecline(req.id)}
                             disabled={actionLoading === req.id + "_decline"}
-                            className="flex-1 justify-center flex items-center gap-1 border-2 border-ink py-1.5 font-mono text-xs uppercase font-bold hover:bg-error hover:text-on-error transition-colors"
+                            className="flex-1 justify-center flex items-center gap-1 border-2 border-outline-variant py-1.5 font-mono text-xs uppercase font-bold hover:bg-error hover:text-on-error transition-colors"
                           >
                             {actionLoading === req.id + "_decline" ? (
                               <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
@@ -233,7 +237,7 @@ export default function InboxPage() {
                           </button>
                           <a
                             href={`/u/${req.sender?.id}`}
-                            className="border-2 border-ink px-3 py-1.5 font-mono text-xs uppercase font-bold hover:bg-surface-container transition-colors flex items-center gap-1"
+                            className="border-2 border-outline-variant px-3 py-1.5 font-mono text-xs uppercase font-bold hover:bg-surface-container transition-colors flex items-center gap-1"
                           >
                             <span className="material-symbols-outlined text-sm">person</span>
                           </a>
@@ -248,7 +252,7 @@ export default function InboxPage() {
               {tab === "chats" && (
                 <div className="space-y-2">
                   {conversations.length === 0 ? (
-                    <div className="text-center py-16 border-2 border-dashed border-ink bg-surface-container">
+                    <div className="text-center py-16 border-2 border-dashed border-outline-variant bg-surface-container">
                       <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-3 block">chat_bubble</span>
                       <p className="font-mono text-sm text-on-surface-variant">No active chats yet</p>
                       <p className="font-mono text-xs text-on-surface-variant mt-1">Accept a connection request to start chatting</p>
@@ -258,13 +262,13 @@ export default function InboxPage() {
                       <button
                         key={convo.id}
                         onClick={() => navigate(`/inbox/chat/${convo.id}`)}
-                        className="w-full card-brutal p-4 flex items-center gap-4 hover:bg-surface-container text-left transition-colors"
+                        className="w-full glass-card p-4 flex items-center gap-4 hover:bg-surface-container text-left transition-colors"
                       >
                         <div className="relative flex-shrink-0">
                           {convo.other_user?.avatar_url ? (
-                            <img src={convo.other_user.avatar_url} alt={convo.other_user.name} className="w-12 h-12 border-2 border-ink object-cover" />
+                            <img src={convo.other_user.avatar_url} alt={convo.other_user.name} className="w-12 h-12 border-2 border-outline-variant object-cover" />
                           ) : (
-                            <div className="w-12 h-12 bg-primary-container border-2 border-ink flex items-center justify-center">
+                            <div className="w-12 h-12 bg-primary-container border-2 border-outline-variant flex items-center justify-center">
                               <span className="font-mono font-bold text-lg text-on-primary-container">{convo.other_user?.name?.[0]?.toUpperCase()}</span>
                             </div>
                           )}
@@ -302,7 +306,7 @@ export default function InboxPage() {
                   )}
                   <div className="space-y-3">
                     {notifications.length === 0 ? (
-                      <div className="text-center py-16 border-2 border-dashed border-ink bg-surface-container">
+                      <div className="text-center py-16 border-2 border-dashed border-outline-variant bg-surface-container">
                         <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-3 block">notifications_none</span>
                         <p className="font-mono text-sm text-on-surface-variant">No notifications yet</p>
                       </div>
@@ -310,7 +314,7 @@ export default function InboxPage() {
                       notifications.map((notif) => (
                         <div
                           key={notif.id}
-                          className={`p-4 border-2 border-ink flex items-start gap-3 ${!notif.is_read ? "bg-primary-container" : "bg-surface"}`}
+                          className={`p-4 border-2 border-outline-variant flex items-start gap-3 ${!notif.is_read ? "bg-primary-container" : "bg-surface-container"}`}
                         >
                           <span className={`material-symbols-outlined text-xl mt-0.5 ${notif.notification_type === "request_accepted" ? "text-primary" : "text-error"}`}>
                             {notif.notification_type === "request_accepted" ? "check_circle" : "cancel"}

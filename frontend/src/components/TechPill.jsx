@@ -1,7 +1,5 @@
 export default function TechPill({ tag }) {
   return (
-    <span className="tech-pill">
-      {tag}
-    </span>
+    <span className="tech-pill">{tag}</span>
   );
 }

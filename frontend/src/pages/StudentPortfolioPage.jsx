@@ -88,7 +88,7 @@ export default function StudentPortfolioPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase">Loading profile...</p>
       </div>
     );
@@ -96,7 +96,7 @@ export default function StudentPortfolioPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <span className="material-symbols-outlined text-5xl text-error mb-4 block">error</span>
           <p className="font-grotesk font-bold text-xl">{error}</p>
@@ -108,13 +108,13 @@ export default function StudentPortfolioPage() {
   const isOwn = user?.id === student.id;
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-transparent">
       <Navbar />
 
       <main className="flex-1 md:ml-64 pb-20 md:pb-0 min-h-screen flex flex-col">
         <div className="flex-1 w-full">
           {/* Header */}
-          <header className="sticky top-0 z-20 border-b-2 border-ink flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-surface">
+          <header className="topbar-dark flex items-center justify-between">
             <div className="md:hidden">
               <Link to="/feed" className="font-mono font-black text-base uppercase text-on-surface tracking-tight">ShowUp</Link>
             </div>
@@ -124,7 +124,7 @@ export default function StudentPortfolioPage() {
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                className="btn-secondary py-1.5 px-2 sm:px-3 text-xs"
                 title="Share Portfolio"
               >
                 <span className="material-symbols-outlined text-sm">{copied ? "check" : "share"}</span>
@@ -135,7 +135,7 @@ export default function StudentPortfolioPage() {
                   href={student.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                  className="btn-secondary py-1.5 px-2 sm:px-3 text-xs"
                   title="View GitHub"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0">
@@ -150,7 +150,7 @@ export default function StudentPortfolioPage() {
                   {connectStatus === 'blocked' ? (
                     <button
                       onClick={handleUnblock}
-                      className="border-2 border-ink bg-surface px-4 py-2 flex items-center justify-center gap-2 font-mono font-bold text-sm hover:bg-surface-container transition-all"
+                      className="border-2 border-outline-variant bg-surface-container px-4 py-2 flex items-center justify-center gap-2 font-mono font-bold text-sm hover:bg-surface-container transition-all"
                       style={{ boxShadow: "4px 4px 0 #1A1A1A" }}
                     >
                       <span className="material-symbols-outlined text-sm">lock_open</span>
@@ -159,13 +159,13 @@ export default function StudentPortfolioPage() {
                   ) : connectStatus === 'connected' ? (
                     <button
                       onClick={() => navigate(`/inbox/chat/${connectConvoId}`)}
-                      className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors bg-primary-container text-on-primary-container"
+                      className="flex items-center gap-1 sm:gap-1.5 border border-outline-variant px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors bg-primary-container text-on-primary-container"
                     >
                       <span className="material-symbols-outlined text-sm">chat</span>
                       <span className="hidden sm:inline">Message</span>
                     </button>
                   ) : connectStatus === 'pending' ? (
-                    <span className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase text-on-surface-variant bg-surface-container">
+                    <span className="flex items-center gap-1 sm:gap-1.5 border border-outline-variant px-2 sm:px-3 py-1.5 font-mono text-xs uppercase text-on-surface-variant bg-surface-container">
                       <span className="material-symbols-outlined text-sm">schedule</span>
                       <span className="hidden sm:inline">Pending</span>
                     </span>
@@ -193,7 +193,7 @@ export default function StudentPortfolioPage() {
                   href={`/portfolio/${student.username || student.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 sm:gap-1.5 border border-ink px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                  className="flex items-center gap-1 sm:gap-1.5 border border-outline-variant px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
                   title="View Portfolio"
                 >
                   <span className="material-symbols-outlined text-sm">open_in_new</span>
@@ -213,7 +213,7 @@ export default function StudentPortfolioPage() {
           </header>
 
           {/* Profile header */}
-          <div className="border-b-2 border-ink bg-surface-container-low px-4 sm:px-6 py-6 sm:py-10">
+          <div className="border-b-2 border-outline-variant bg-surface-container-low px-4 sm:px-6 py-6 sm:py-10">
             <div className="max-w-5xl mx-auto">
               <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                 {/* Avatar */}
@@ -222,12 +222,12 @@ export default function StudentPortfolioPage() {
                     <img
                       src={student.avatar_url}
                       alt={student.name}
-                      className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-ink object-cover"
+                      className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-outline-variant object-cover"
                       style={{ boxShadow: "4px 4px 0 #4f378a" }}
                     />
                   ) : (
                     <div
-                      className="w-20 h-20 sm:w-24 sm:h-24 bg-primary-container border-2 border-ink flex items-center justify-center"
+                      className="w-20 h-20 sm:w-24 sm:h-24 bg-primary-container border-2 border-outline-variant flex items-center justify-center"
                       style={{ boxShadow: "4px 4px 0 #4f378a" }}
                     >
                       <span className="font-mono font-black text-2xl sm:text-3xl text-on-primary-container">
@@ -287,7 +287,7 @@ export default function StudentPortfolioPage() {
                   {student.skills && student.skills.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                       {student.skills.map((skill, idx) => (
-                        <span key={idx} className="bg-surface-container border border-ink px-2 py-0.5 font-mono text-[10px] sm:text-xs text-on-surface">
+                        <span key={idx} className="bg-surface-container border border-outline-variant px-2 py-0.5 font-mono text-[10px] sm:text-xs text-on-surface">
                           {skill}
                         </span>
                       ))}
@@ -359,7 +359,7 @@ export default function StudentPortfolioPage() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t-2 border-ink py-6 px-6 text-center mt-auto bg-surface">
+        <footer className="border-t-2 border-outline-variant py-6 px-6 text-center mt-auto bg-surface-container">
           <p className="font-mono text-xs text-on-surface-variant">
             <span className="font-bold text-on-surface">{student.name}</span>'s profile on ShowUp — built for Indian students 🇮🇳
           </p>
@@ -369,8 +369,8 @@ export default function StudentPortfolioPage() {
       {/* Connect Modal */}
       {showConnectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-          <div className="bg-surface border-2 border-ink w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
-            <div className="border-b-2 border-ink px-5 py-4 flex items-center justify-between">
+          <div className="bg-surface-container border-2 border-outline-variant w-full max-w-md" style={{ boxShadow: "6px 6px 0 #4f378a" }}>
+            <div className="border-b-2 border-outline-variant px-5 py-4 flex items-center justify-between">
               <h3 className="font-grotesk font-bold text-base uppercase">Connect with {student?.name}</h3>
               <button onClick={() => setShowConnectModal(false)} className="p-1 hover:bg-surface-container">
                 <span className="material-symbols-outlined">close</span>
@@ -391,7 +391,7 @@ export default function StudentPortfolioPage() {
               />
               <p className="text-[10px] font-mono text-on-surface-variant mt-1 text-right">{connectNote.length}/500</p>
             </div>
-            <div className="border-t-2 border-ink px-5 py-4 flex gap-3">
+            <div className="border-t-2 border-outline-variant px-5 py-4 flex gap-3">
               <button
                 onClick={handleSendConnect}
                 disabled={connectLoading}
@@ -406,7 +406,7 @@ export default function StudentPortfolioPage() {
               </button>
               <button
                 onClick={() => setShowConnectModal(false)}
-                className="border-2 border-ink px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
+                className="border-2 border-outline-variant px-4 py-2 font-mono text-xs uppercase hover:bg-surface-container"
               >
                 Cancel
               </button>

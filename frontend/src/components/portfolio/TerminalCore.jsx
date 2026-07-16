@@ -206,7 +206,7 @@ export default function TerminalCore({ data, handleJoinShowUp, selectedProject, 
               </div>
               <div className="flex flex-wrap gap-4">
                   {skills.map(skill => (
-                      <span key={skill} className="font-jetbrains text-sm text-on-surface border border-outline-variant bg-surface px-4 py-2 hover:border-primary hover:text-primary transition-colors cursor-default">
+                      <span key={skill} className="font-jetbrains text-sm text-on-surface border border-outline-variant bg-surface-container px-4 py-2 hover:border-primary hover:text-primary transition-colors cursor-default">
                           {skill}
                       </span>
                   ))}

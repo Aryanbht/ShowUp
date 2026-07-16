@@ -1,224 +1,138 @@
-import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { feedApi } from "../api";
-
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: "upload",
-    title: "Upload Your Project",
-    desc: "Add your project title, description, tech stack, GitHub link, and a screenshot. Takes 2 minutes.",
-  },
-  {
-    step: "02",
-    icon: "auto_awesome",
-    title: "Get AI Feedback",
-    desc: "AI reviews your project and gives you a score out of 10 with strengths, improvements, and next steps.",
-  },
-  {
-    step: "03",
-    icon: "share",
-    title: "Share Your Profile",
-    desc: "Your unique profile URL is ready to share. Drop it in your resume, LinkedIn, or DM it to recruiters.",
-  },
-];
-
-/** Animates a number from 0 → target over ~1.4 s with an ease-out curve */
-function useCountUp(target, duration = 1400) {
-  const [display, setDisplay] = useState(0);
-  const rafRef = useRef(null);
-
-  useEffect(() => {
-    const numTarget = parseInt(target, 10);
-    if (isNaN(numTarget) || numTarget === 0) {
-      setDisplay(0);
-      return;
-    }
-    const start = performance.now();
-    const tick = (now) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(Math.round(eased * numTarget));
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [target, duration]);
-
-  return display;
-}
-
-function AnimatedStat({ value, label, border }) {
-  const animated = useCountUp(value);
-  // If value is a plain number string, show animated; otherwise show raw (e.g. "98%")
-  const isNumeric = /^\d+$/.test(String(value));
-
-  return (
-    <div className={`py-4 px-2 sm:py-6 sm:px-8 text-center flex-1 ${border ? "border-r-2 border-ink" : ""}`}>
-      <p className="font-mono font-black text-xl sm:text-3xl text-on-surface leading-none">
-        {isNumeric ? animated.toLocaleString() : value}
-      </p>
-      <p className="font-mono text-[9px] sm:text-xs uppercase text-on-surface-variant mt-1 leading-tight">{label}</p>
-    </div>
-  );
-}
 
 export default function LandingPage() {
-  const [stats, setStats] = useState([
-    { value: "0", label: "Student Profiles" },
-    { value: "0", label: "Projects Uploaded" },
-    { value: "0", label: "Colleges" },
-  ]);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await feedApi.stats();
-        const data = res.data.data;
-        setStats([
-          { value: data.students.toLocaleString(), label: "Student Profiles" },
-          { value: data.projects.toLocaleString(), label: "Projects Uploaded" },
-          { value: data.colleges.toLocaleString(), label: "Colleges" },
-        ]);
-      } catch (err) {
-        // Fallback or leave as zeroes
-      }
-    };
-    fetchStats();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-[#000000] text-white font-sans selection:bg-[#8b5cf6] selection:text-white">
+      
       {/* ─── Navbar ─── */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-surface border-b-2 border-ink flex items-center justify-between px-6 md:px-12 h-16">
-        <div className="font-mono font-black text-xl uppercase tracking-tight text-on-surface">
-          ShowUp
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#000000]/80 backdrop-blur-md border-b border-[#2a2a2a]">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-6">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex items-center gap-2 outline-none">
+              <svg viewBox="0 0 581 113" fill="none" width="100" height="20" aria-label="ShowUp Logo" role="img">
+                <path d="M45.317 2.07103C48.1765 -1.53037 53.9745 0.442937 54.0434 5.041L54.4849 72.2922H9.83113C1.64038 72.2922 -2.92775 62.8321 2.1655 56.4175L45.317 2.07103Z" fill="#8b5cf6"></path>
+                <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" fill="#7c3aed"></path>
+              </svg>
+              <span className="font-bold text-lg tracking-tight">ShowUp</span>
+            </Link>
+            
+            <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-400">
+              <Link to="/coming-soon" className="hover:text-white transition-colors">Product</Link>
+              <Link to="/coming-soon" className="hover:text-white transition-colors">Developers</Link>
+              <Link to="/coming-soon" className="hover:text-white transition-colors">Solutions</Link>
+              <Link to="/coming-soon" className="hover:text-white transition-colors">Docs</Link>
+              <Link to="/coming-soon" className="hover:text-white transition-colors">Blog</Link>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link to="/auth" className="hidden lg:flex items-center justify-center text-xs font-medium bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#2a2a2a] hover:border-[#3a3a3a] text-white px-3 py-1.5 rounded-md transition-colors">
+              Sign in
+            </Link>
+            <Link to="/auth" className="hidden lg:flex items-center justify-center text-xs font-medium bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] text-black px-3 py-1.5 rounded-md transition-colors">
+              Start your project
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Link to="/auth" className="btn-secondary py-2 px-4 text-xs">
-            Sign In
-          </Link>
-          <Link to="/auth" className="btn-primary py-2 px-4 text-xs">
-            Get Started
-          </Link>
+      </nav>
+
+      {/* ─── Hero Section ─── */}
+      <header className="relative pt-32 pb-20 md:pt-48 md:pb-24 px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col items-center md:items-start text-center md:text-left relative z-10">
+          
+          <h1 className="text-4xl sm:text-5xl md:text-[56px] leading-[1.1] font-bold tracking-tight mb-6 max-w-2xl">
+            <span className="block text-white">Build your portfolio.</span>
+            <span className="block text-[#8b5cf6]">Stand out to recruiters.</span>
+          </h1>
+          
+          <p className="text-[#8b8b8b] text-lg md:text-xl max-w-xl mb-10 leading-relaxed font-light">
+            Start your project with a ShowUp portfolio. Add projects, get AI feedback, share a public link, and build credibility.
+          </p>
+          
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+            <Link to="/auth" className="bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] text-black font-medium text-sm px-5 py-2.5 rounded-md transition-colors shadow-[0_0_15px_rgba(62,207,142,0.3)]">
+              Start your project
+            </Link>
+            <Link to="/feed" className="bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#2a2a2a] hover:border-[#3a3a3a] text-white font-medium text-sm px-5 py-2.5 rounded-md transition-colors">
+              Explore projects
+            </Link>
+          </div>
+
         </div>
       </header>
 
-      {/* ─── Hero ─── */}
-      <section className="pt-16 min-h-screen flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center px-6 md:px-12 py-20 text-center max-w-5xl mx-auto w-full">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 border-2 border-ink px-3 py-1.5 mb-8 bg-tertiary-fixed" style={{ boxShadow: "2px 2px 0 #2A2A2A" }}>
-            <span className="material-symbols-outlined text-sm text-on-tertiary-fixed">rocket_launch</span>
-            <span className="font-mono text-xs font-bold uppercase text-on-tertiary-fixed">For Indian Students → No Experience, Full Credibility</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="font-serif text-5xl md:text-7xl text-on-surface leading-none mb-6 text-balance">
-            Your Work
-            <br />
-            <span className="text-primary relative inline-block">
-              Speaks First.
-              <div className="absolute -bottom-1 left-0 right-0 h-1 bg-tertiary-container" />
-            </span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-10 leading-relaxed">
-            ShowUp is the portfolio platform for Indian college students. Upload your projects, get
-            AI-powered feedback, and share a public link that proves you can build — not just study.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth" className="btn-primary text-base py-4 px-10">
-              <span className="material-symbols-outlined">person_add</span>
-              Create Your Profile
-            </Link>
-            <Link to="/feed" className="btn-secondary text-base py-4 px-10">
-              <span className="material-symbols-outlined">explore</span>
-              Explore Projects
-            </Link>
-          </div>
-        </div>
-
-        {/* Stats bar */}
-        <div className="border-t-2 border-b-2 border-ink grid grid-cols-3 w-full">
-          {stats.map((stat, i) => (
-            <AnimatedStat
-              key={i}
-              value={stat.value}
-              label={stat.label}
-              border={i < 2}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ─── How It Works ─── */}
-      <section className="py-20 px-6 md:px-12 max-w-5xl mx-auto">
-        <div className="mb-12 text-center">
-          <p className="label-mono mb-2">The Process</p>
-          <h2 className="font-grotesk font-bold text-3xl md:text-4xl text-on-surface">
-            Three steps to credibility
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-0 border-2 border-ink">
-          {HOW_IT_WORKS.map((item, i) => (
-            <div
-              key={i}
-              className={`p-8 ${i < 2 ? "md:border-r-2 border-b-2 md:border-b-0 border-ink" : ""}`}
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <span className="font-mono font-black text-4xl text-on-surface-variant" style={{ opacity: 0.55 }}>{item.step}</span>
-                <span className="material-symbols-outlined text-primary text-2xl mt-2">{item.icon}</span>
+      {/* ─── Features Grid (Products) ─── */}
+      <section className="px-6 py-12 max-w-7xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          {/* Card 1 */}
+          <Link to="/auth" className="group relative w-full h-[220px] md:h-[280px] lg:col-span-2 flex flex-col rounded-xl overflow-hidden bg-[#111111] border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div className="p-6 flex-1 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-white mb-4">
+                <span className="material-symbols-outlined text-[20px]">dataset</span>
+                <h2 className="font-medium text-lg">Build Your Portfolio</h2>
               </div>
-              <h3 className="font-grotesk font-bold text-lg text-on-surface mb-2">{item.title}</h3>
-              <p className="text-sm text-on-surface-variant leading-relaxed">{item.desc}</p>
+              <div className="flex-1">
+                <p className="text-sm text-[#8b8b8b] leading-relaxed">
+                  Every project is <strong>a full showcase</strong> of your skills. Create a stunning portfolio that highlights your best work to the world.
+                </p>
+              </div>
             </div>
-          ))}
+            {/* Subtle bottom gradient glow */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2a2a2a]/20 to-transparent pointer-events-none group-hover:from-[#8b5cf6]/10 transition-colors"></div>
+          </Link>
+
+          {/* Card 2 */}
+          <Link to="/auth" className="group relative w-full h-[220px] md:h-[280px] lg:col-span-2 flex flex-col rounded-xl overflow-hidden bg-[#111111] border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div className="p-6 flex-1 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-white mb-4">
+                <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                <h2 className="font-medium text-lg">AI-Powered Feedback</h2>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#8b8b8b] leading-relaxed">
+                  <strong>Instant, actionable feedback</strong> on your projects to improve and stand out in the competitive landscape.
+                </p>
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2a2a2a]/20 to-transparent pointer-events-none group-hover:from-[#8b5cf6]/10 transition-colors"></div>
+          </Link>
+
+          {/* Card 3 */}
+          <Link to="/auth" className="group relative w-full h-[220px] md:h-[280px] lg:col-span-2 flex flex-col rounded-xl overflow-hidden bg-[#111111] border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div className="p-6 flex-1 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-white mb-4">
+                <span className="material-symbols-outlined text-[20px]">link</span>
+                <h2 className="font-medium text-lg">Share & Stand Out</h2>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#8b8b8b] leading-relaxed">
+                  <strong>Get a shareable link</strong> to your portfolio. Impress recruiters and collaborators without sending bulky zip files.
+                </p>
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2a2a2a]/20 to-transparent pointer-events-none group-hover:from-[#8b5cf6]/10 transition-colors"></div>
+          </Link>
+
+          {/* Card 4 */}
+          <Link to="/auth" className="group relative w-full h-[220px] md:h-[280px] lg:col-span-2 flex flex-col rounded-xl overflow-hidden bg-[#111111] border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div className="p-6 flex-1 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-white mb-4">
+                <span className="material-symbols-outlined text-[20px]">group</span>
+                <h2 className="font-medium text-lg">Built for Students</h2>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-[#8b8b8b] leading-relaxed">
+                  <strong>Made specifically</strong> for Indian college students with zero experience in mind. Build your credibility today.
+                </p>
+              </div>
+            </div>
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#2a2a2a]/20 to-transparent pointer-events-none group-hover:from-[#8b5cf6]/10 transition-colors"></div>
+          </Link>
+
         </div>
       </section>
 
-      {/* ─── CTA Banner ─── */}
-      <section className="border-t-2 border-b-2 border-ink bg-ink text-surface py-16 px-6 text-center">
-        <h2 className="font-serif text-3xl md:text-5xl mb-4">
-          Stop waiting for experience.
-        </h2>
-        <p className="font-mono text-sm text-surface-variant mb-8 max-w-lg mx-auto">
-          Every senior developer started with a profile. Start yours today and let your projects do the talking.
-        </p>
-        <Link
-          to="/auth"
-          className="inline-flex items-center gap-2 bg-surface text-ink border-2 border-surface px-8 py-4 font-mono font-bold uppercase text-sm rounded-md"
-          style={{ boxShadow: "4px 4px 0 #4f378a", transition: "all 0.2s ease" }}
-          onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = "#ede7f6";
-            e.currentTarget.style.borderColor = "#4f378a";
-            e.currentTarget.style.color = "#4f378a";
-            e.currentTarget.style.boxShadow = "4px 4px 0 #7c4dff";
-            e.currentTarget.style.transform = "translate(-2px, -2px)";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = "";
-            e.currentTarget.style.borderColor = "";
-            e.currentTarget.style.color = "";
-            e.currentTarget.style.boxShadow = "4px 4px 0 #4f378a";
-            e.currentTarget.style.transform = "";
-          }}
-        >
-          <span className="material-symbols-outlined">star</span>
-          Join for Free — No Experience Needed
-        </Link>
-      </section>
-
-      {/* ─── Footer ─── */}
-      <footer className="py-8 px-6 text-center border-t-2 border-ink">
-        <p className="font-mono text-xs text-on-surface-variant uppercase">
-          ShowUp © 2025 — Built for Indian Students 🇮🇳
-        </p>
-      </footer>
     </div>
   );
 }

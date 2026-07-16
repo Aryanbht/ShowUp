@@ -105,7 +105,7 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-surface">
+      <div className="flex min-h-screen bg-transparent">
         <Navbar />
         <main className="flex-1 md:ml-64 flex items-center justify-center">
           <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase">Loading project...</p>
@@ -116,7 +116,7 @@ export default function ProjectDetailPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-surface">
+      <div className="flex min-h-screen bg-transparent">
         <Navbar />
         <main className="flex-1 md:ml-64 flex items-center justify-center">
           <div className="text-center">
@@ -132,31 +132,29 @@ export default function ProjectDetailPage() {
   const { title, description, tech_stack, live_url, github_url, screenshot_url, view_count, ai_analysis, ai_analysis_used, student, created_at } = project;
 
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="flex min-h-screen bg-transparent">
       <Navbar />
       <main className="flex-1 md:ml-64 pb-20 md:pb-0">
         {/* Breadcrumb */}
-        <div className="border-b-2 border-ink px-6 py-3 flex items-center justify-between bg-surface">
+        <div className="topbar-dark flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
-            <Link to="/feed" className="hover:text-on-surface transition-colors uppercase">Feed</Link>
-            <span>/</span>
+            <Link to="/feed" className="hover:text-violet-300 transition-colors uppercase">Feed</Link>
+            <span className="text-on-surface-variant opacity-40">/</span>
             <span className="text-on-surface uppercase truncate max-w-[200px]">{title}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Share button */}
-            <button onClick={handleShare} className="btn-secondary py-2 px-3 text-xs">
+            <button onClick={handleShare} className="btn-secondary py-1.5 px-3 text-xs">
               <span className="material-symbols-outlined text-sm">{copied ? "check" : "share"}</span>
               {copied ? "Copied!" : "Share Profile"}
             </button>
 
-            {/* Owner actions */}
             {isOwner && (
               <>
-                <Link to={`/project/${id}/edit`} className="btn-secondary py-2 px-3 text-xs">
+                <Link to={`/project/${id}/edit`} className="btn-secondary py-1.5 px-3 text-xs">
                   <span className="material-symbols-outlined text-sm">edit</span>
                 </Link>
-                <button onClick={handleDelete} disabled={deleting} className="btn-danger py-2 px-3 text-xs">
+                <button onClick={handleDelete} disabled={deleting} className="btn-danger py-1.5 px-3 text-xs">
                   <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
               </>
@@ -166,29 +164,27 @@ export default function ProjectDetailPage() {
 
         <div className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Project title & meta */}
-          <div className="border-b-2 border-ink pb-6">
+          <div className="pb-6" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <h1 className="font-grotesk font-bold text-3xl md:text-4xl text-on-surface mb-1 leading-tight">
               {title}
             </h1>
-            {/* AI-generated tagline */}
             {ai_analysis?.project_tagline && (
-              <p className="font-mono text-sm italic text-primary mb-3">"{ai_analysis.project_tagline}"</p>
+              <p className="font-mono text-sm italic text-violet-400 mb-3">"{ai_analysis.project_tagline}"</p>
             )}
 
-            {/* Student info */}
             {student && (
               <Link to={`/u/${student.id}`} className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity mb-4 group">
                 {student.avatar_url ? (
-                  <img src={student.avatar_url} alt={student.name} className="w-10 h-10 brutalist-border object-cover" />
+                  <img src={student.avatar_url} alt={student.name} className="w-10 h-10 rounded-xl object-cover" style={{ border: "1px solid rgba(255,255,255,0.12)" }} />
                 ) : (
-                  <div className="w-10 h-10 bg-primary-container border-2 border-ink flex items-center justify-center">
-                    <span className="font-mono font-bold text-sm text-on-primary-container">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                    <span className="font-mono font-bold text-sm text-white">
                       {student.name?.[0]?.toUpperCase()}
                     </span>
                   </div>
                 )}
                 <div>
-                  <p className="font-semibold text-on-surface group-hover:text-primary transition-colors">
+                  <p className="font-semibold text-on-surface group-hover:text-violet-300 transition-colors">
                     {student.name}
                   </p>
                   <p className="font-mono text-xs text-on-surface-variant">{student.college}</p>
@@ -210,7 +206,8 @@ export default function ProjectDetailPage() {
                 {created_at ? new Date(created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : ""}
               </span>
               {ai_analysis_used && ai_analysis && (
-                <span className="flex items-center gap-1 font-nunito text-xs text-primary border border-primary px-2 py-0.5">
+                <span className="flex items-center gap-1.5 font-nunito text-xs font-bold px-2.5 py-1 rounded-full"
+                  style={{ background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)", color: "#C4B5FD" }}>
                   <span className="material-symbols-outlined text-sm">auto_awesome</span>
                   AI Score: {ai_analysis.overall_score}/10
                 </span>
@@ -220,7 +217,7 @@ export default function ProjectDetailPage() {
 
           {/* Screenshot */}
           {screenshot_url && (
-            <div className="border-2 border-ink overflow-hidden" style={{ boxShadow: "4px 4px 0 #2A2A2A" }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
               <img src={screenshot_url} alt={`${title} screenshot`} className="w-full" />
             </div>
           )}
@@ -286,7 +283,8 @@ export default function ProjectDetailPage() {
                   <select
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(Number(e.target.value))}
-                    className="border border-ink font-mono text-xs px-2 py-1 bg-surface focus:outline-none"
+                    className="rounded-xl font-mono text-xs px-2 py-1 text-on-surface outline-none"
+                    style={{ background: "#111122", border: "1px solid rgba(255,255,255,0.1)", color: "#ECEEF5" }}
                   >
                     {[1, 2, 3, 4].map(y => (
                       <option key={y} value={y}>Year {y}</option>
@@ -296,8 +294,8 @@ export default function ProjectDetailPage() {
               )}
             </div>
             {analyseError && (
-              <div className="border border-error bg-error-container px-4 py-2 mb-4">
-                <p className="font-mono text-xs text-on-error-container">{analyseError}</p>
+              <div className="rounded-xl px-4 py-2 mb-4" style={{ background: "rgba(58,10,10,0.6)", border: "1px solid rgba(248,113,113,0.3)" }}>
+                <p className="font-mono text-xs text-red-400">{analyseError}</p>
               </div>
             )}
             <AIAnalysisPanel
@@ -314,7 +312,7 @@ export default function ProjectDetailPage() {
 
           {/* Back to portfolio */}
           {student && (
-            <div className="pt-4 border-t-2 border-ink">
+            <div className="pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
               <Link to={`/u/${student.id}`} className="btn-secondary text-sm">
                 <span className="material-symbols-outlined text-sm">arrow_back</span>
                 Back to {student.name}'s Profile
