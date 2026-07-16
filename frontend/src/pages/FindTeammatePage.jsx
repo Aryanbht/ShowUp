@@ -64,9 +64,9 @@ export default function FindTeammatePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-transparent overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
         <header className="sticky top-0 z-20 border-b-2 border-outline-variant px-6 py-4 bg-surface-container">
           <h1 className="font-grotesk font-bold text-xl text-on-surface">Find Teammate</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">Find the perfect partner for your next hackathon</p>

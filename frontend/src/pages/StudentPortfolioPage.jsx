@@ -108,10 +108,10 @@ export default function StudentPortfolioPage() {
   const isOwn = user?.id === student.id;
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-transparent overflow-x-hidden">
       <Navbar />
 
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0 min-h-screen flex flex-col">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0 min-h-screen flex flex-col">
         <div className="flex-1 w-full">
           {/* Header */}
           <header className="topbar-dark flex items-center justify-between">

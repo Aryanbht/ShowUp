@@ -58,11 +58,11 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen w-full bg-transparent overflow-x-hidden">
       <Navbar />
 
       {/* Main content */}
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
         {/* Page header */}
         <div className="topbar-dark">
           <div className="flex items-center justify-between mb-3">

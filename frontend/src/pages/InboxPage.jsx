@@ -124,9 +124,9 @@ export default function InboxPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-transparent overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
         <header className="topbar-dark flex items-center justify-between">
           <div>
             <h1 className="font-grotesk font-bold text-xl text-on-surface flex items-center gap-2">

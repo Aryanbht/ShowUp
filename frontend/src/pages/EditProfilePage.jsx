@@ -246,7 +246,7 @@ export default function EditProfilePage() {
     <div className="flex min-h-screen w-full bg-surface-container overflow-x-hidden">
       <Navbar />
 
-      <main className="flex-1 w-full md:ml-64 pb-24 md:pb-0">
+      <main className="flex-1 min-w-0 w-full md:ml-64 pb-24 md:pb-0">
         {/* Header */}
         <div className="border-b-2 border-outline-variant px-4 py-4 sticky top-0 z-20 bg-surface-container">
           <h1 className="font-grotesk font-bold text-lg sm:text-xl text-on-surface">Edit Profile</h1>
@@ -452,15 +452,7 @@ export default function EditProfilePage() {
 
             {/* ── Bio ── */}
             <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#666',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: '8px'
-              }}>
+              <label className="label-mono block mb-1.5" style={{ color: '#8A8AAE' }}>
                 Bio
               </label>
               <textarea
@@ -468,17 +460,20 @@ export default function EditProfilePage() {
                 onChange={handleBioChange}
                 placeholder="Tell recruiters about yourself..."
                 rows={5}
+                className="placeholder-white/40"
                 style={{
                   width: '100%',
                   padding: '12px 14px',
-                  border: bioError ? '1.5px solid #FF4444' : '1.5px solid #E5E5E5',
+                  border: bioError ? '1.5px solid #EF4444' : '1.5px solid rgba(255,255,255,0.1)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   resize: 'vertical',
                   outline: 'none',
                   fontFamily: 'Inter, sans-serif',
                   lineHeight: '1.6',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.03)',
+                  color: '#fff'
                 }}
               />
               <div style={{
@@ -488,14 +483,14 @@ export default function EditProfilePage() {
               }}>
                 <p style={{
                   fontSize: '12px',
-                  color: bioError ? '#FF4444' : '#999',
+                  color: bioError ? '#EF4444' : '#8A8AAE',
                   margin: 0
                 }}>
                   {bioError || ''}
                 </p>
                 <p style={{
                   fontSize: '12px',
-                  color: countWords(form.bio) > 500 ? '#FF4444' : '#999',
+                  color: countWords(form.bio) > 500 ? '#EF4444' : '#8A8AAE',
                   margin: 0
                 }}>
                   {countWords(form.bio)} / 500 words
@@ -565,29 +560,30 @@ export default function EditProfilePage() {
 
 
             {/* ── Portfolio Customization ── */}
-            <div style={{ borderTop: '1px solid #E5E5E5', paddingTop: '32px', marginTop: '32px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 24px', letterSpacing: '0.01em' }}>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '32px', marginTop: '32px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', margin: '0 0 24px', letterSpacing: '0.01em', color: '#ECEEF5' }}>
                 Portfolio Customization
               </h3>
 
               {/* Username / Portfolio URL */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ fontSize: '12px', fontWeight: '600', color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+                <label style={{ fontSize: '12px', fontWeight: '600', color: '#8A8AAE', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
                   Your Portfolio URL
                 </label>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '13px', color: '#999' }}>{window.location.origin}/portfolio/</span>
+                  <span style={{ fontSize: '13px', color: '#8A8AAE' }}>{window.location.origin}/portfolio/</span>
                   <div style={{ position: 'relative' }}>
                     <input
                       value={username}
                       onChange={handleUsernameChange}
-                      style={{ padding: '8px 12px', border: `1.5px solid ${usernameError ? '#FF4444' : usernameError === '' && username && username !== user?.username ? '#16A34A' : '#E5E5E5'}`, borderRadius: '6px', fontSize: '13px', width: '160px' }}
+                      className="placeholder-white/40 outline-none"
+                      style={{ padding: '8px 12px', border: `1.5px solid ${usernameError ? '#EF4444' : usernameError === '' && username && username !== user?.username ? '#10B981' : 'rgba(255,255,255,0.1)'}`, borderRadius: '6px', fontSize: '13px', width: '160px', background: 'rgba(255,255,255,0.03)', color: '#fff' }}
                       placeholder="yourusername"
                     />
-                    {usernameChecking && <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#999' }}>…</span>}
+                    {usernameChecking && <span style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#8A8AAE' }}>…</span>}
                   </div>
                 </div>
-                {usernameError && <p style={{ fontSize: '11px', color: '#FF4444', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: '4px' }}>⚠ {usernameError}</p>}
+                {usernameError && <p style={{ fontSize: '11px', color: '#EF4444', margin: '6px 0 0', display: 'flex', alignItems: 'center', gap: '4px' }}>⚠ {usernameError}</p>}
               </div>
 
               {/* Template picker */}

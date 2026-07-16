@@ -131,16 +131,16 @@ export default function UploadPage({ editMode }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen w-full bg-transparent overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
         {/* Header */}
         <div className="topbar-dark">
           <h1 className="font-grotesk font-bold text-xl text-on-surface">{editMode ? "Edit Project" : "Publish Your Work"}</h1>
           <p className="label-mono text-on-surface-variant mt-0.5">{editMode ? "Update your project details" : "Share what you've built with the world"}</p>
         </div>
 
-        <div className="max-w-2xl mx-auto p-6">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6">
           {loading ? (
             <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase text-center mt-10">Loading project...</p>
           ) : (
@@ -165,7 +165,7 @@ export default function UploadPage({ editMode }) {
                     ) : repos.length > 0 ? (
                       <div className="flex gap-4 overflow-x-auto pb-4">
                         {repos.map(repo => (
-                          <div key={repo.id} className="min-w-[280px] p-4 rounded-xl flex flex-col justify-between" style={{ background: "#18182E", border: "1px solid rgba(255,255,255,0.07)" }}>
+                          <div key={repo.id} className="min-w-[240px] sm:min-w-[280px] p-4 rounded-xl flex flex-col justify-between" style={{ background: "#18182E", border: "1px solid rgba(255,255,255,0.07)" }}>
                             <div>
                               <div className="font-bold text-[15px] truncate text-on-surface" title={repo.name}>{repo.name}</div>
                               <p className="font-mono text-xs text-on-surface-variant mt-1 line-clamp-2 min-h-[32px]">

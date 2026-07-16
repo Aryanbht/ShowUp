@@ -8,7 +8,7 @@ export default function ComingSoonPage({
   return (
     <div className="flex min-h-screen bg-transparent">
       <Navbar />
-      <main className="flex-1 md:ml-64 flex flex-col items-center justify-center p-6 text-center">
+      <main className="flex-1 min-w-0 md:ml-64 flex flex-col items-center justify-center p-6 text-center">
         <div className="glass-card p-10 max-w-lg w-full">
           <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center"
             style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.3)" }}>

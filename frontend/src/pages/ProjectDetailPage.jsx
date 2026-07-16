@@ -105,9 +105,9 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-transparent">
+      <div className="flex min-h-screen bg-transparent overflow-x-hidden">
         <Navbar />
-        <main className="flex-1 md:ml-64 flex items-center justify-center">
+        <main className="flex-1 min-w-0 md:ml-64 flex items-center justify-center">
           <p className="font-mono text-sm text-on-surface-variant animate-pulse uppercase">Loading project...</p>
         </main>
       </div>
@@ -116,9 +116,9 @@ export default function ProjectDetailPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-transparent">
+      <div className="flex min-h-screen bg-transparent overflow-x-hidden">
         <Navbar />
-        <main className="flex-1 md:ml-64 flex items-center justify-center">
+        <main className="flex-1 min-w-0 md:ml-64 flex items-center justify-center">
           <div className="text-center">
             <span className="material-symbols-outlined text-5xl text-error mb-4 block">error</span>
             <p className="font-grotesk font-bold text-xl mb-2">{error}</p>
@@ -132,9 +132,9 @@ export default function ProjectDetailPage() {
   const { title, description, tech_stack, live_url, github_url, screenshot_url, view_count, ai_analysis, ai_analysis_used, student, created_at } = project;
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-transparent overflow-x-hidden">
       <Navbar />
-      <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 md:ml-64 pb-20 md:pb-0">
         {/* Breadcrumb */}
         <div className="topbar-dark flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-xs text-on-surface-variant">

@@ -5,6 +5,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
 /* ─── Dark Theme CSS Variables ─────────────────────────── */
 :root {
   /* Surface layers (near-black page + elevated cards) */
@@ -177,7 +185,7 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .input-brutal::placeholder {
-    color: rgba(138, 138, 174, 0.55);
+    color: rgba(255, 255, 255, 0.4);
   }
   .input-brutal:focus {
     border-color: rgba(139, 92, 246, 0.55);

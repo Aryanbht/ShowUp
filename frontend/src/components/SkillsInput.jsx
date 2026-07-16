@@ -116,15 +116,7 @@ export default function SkillsInput({ value = [], onChange }) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <label style={{
-        display: 'block',
-        fontSize: '12px',
-        fontWeight: '600',
-        color: '#666',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        marginBottom: '8px'
-      }}>
+      <label className="label-mono block mb-1.5" style={{ color: '#8A8AAE' }}>
         Skills
       </label>
 
@@ -134,14 +126,14 @@ export default function SkillsInput({ value = [], onChange }) {
         style={{
           minHeight: '48px',
           padding: '8px 12px',
-          border: '1.5px solid #E5E5E5',
+          border: '1.5px solid rgba(255,255,255,0.1)',
           borderRadius: '6px',
           display: 'flex',
           flexWrap: 'wrap',
           gap: '6px',
           alignItems: 'center',
           cursor: 'text',
-          background: '#FFFFFF'
+          background: 'rgba(255,255,255,0.03)'
         }}
       >
         {/* Existing skill tags */}
@@ -152,12 +144,12 @@ export default function SkillsInput({ value = [], onChange }) {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
-              background: '#F5F5F5',
-              border: '1px solid #E5E5E5',
+              background: 'rgba(139, 92, 246, 0.15)',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
               borderRadius: '4px',
               padding: '4px 8px',
               fontSize: '13px',
-              color: '#333',
+              color: '#C4B5FD',
               fontWeight: '500'
             }}
           >
@@ -169,7 +161,7 @@ export default function SkillsInput({ value = [], onChange }) {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#999',
+                color: '#A78BFA',
                 fontSize: '14px',
                 lineHeight: 1,
                 padding: '0',
@@ -193,6 +185,7 @@ export default function SkillsInput({ value = [], onChange }) {
             if (inputVal.trim()) setShowDropdown(true)
           }}
           placeholder={value.length === 0 ? 'Type a skill and press Enter...' : ''}
+          className="placeholder-white/40"
           style={{
             border: 'none',
             outline: 'none',
@@ -200,12 +193,13 @@ export default function SkillsInput({ value = [], onChange }) {
             flex: 1,
             minWidth: '140px',
             padding: '4px 0',
-            background: 'transparent'
+            background: 'transparent',
+            color: '#fff'
           }}
         />
       </div>
 
-      <p style={{ fontSize: '11px', color: '#999', margin: '6px 0 0' }}>
+      <p style={{ fontSize: '11px', color: '#8A8AAE', margin: '6px 0 0' }}>
         Type to search · Press Enter or comma to add · Backspace to remove last
       </p>
 
@@ -218,10 +212,10 @@ export default function SkillsInput({ value = [], onChange }) {
             top: '100%',
             left: 0,
             right: 0,
-            background: '#FFFFFF',
-            border: '1.5px solid #E5E5E5',
+            background: '#111122',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
             zIndex: 100,
             maxHeight: '240px',
             overflowY: 'auto',
@@ -237,9 +231,9 @@ export default function SkillsInput({ value = [], onChange }) {
                   padding: '10px 14px',
                   fontSize: '13px',
                   cursor: 'pointer',
-                  background: index === activeSuggestion ? '#F5F5F5' : '#FFFFFF',
-                  color: '#1A1A1A',
-                  borderBottom: index < suggestions.length - 1 ? '1px solid #F0F0F0' : 'none'
+                  background: index === activeSuggestion ? 'rgba(255,255,255,0.08)' : 'transparent',
+                  color: '#fff',
+                  borderBottom: index < suggestions.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
                 }}
               >
                 {suggestion}
@@ -252,7 +246,8 @@ export default function SkillsInput({ value = [], onChange }) {
                 padding: '10px 14px',
                 fontSize: '13px',
                 cursor: 'pointer',
-                color: '#666',
+                background: activeSuggestion === -1 ? 'rgba(255,255,255,0.08)' : 'transparent',
+                color: '#C4B5FD',
                 fontStyle: 'italic'
               }}
             >
