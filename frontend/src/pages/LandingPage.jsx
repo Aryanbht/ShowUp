@@ -17,9 +17,9 @@ export default function LandingPage() {
             </Link>
             
             <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-400">
-              <Link to="/coming-soon" className="hover:text-white transition-colors">Product</Link>
+              <Link to="/product" className="hover:text-white transition-colors">Product</Link>
               <Link to="/coming-soon" className="hover:text-white transition-colors">Developers</Link>
-              <Link to="/coming-soon" className="hover:text-white transition-colors">Solutions</Link>
+              <Link to="/solutions" className="hover:text-white transition-colors">Solutions</Link>
               <Link to="/coming-soon" className="hover:text-white transition-colors">Docs</Link>
               <Link to="/coming-soon" className="hover:text-white transition-colors">Blog</Link>
             </div>

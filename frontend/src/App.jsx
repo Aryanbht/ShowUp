@@ -4,6 +4,8 @@ import AuthGuard from "./components/AuthGuard";
 import { useAuth } from "./context/AuthContext";
 
 import LandingPage from "./pages/LandingPage";
+import ProductPage from "./pages/ProductPage";
+import SolutionsPage from "./pages/SolutionsPage";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import GitHubCallback from "./pages/GitHubCallback";
@@ -33,6 +35,8 @@ export default function App() {
         <Routes>
           {/* Public routes — redirect to /feed if already logged in */}
           <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+          <Route path="/product" element={<PublicRoute><ProductPage /></PublicRoute>} />
+          <Route path="/solutions" element={<PublicRoute><SolutionsPage /></PublicRoute>} />
           <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/auth/github/callback" element={<GitHubCallback />} />
