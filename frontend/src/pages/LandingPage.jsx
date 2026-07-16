@@ -1,40 +1,11 @@
 import { Link } from "react-router-dom";
+import LandingNavbar from "../components/LandingNavbar";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#000000] text-white font-sans selection:bg-[#8b5cf6] selection:text-white">
       
-      {/* ─── Navbar ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#000000]/80 backdrop-blur-md border-b border-[#2a2a2a]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-6">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2 outline-none">
-              <svg viewBox="0 0 581 113" fill="none" width="100" height="20" aria-label="ShowUp Logo" role="img">
-                <path d="M45.317 2.07103C48.1765 -1.53037 53.9745 0.442937 54.0434 5.041L54.4849 72.2922H9.83113C1.64038 72.2922 -2.92775 62.8321 2.1655 56.4175L45.317 2.07103Z" fill="#8b5cf6"></path>
-                <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" fill="#7c3aed"></path>
-              </svg>
-              <span className="font-bold text-lg tracking-tight">ShowUp</span>
-            </Link>
-            
-            <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-400">
-              <Link to="/product" className="hover:text-white transition-colors">Product</Link>
-              <Link to="/coming-soon" className="hover:text-white transition-colors">Developers</Link>
-              <Link to="/solutions" className="hover:text-white transition-colors">Solutions</Link>
-              <Link to="/coming-soon" className="hover:text-white transition-colors">Docs</Link>
-              <Link to="/coming-soon" className="hover:text-white transition-colors">Blog</Link>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link to="/auth" className="hidden lg:flex items-center justify-center text-xs font-medium bg-[#1e1e1e] hover:bg-[#2a2a2a] border border-[#2a2a2a] hover:border-[#3a3a3a] text-white px-3 py-1.5 rounded-md transition-colors">
-              Sign in
-            </Link>
-            <Link to="/auth" className="hidden lg:flex items-center justify-center text-xs font-medium bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] text-black px-3 py-1.5 rounded-md transition-colors">
-              Start your project
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <LandingNavbar />
 
       {/* ─── Hero Section ─── */}
       <header className="relative pt-32 pb-20 md:pt-48 md:pb-24 px-6 overflow-hidden">

@@ -161,7 +161,6 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-
       {/* ─── Mobile Bottom Nav ─── */}
       {!location.pathname.startsWith("/inbox/chat") && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex"

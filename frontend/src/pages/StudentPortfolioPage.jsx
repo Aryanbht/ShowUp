@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function StudentPortfolioPage() {
   const { student_id } = useParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -86,6 +86,11 @@ export default function StudentPortfolioPage() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
@@ -127,8 +132,8 @@ export default function StudentPortfolioPage() {
                 className="btn-secondary py-1.5 px-2 sm:px-3 text-xs"
                 title="Share Portfolio"
               >
-                <span className="material-symbols-outlined text-sm">{copied ? "check" : "share"}</span>
-                <span className="hidden sm:inline">{copied ? "Copied!" : "Share Portfolio"}</span>
+                <span className="material-symbols-outlined text-sm">{copied ? "check" : "link"}</span>
+                <span className="hidden sm:inline">{copied ? "Copied!" : "Share"}</span>
               </button>
               {student.github_url && (
                 <a
@@ -193,18 +198,28 @@ export default function StudentPortfolioPage() {
                   href={`/portfolio/${student.username || student.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 sm:gap-1.5 border border-outline-variant px-2 sm:px-3 py-1.5 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
+                  className="flex items-center gap-1 border border-outline-variant px-2 py-1 font-mono text-xs uppercase hover:bg-surface-container transition-colors"
                   title="View Portfolio"
                 >
                   <span className="material-symbols-outlined text-sm">open_in_new</span>
-                  <span>View Portfolio</span>
+                  <span className="hidden sm:inline">Portfolio</span>
                 </a>
               )}
               {isOwn && (
-                <Link to="/profile/edit" className="btn-primary py-1.5 px-2 sm:px-3 text-xs" title="Edit Profile">
+                <Link to="/profile/edit" className="btn-primary py-1 px-2 text-xs" title="Edit Profile">
                   <span className="material-symbols-outlined text-sm">edit</span>
-                  <span className="hidden sm:inline">Edit Profile</span>
+                  <span className="hidden sm:inline">Edit</span>
                 </Link>
+              )}
+              {isOwn && (
+                <button 
+                  onClick={handleLogout}
+                  className="md:hidden flex items-center gap-1 border border-red-500/30 text-red-400 bg-red-500/10 px-2 py-1 font-mono text-xs uppercase hover:bg-red-500/20 transition-colors"
+                  title="Sign Out"
+                >
+                  <span className="material-symbols-outlined text-sm">logout</span>
+                  <span className="hidden sm:inline">Sign Out</span>
+                </button>
               )}
               {!user && (
                 <Link to="/auth" className="btn-primary py-1.5 px-2 sm:px-3 text-xs">Join ShowUp</Link>
