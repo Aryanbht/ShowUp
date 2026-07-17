@@ -5,6 +5,7 @@ import CustomPortfolio from '../components/portfolio/CustomPortfolio'
 import NeuralOS from '../components/portfolio/NeuralOS'
 import TerminalCore from '../components/portfolio/TerminalCore'
 import ObsidianIridescence from '../components/portfolio/ObsidianIridescence'
+import ShaolinZen from '../components/portfolio/ShaolinZen'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -141,6 +142,10 @@ export default function PublicPortfolio() {
     return <ObsidianIridescence {...props} />
   }
 
+  if (customization.template === 'shaolin_zen') {
+    return <ShaolinZen {...props} />
+  }
+
   switch (customization.template) {
     case 'neural_os':
     case 'modern_midnight':
@@ -148,8 +153,6 @@ export default function PublicPortfolio() {
       return <NeuralOS {...props} />
     case 'terminal_core':
       return <TerminalCore {...props} />
-    case 'neural_interface':
-      return <NeuralInterface {...props} />
     case 'custom':
     case 'classic':
     case 'midnight':

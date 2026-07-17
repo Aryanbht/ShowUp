@@ -104,7 +104,7 @@ def update_customization():
 
     data = request.get_json() or {}
 
-    allowed_templates = ['modern_midnight', 'game_dev_edition', 'neural_os', 'terminal_core', 'obsidian_iridescence']
+    allowed_templates = ['modern_midnight', 'game_dev_edition', 'neural_os', 'terminal_core', 'obsidian_iridescence', 'shaolin_zen']
     allowed_fonts = ['Inter', 'IBM Plex Mono', 'Georgia', 'Space Grotesk',
                      'DM Serif Display', 'Roboto', 'Poppins', 'Sora', 'JetBrains Mono']
 

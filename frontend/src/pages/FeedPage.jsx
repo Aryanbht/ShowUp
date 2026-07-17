@@ -75,7 +75,7 @@ export default function FeedPage() {
               <button
                 key={f.key}
                 onClick={() => handleFilterChange(f.key)}
-                className={`flex items-center gap-1.5 px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide rounded-lg transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-1.5 font-nunito text-xs font-semibold uppercase tracking-wide rounded-lg transition-all ${
                   filter === f.key
                     ? "text-white"
                     : "text-on-surface-variant hover:text-on-surface hover:bg-white/5"
@@ -115,7 +115,7 @@ export default function FeedPage() {
           {/* Error */}
           {error && !loading && (
             <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(58,10,10,0.6)", border: "1px solid rgba(248,113,113,0.25)" }}>
-              <p className="font-mono text-sm text-red-400">{error}</p>
+              <p className="font-nunito text-sm text-red-400">{error}</p>
               <button onClick={() => fetchProjects(1, filter, false)} className="btn-secondary mt-4 text-xs">
                 Retry
               </button>
@@ -131,7 +131,7 @@ export default function FeedPage() {
                     <span className="material-symbols-outlined text-3xl text-violet-400">folder_open</span>
                   </div>
                   <p className="font-grotesk font-bold text-lg text-on-surface mb-2">No projects yet</p>
-                  <p className="font-mono text-sm text-on-surface-variant">Be the first to upload a project!</p>
+                  <p className="font-nunito text-sm text-on-surface-variant">Be the first to upload a project!</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">

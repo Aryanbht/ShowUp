@@ -59,8 +59,11 @@ export default function Navbar() {
             <div className="flex items-center gap-2.5 mb-1">
               {/* Logo mark */}
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #7c3aed, #8b5cf6)" }}>
-                <span className="material-symbols-outlined text-white text-sm" style={{ fontSize: "16px" }}>bolt</span>
+                style={{ background: "#0a0a0f", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
+                <svg viewBox="0 0 24 24" fill="#8b5cf6" width="16" height="16">
+                  <path d="M5 8v6a7 7 0 0 0 14 0v-3h-3.5v3a3.5 3.5 0 0 1-7 0V8H5z" />
+                  <path d="M17.25 2l-5 5h3.25v2h3.5V7h3.25L17.25 2z" />
+                </svg>
               </div>
               <h1 className="font-mono font-bold text-lg text-white tracking-tight">ShowUp</h1>
             </div>

@@ -596,6 +596,7 @@ export default function EditProfilePage() {
                     { id: 'neural_os', name: 'Neural OS', bg: '#101415', accent: '#00f3ff' },
                     { id: 'terminal_core', name: 'Terminal Core', bg: '#131313', accent: '#4be277' },
                     { id: 'obsidian_iridescence', name: 'Obsidian Iridescence', bg: '#0e131f', accent: '#8aebff' },
+                    { id: 'shaolin_zen', name: 'Shaolin Zen', bg: '#121414', accent: '#d84315' },
                   ].map(t => (
                     <div
                       key={t.id}

@@ -139,8 +139,11 @@ export default function AuthPage() {
     <div className="min-h-screen bg-transparent flex flex-col">
       <header className="px-6 h-16 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(9,9,15,0.9)", backdropFilter: "blur(12px)" }}>
         <a href="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
-            <span className="material-symbols-outlined text-white text-xs" style={{ fontSize: "14px" }}>bolt</span>
+          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "#0a0a0f", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
+            <svg viewBox="0 0 24 24" fill="#8b5cf6" width="14" height="14">
+              <path d="M5 8v6a7 7 0 0 0 14 0v-3h-3.5v3a3.5 3.5 0 0 1-7 0V8H5z" />
+              <path d="M17.25 2l-5 5h3.25v2h3.5V7h3.25L17.25 2z" />
+            </svg>
           </div>
           <span className="font-mono font-black text-base uppercase text-on-surface tracking-tight">ShowUp</span>
         </a>
