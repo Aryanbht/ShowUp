@@ -150,7 +150,7 @@ export default function InboxPage() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 font-mono text-[10px] sm:text-xs uppercase font-semibold tracking-wide rounded-lg transition-all ${
+                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 font-nunito text-[10px] sm:text-xs uppercase font-semibold tracking-wide rounded-lg transition-all ${
                   tab === t.id ? "text-white" : "text-on-surface-variant hover:text-on-surface"}`}
                 style={tab === t.id ? { background: "linear-gradient(135deg,#7c3aed,#8b5cf6)", boxShadow: "0 0 12px rgba(124,58,237,0.3)" } : {}}
               >
@@ -183,7 +183,7 @@ export default function InboxPage() {
                       <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
                         <span className="material-symbols-outlined text-3xl text-violet-400">person_add</span>
                       </div>
-                      <p className="font-mono text-sm text-on-surface-variant">No pending connection requests</p>
+                      <p className="font-nunito text-sm text-on-surface-variant">No pending connection requests</p>
                     </div>
                   ) : (
                     requests.map((req) => (

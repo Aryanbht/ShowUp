@@ -154,7 +154,7 @@ export default function UploadPage({ editMode }) {
                   </svg>
                   Import from GitHub
                 </h2>
-                <p className="font-mono text-sm text-on-surface-variant mb-4">
+                <p className="font-nunito text-sm text-on-surface-variant mb-4">
                   Quickly import your public repositories directly as ShowUp projects.
                 </p>
 

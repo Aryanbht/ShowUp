@@ -194,7 +194,7 @@
 
   /* Mono label */
   .label-mono {
-    @apply font-mono font-medium uppercase tracking-widest text-xs text-on-surface-variant;
+    @apply font-nunito font-medium uppercase tracking-widest text-xs text-on-surface-variant;
   }
 
   /* Tech pill — dark violet */

@@ -109,7 +109,7 @@ export default function FindTeammatePage() {
 
             <div className="mb-6">
               <SkillsInput value={skills} onChange={setSkills} />
-              <p className="text-xs text-on-surface-variant mt-2 font-mono">Minimum skills needed in your partner</p>
+              <p className="text-xs text-on-surface-variant mt-2 font-nunito">Minimum skills needed in your partner</p>
             </div>
 
             <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
