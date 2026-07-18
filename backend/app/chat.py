@@ -5,6 +5,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Student, ChatRequest, Conversation, Message, Notification, BlockedUser, Report
+from app.rate_limiter import limit_authed
+from app.validators import require_json_schema, schemas
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/api/chat')
 
@@ -23,15 +25,14 @@ def _error(message, status=400):
 
 @chat_bp.route('/request/send', methods=['POST'])
 @jwt_required()
+@limit_authed()
+@require_json_schema(schemas.SEND_REQUEST)
 def send_request():
     """Send a chat connection request to another user."""
-    sender_id = get_jwt_identity()
-    body = request.get_json() or {}
-    receiver_id = body.get('receiver_id', '').strip()
-    note = body.get('note', '').strip()[:500]
-
-    if not receiver_id:
-        return _error("receiver_id is required")
+    sender_id   = get_jwt_identity()
+    body        = request.validated
+    receiver_id = body["receiver_id"].strip()
+    note        = body.get("note") or ""
     if receiver_id == sender_id:
         return _error("You cannot connect with yourself")
 
@@ -102,6 +103,7 @@ def send_request():
 
 @chat_bp.route('/request/inbox', methods=['GET'])
 @jwt_required()
+@limit_authed()
 def get_inbox_requests():
     """Get all pending chat requests received by the current user."""
     user_id = get_jwt_identity()
@@ -113,6 +115,7 @@ def get_inbox_requests():
 
 @chat_bp.route('/request/sent', methods=['GET'])
 @jwt_required()
+@limit_authed()
 def get_sent_requests():
     """Get all requests sent by the current user."""
     user_id = get_jwt_identity()
@@ -275,6 +278,7 @@ def get_messages(convo_id):
 
 @chat_bp.route('/conversations/<string:convo_id>/messages', methods=['POST'])
 @jwt_required()
+@require_json_schema(schemas.SEND_MESSAGE)
 def send_message(convo_id):
     """Send a text or voice message."""
     user_id = get_jwt_identity()
@@ -292,13 +296,13 @@ def send_message(convo_id):
     if block:
         return _error("Cannot send message to this user", 403)
 
-    body = request.get_json() or {}
-    msg_type = body.get('message_type', 'text')
-    content = body.get('content', '').strip()
-    voice_url = body.get('voice_url', '').strip()
+    body      = request.validated
+    msg_type  = body["message_type"]
+    content   = body.get("content") or ""
+    voice_url = body.get("voice_url") or ""
 
     if msg_type == 'text' and not content:
-        return _error("Message content is required")
+        return _error("Message content is required for text messages")
     if msg_type == 'voice' and not voice_url:
         return _error("voice_url is required for voice messages")
 
@@ -430,13 +434,12 @@ def unblock_user(target_user_id):
 
 @chat_bp.route('/report/<string:target_user_id>', methods=['POST'])
 @jwt_required()
+@require_json_schema(schemas.REPORT_USER)
 def report_user(target_user_id):
     """Report a user."""
     user_id = get_jwt_identity()
-    body = request.get_json() or {}
-    reason = body.get('reason', '').strip()
-    if not reason:
-        return _error("Reason is required")
+    body   = request.validated
+    reason = body["reason"]
 
     report = Report(reporter_id=user_id, reported_id=target_user_id, reason=reason)
     db.session.add(report)

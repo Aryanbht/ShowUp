@@ -104,6 +104,12 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Footer */}
+      <footer className="w-full max-w-4xl mx-auto py-8 px-5 flex items-center justify-center gap-4 text-xs text-[#666]">
+        <Link to="/privacy" className="hover:text-[#8b8b8b] transition-colors">Privacy Policy</Link>
+        <span>·</span>
+        <Link to="/terms" className="hover:text-[#8b8b8b] transition-colors">Terms of Service</Link>
+      </footer>
     </div>
   );
 }

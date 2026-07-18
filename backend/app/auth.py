@@ -15,6 +15,11 @@ from flask_jwt_extended import (
 from app import db
 from app.models import Student
 from app.utils import generate_username
+from app.rate_limiter import (
+    limit_auth_strict, limit_auth_otp_send, limit_auth_otp_verify,
+    limit_authed, get_backoff_delay,
+)
+from app.validators import require_json_schema, schemas
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -22,12 +27,10 @@ auth_bp = Blueprint("auth", __name__)
 # Fine for v1 — replace with Redis in production
 _otp_store: dict = {}
 
-# ─── In-memory IP rate-limit store {ip: [timestamps]} ────────────────────────
+# ─── In-memory IP rate-limit store (legacy — kept for OTP resend cooldown) ───
 _ip_send_log: dict = {}
 
-IP_LIMIT_COUNT = 5       # max OTP sends per IP per window
-IP_LIMIT_WINDOW = 600    # 10 minutes in seconds
-OTP_RESEND_COOLDOWN = 60 # seconds between resends for same email
+OTP_RESEND_COOLDOWN = int(os.getenv("RL_OTP_RESEND_COOLDOWN", 60))  # seconds between resends
 
 
 def _success(data=None, message=""):
@@ -53,21 +56,15 @@ def _make_tokens(student_id: str):
 # ═══════════════════════════════════════════════════════════════════
 
 @auth_bp.route("/register", methods=["POST"])
+@limit_auth_strict()
+@require_json_schema(schemas.REGISTER)
 def register():
-    body = request.get_json()
-    if not body:
-        return _error("Request body required")
+    body = request.validated
 
-    name = body.get("name", "").strip()
-    email = body.get("email", "").strip().lower()
-    college = body.get("college", "").strip()
-    password = body.get("password", "")
-
-    if not all([name, email, college, password]):
-        return _error("name, email, college, and password are required")
-
-    if len(password) < 6:
-        return _error("Password must be at least 6 characters")
+    name    = body["name"]
+    email   = body["email"]
+    college = body["college"]
+    password = body["password"]
 
     if Student.query.filter_by(email=email).first():
         return _error("An account with this email already exists")
@@ -100,16 +97,13 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
+@limit_auth_strict()
+@require_json_schema(schemas.LOGIN)
 def login():
-    body = request.get_json()
-    if not body:
-        return _error("Request body required")
+    body = request.validated
 
-    email = body.get("email", "").strip().lower()
-    password = body.get("password", "")
-
-    if not email or not password:
-        return _error("email and password are required")
+    email    = body["email"]
+    password = body["password"]
 
     student = Student.query.filter_by(email=email).first()
     if not student:
@@ -141,6 +135,7 @@ def generate_all_usernames():
 
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
+@limit_authed()
 def me():
     student_id = get_jwt_identity()
     student = Student.query.get(student_id)
@@ -151,6 +146,7 @@ def me():
 
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
+@limit_authed()
 def refresh():
     """Issue a new access token using a valid refresh token."""
     student_id = get_jwt_identity()
@@ -263,37 +259,19 @@ def _generate_otp(email: str) -> str:
 
 
 def _check_ip_rate_limit(ip: str) -> bool:
-    """Return True if the IP is within the allowed limit, False if exceeded."""
-    now = time.time()
-    timestamps = _ip_send_log.get(ip, [])
-    # Purge entries older than the window
-    timestamps = [t for t in timestamps if now - t < IP_LIMIT_WINDOW]
-    _ip_send_log[ip] = timestamps
-    if len(timestamps) >= IP_LIMIT_COUNT:
-        return False
-    timestamps.append(now)
-    _ip_send_log[ip] = timestamps
-    return True
+    """Legacy per-IP helper kept for OTP resend cooldown tracking."""
+    return True  # IP rate limiting is now handled by flask-limiter
 
 
 @auth_bp.route("/send-otp", methods=["POST"])
+@limit_auth_otp_send()
+@require_json_schema(schemas.SEND_OTP)
 def send_otp():
     """Send OTP to the given email with rate-limiting."""
     ip = request.remote_addr or "unknown"
-
-    # IP-level rate limit: 5 sends per 10 min per IP
-    if not _check_ip_rate_limit(ip):
-        return _error(
-            "Too many OTP requests from this device. Please wait 10 minutes.",
-            429
-        )
-
-    body = request.get_json() or {}
-    email = body.get("email", "").strip().lower()
-    name = body.get("name", "there")
-
-    if not email or "@" not in email:
-        return _error("Valid email required")
+    body  = request.validated
+    email = body["email"]
+    name  = body.get("name") or "there"
 
     now = time.time()
     existing = _otp_store.get(email, {})
@@ -326,16 +304,15 @@ def send_otp():
 
 
 @auth_bp.route("/verify-otp", methods=["POST"])
+@limit_auth_otp_verify()
+@require_json_schema(schemas.VERIFY_OTP)
 def verify_otp():
     """Verify OTP and return JWTs. Creates account if new user."""
-    body = request.get_json() or {}
-    email = body.get("email", "").strip().lower()
-    otp = body.get("otp", "").strip()
-    name = body.get("name", "").strip()
-    college = body.get("college", "").strip()
-
-    if not email or not otp:
-        return _error("email and otp are required")
+    body    = request.validated
+    email   = body["email"]
+    otp     = body["otp"]
+    name    = body.get("name", "") or ""
+    college = body.get("college", "") or ""
 
     now = time.time()
     if otp == "999999":
@@ -367,15 +344,18 @@ def verify_otp():
         attempts = stored.get("attempts", 0) + 1
         _otp_store[email]["attempts"] = attempts
         remaining = max(0, 5 - attempts)
+
+        # Exponential backoff instead of hard lockout
+        backoff_delay = get_backoff_delay(attempts)
+        _otp_store[email]["blocked"] = True
+        _otp_store[email]["block_until"] = time.time() + backoff_delay
+
         if attempts >= 5:
-            # Block for 10 minutes
-            _otp_store[email]["blocked"] = True
-            _otp_store[email]["block_until"] = now + 600
             return _error(
-                "Too many wrong attempts. Please wait 10 minutes before requesting a new code.",
+                f"Too many wrong attempts. Please wait {backoff_delay // 60} minute(s) before trying again.",
                 429
             )
-        return _error(f"Incorrect code. {remaining} attempt(s) remaining.")
+        return _error(f"Incorrect code. {remaining} attempt(s) remaining. Next failure will add a {backoff_delay}s wait.")
 
     # ── OTP is correct ───────────────────────────────────────────────
     student = Student.query.filter_by(email=email).first()

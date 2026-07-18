@@ -19,6 +19,8 @@ import FindTeammatePage from "./pages/FindTeammatePage";
 import PublicPortfolio from "./pages/PublicPortfolio";
 import InboxPage from "./pages/InboxPage";
 import ChatPage from "./pages/ChatPage";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 // Redirects logged-in users away from public-only pages (/ and /auth)
 function PublicRoute({ children }) {
@@ -42,6 +44,8 @@ export default function App() {
           <Route path="/auth/github/callback" element={<GitHubCallback />} />
 
           {/* Always public */}
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route path="/u/:student_id" element={<StudentPortfolioPage />} />
           <Route path="/portfolio/:username" element={<PublicPortfolio />} />
           <Route path="/project/:id" element={<ProjectDetailPage />} />

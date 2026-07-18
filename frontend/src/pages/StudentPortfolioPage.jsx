@@ -375,9 +375,14 @@ export default function StudentPortfolioPage() {
 
         {/* Footer */}
         <footer className="border-t-2 border-outline-variant py-6 px-6 text-center mt-auto bg-surface-container">
-          <p className="font-mono text-xs text-on-surface-variant">
+          <p className="font-mono text-xs text-on-surface-variant mb-3">
             <span className="font-bold text-on-surface">{student.name}</span>'s profile on ShowUp — built for Indian students 🇮🇳
           </p>
+          <div className="flex justify-center gap-4 text-xs">
+            <Link to="/privacy" className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ textDecoration: 'none' }}>Privacy Policy</Link>
+            <span className="text-on-surface-variant">·</span>
+            <Link to="/terms" className="text-on-surface-variant hover:text-on-surface transition-colors" style={{ textDecoration: 'none' }}>Terms of Service</Link>
+          </div>
         </footer>
       </main>
 

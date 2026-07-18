@@ -6,6 +6,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Project, Student
 from app.gemini_analyzer import analyze_project as run_analysis
+from app.rate_limiter import limit_public, limit_authed, limit_analysis
+from app.validators import require_json_schema, require_partial_json_schema, schemas
 
 projects_bp = Blueprint("projects", __name__)
 
@@ -20,6 +22,7 @@ def _error(message, status=400):
 
 @projects_bp.route("", methods=["GET"])
 @jwt_required(optional=True)
+@limit_public()
 def get_projects():
     """Public feed — newest first with pagination."""
     current_user_id = get_jwt_identity()
@@ -53,25 +56,20 @@ def get_projects():
 
 @projects_bp.route("", methods=["POST"])
 @jwt_required()
+@limit_authed()
+@require_json_schema(schemas.CREATE_PROJECT)
 def create_project():
     """Create a new project."""
     student_id = get_jwt_identity()
-    body = request.get_json()
-    if not body:
-        return _error("Request body required")
+    body = request.validated
 
-    title = body.get("title", "").strip()
-    if not title:
-        return _error("title is required")
+    title = body["title"]
+    description = body.get("description", "") or ""
 
-    description = body.get("description", "").strip()
-    if len(description) > 500:
-        return _error("description must be 500 characters or less")
+    tech_tags = body.get("tech_stack") or []
+    tech_stack_str = ",".join(tech_tags)
 
-    tech_tags = body.get("tech_stack", [])
-    tech_stack_str = ",".join(t.strip() for t in tech_tags if t.strip()) if isinstance(tech_tags, list) else body.get("tech_stack", "")
-
-    github_url = body.get("github_url", "").strip() or None
+    github_url = body.get("github_url") or None
     if github_url:
         existing = Project.query.filter_by(github_url=github_url).first()
         if existing:
@@ -81,12 +79,12 @@ def create_project():
         title=title,
         description=description,
         tech_stack=tech_stack_str,
-        live_url=body.get("live_url", "").strip() or None,
+        live_url=body.get("live_url") or None,
         github_url=github_url,
-        screenshot_url=body.get("screenshot_url", "").strip() or None,
+        screenshot_url=body.get("screenshot_url") or None,
         student_id=student_id,
         show_ai_analysis=body.get("show_ai_analysis", True),
-        readme=body.get("readme", "").strip() or None,
+        readme=body.get("readme") or None,
     )
     db.session.add(project)
     db.session.commit()
@@ -96,6 +94,7 @@ def create_project():
 
 @projects_bp.route("/student/<string:student_id>", methods=["GET"])
 @jwt_required(optional=True)
+@limit_public()
 def get_student_projects(student_id):
     """All projects by one student."""
     current_user_id = get_jwt_identity()
@@ -112,6 +111,7 @@ def get_student_projects(student_id):
 
 @projects_bp.route("/<string:project_id>", methods=["GET"])
 @jwt_required(optional=True)
+@limit_public()
 def get_project(project_id):
     """Single project detail — does NOT increment view_count (use POST /view)."""
     current_user_id = get_jwt_identity()
@@ -123,6 +123,7 @@ def get_project(project_id):
 
 
 @projects_bp.route("/<string:project_id>/view", methods=["POST"])
+@limit_public()
 def record_view(project_id):
     """Increment view_count exactly once. Called by frontend on page load."""
     project = Project.query.get(project_id)
@@ -135,6 +136,8 @@ def record_view(project_id):
 
 @projects_bp.route("/<string:project_id>", methods=["PUT"])
 @jwt_required()
+@limit_authed()
+@require_partial_json_schema(schemas.UPDATE_PROJECT)
 def update_project(project_id):
     """Update project — owner only."""
     student_id = get_jwt_identity()
@@ -144,36 +147,29 @@ def update_project(project_id):
     if project.student_id != student_id:
         return _error("You can only edit your own projects", 403)
 
-    body = request.get_json() or {}
+    body = request.validated
 
     if "title" in body:
-        project.title = body["title"].strip()
+        project.title = body["title"]
     if "description" in body:
-        desc = body["description"].strip()
-        if len(desc) > 500:
-            return _error("description must be 500 characters or less")
-        project.description = desc
+        project.description = body["description"] or ""
     if "tech_stack" in body:
-        tech_tags = body["tech_stack"]
-        if isinstance(tech_tags, list):
-            project.tech_stack = ",".join(t.strip() for t in tech_tags if t.strip())
-        else:
-            project.tech_stack = tech_tags
+        project.tech_stack = ",".join(body["tech_stack"])
     if "live_url" in body:
-        project.live_url = body["live_url"].strip() or None
+        project.live_url = body["live_url"] or None
     if "github_url" in body:
-        new_github_url = body["github_url"].strip() or None
+        new_github_url = body["github_url"] or None
         if new_github_url and new_github_url != project.github_url:
             existing = Project.query.filter_by(github_url=new_github_url).first()
             if existing:
                 return _error("This GitHub repository has already been uploaded as a project.")
         project.github_url = new_github_url
     if "screenshot_url" in body:
-        project.screenshot_url = body["screenshot_url"].strip() or None
+        project.screenshot_url = body["screenshot_url"] or None
     if "show_ai_analysis" in body:
-        project.show_ai_analysis = bool(body["show_ai_analysis"])
+        project.show_ai_analysis = body["show_ai_analysis"]
     if "readme" in body:
-        project.readme = body["readme"].strip() or None
+        project.readme = body["readme"] or None
 
     db.session.commit()
     return _success(project.to_dict(current_user_id=student_id), "Project updated!")
@@ -181,6 +177,7 @@ def update_project(project_id):
 
 @projects_bp.route("/<string:project_id>", methods=["DELETE"])
 @jwt_required()
+@limit_authed()
 def delete_project(project_id):
     """Delete project — owner only."""
     student_id = get_jwt_identity()
@@ -202,6 +199,8 @@ def delete_project(project_id):
 
 @projects_bp.route("/<string:project_id>/analyse", methods=["POST"])
 @jwt_required()
+@limit_analysis()
+@require_json_schema(schemas.ANALYSE_PROJECT)
 def analyse_project(project_id):
     """Run Gemini 2.5 Flash analysis via queue — respects 8-slot concurrency limit."""
     student_id = get_jwt_identity()
@@ -211,15 +210,13 @@ def analyse_project(project_id):
     if project.student_id != student_id:
         return _error("You can only analyse your own projects", 403)
 
-    # Gate: block re-analysis if content hasn't changed
     from app.hash_utils import can_analyze, compute_project_hash, save_analysis_to_history
     allowed, reason = can_analyze(project)
     if not allowed:
         return _error(reason, 400)
 
-    # Optional: accept year_of_study from request body
-    body = request.get_json() or {}
-    year_of_study = body.get("year_of_study", 2)
+    body = request.validated
+    year_of_study = body.get("year_of_study", 2) or 2
 
     # Fetch README from stored field if exists
     readme_content = project.readme or ''
@@ -270,6 +267,7 @@ def analyse_project(project_id):
 
 
 @projects_bp.route("/queue/status", methods=["GET"])
+@limit_public()
 def queue_status():
     """Public endpoint — check how busy the analysis queue is."""
     from app.queue_manager import get_queue_status
@@ -278,6 +276,7 @@ def queue_status():
 
 @projects_bp.route("/<string:project_id>/analysis-history", methods=["GET"])
 @jwt_required()
+@limit_authed()
 def get_analysis_history(project_id):
     """Return full analysis history for a project (owner only)."""
     student_id = get_jwt_identity()
@@ -308,21 +307,20 @@ def get_analysis_history(project_id):
 
 @projects_bp.route('/github-fetch', methods=['POST'])
 @jwt_required()
+@limit_authed()
+@require_json_schema(schemas.GITHUB_FETCH)
 def github_fetch():
-    data = request.get_json() or {}
-    github_url = data.get('url', '').strip()
+    data = request.validated
+    github_url = data["url"]
 
-    # Validate GitHub URL
+    # Re-parse owner/repo from the validated URL
     pattern = r'https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?(?:/)?$'
     match = re.match(pattern, github_url)
     if not match:
-        return jsonify({
-            "success": False,
-            "message": "Enter a valid GitHub repository URL"
-        }), 400
+        return jsonify({"success": False, "message": "Enter a valid GitHub repository URL"}), 400
 
     owner = match.group(1)
-    repo = match.group(2)
+    repo  = match.group(2)
 
     try:
         # Fetch repo metadata from GitHub public API

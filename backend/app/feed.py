@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Project, Follow, Student
+from app.rate_limiter import limit_public, limit_authed
 
 feed_bp = Blueprint("feed", __name__)
 
@@ -17,6 +18,7 @@ def _error(message, status=400):
 
 @feed_bp.route("", methods=["GET"])
 @jwt_required()
+@limit_authed()
 def personalised_feed():
     """
     Personalised feed: projects from followed students + trending (for non-followed).
@@ -60,6 +62,7 @@ def personalised_feed():
 
 
 @feed_bp.route("/stats", methods=["GET"])
+@limit_public()
 def platform_stats():
     """Global platform stats for the landing page."""
     student_count = Student.query.count()
@@ -79,6 +82,7 @@ def platform_stats():
 
 
 @feed_bp.route("/trending", methods=["GET"])
+@limit_public()
 def trending():
     """Top projects by view_count in the last 7 days."""
     page = request.args.get("page", 1, type=int)

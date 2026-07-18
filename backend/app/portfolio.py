@@ -5,6 +5,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from app import db
 from app.models import Student, Project
 from app.utils import generate_username
+from app.rate_limiter import limit_public, limit_authed
+from app.validators import require_query_schema, require_partial_json_schema, schemas
 
 portfolio_bp = Blueprint('portfolio', __name__, url_prefix='/api/portfolio')
 
@@ -18,12 +20,11 @@ def _error(message, status=400):
 
 
 @portfolio_bp.route('/check-username', methods=['GET'])
+@limit_public()
+@require_query_schema(schemas.CHECK_USERNAME_QUERY)
 def check_username():
     """Check if a username is available. Returns 200 if available, 409 if taken."""
-    username = request.args.get('username', '').strip().lower()
-    username = re.sub(r'[^a-z0-9_]', '', username)
-    if len(username) < 3:
-        return _error("Username must be at least 3 characters")
+    username = request.validated["username"]
     existing = Student.query.filter_by(username=username).first()
     if existing:
         return _error("Username already taken — choose another", 409)
@@ -31,6 +32,7 @@ def check_username():
 
 
 @portfolio_bp.route('/<username>', methods=['GET'])
+@limit_public()
 def get_portfolio(username):
     """Public portfolio page data. No auth required."""
     student = Student.query.filter_by(username=username).first()
@@ -95,6 +97,7 @@ def get_portfolio(username):
 
 @portfolio_bp.route('/customization', methods=['PATCH'])
 @jwt_required()
+@require_partial_json_schema(schemas.UPDATE_CUSTOMIZATION)
 def update_customization():
     """Update portfolio template, colors, font, and username. Owner only."""
     current_user_id = get_jwt_identity()
@@ -102,7 +105,7 @@ def update_customization():
     if not student:
         return _error("User not found", 404)
 
-    data = request.get_json() or {}
+    data = request.validated
 
     allowed_templates = ['modern_midnight', 'game_dev_edition', 'neural_os', 'terminal_core', 'obsidian_iridescence', 'shaolin_zen']
     allowed_fonts = ['Inter', 'IBM Plex Mono', 'Georgia', 'Space Grotesk',

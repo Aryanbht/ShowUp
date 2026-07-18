@@ -4,6 +4,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from app import db
 from app.models import Student, ExitReview, BlockedUser
 from better_profanity import profanity
+from app.rate_limiter import limit_public, limit_authed
+from app.validators import require_json_schema, require_partial_json_schema, schemas
 
 profanity.load_censor_words()
 if "aryan" in profanity.CENSOR_WORDSET:
@@ -24,6 +26,7 @@ def _error(message, status=400):
 
 
 @students_bp.route("/leaderboard", methods=["GET"])
+@limit_public()
 def leaderboard():
     """Top 10 students by credibility_score."""
     top_students = (
@@ -36,6 +39,7 @@ def leaderboard():
 
 
 @students_bp.route("/<string:student_id>", methods=["GET"])
+@limit_public()
 def get_student(student_id):
     """Public student portfolio — no auth required."""
     student = Student.query.get(student_id)
@@ -46,6 +50,8 @@ def get_student(student_id):
 
 @students_bp.route("/<string:student_id>", methods=["PUT"])
 @jwt_required()
+@limit_authed()
+@require_partial_json_schema(schemas.UPDATE_STUDENT)
 def update_student(student_id):
     """Update profile — owner only."""
     current_id = get_jwt_identity()
@@ -56,7 +62,7 @@ def update_student(student_id):
     if not student:
         return jsonify({"success": False, "message": "Student not found"}), 404
 
-    body = request.get_json() or {}
+    body = request.validated
 
     # Fields to validate for profanity
     fields_to_check = {
@@ -146,6 +152,7 @@ def update_student(student_id):
 
 @students_bp.route("/<string:student_id>", methods=["DELETE"])
 @jwt_required()
+@limit_authed()
 def delete_student(student_id):
     """Delete student account — cascade deletes projects & reviews."""
     current_id = get_jwt_identity()
@@ -162,14 +169,13 @@ def delete_student(student_id):
 
 
 @students_bp.route("/exit-survey", methods=["POST"])
+@limit_public()
+@require_json_schema(schemas.EXIT_SURVEY)
 def submit_exit_survey():
     """Submit exit survey after account deletion."""
-    body = request.get_json() or {}
-    email = body.get("email", "").strip()
-    feedback = body.get("feedback", "").strip()
-
-    if not email or not feedback:
-        return _error("Email and feedback are required", 400)
+    body     = request.validated
+    email    = body["email"]
+    feedback = body["feedback"]
 
     review = ExitReview(email=email, feedback=feedback)
     db.session.add(review)
@@ -179,6 +185,7 @@ def submit_exit_survey():
 
 @students_bp.route('/<string:student_id>/template', methods=['PATCH'])
 @jwt_required()
+@limit_authed()
 def update_template(student_id):
     current_user_id = get_jwt_identity()
     if str(student_id) != str(current_user_id):
@@ -197,18 +204,14 @@ def update_template(student_id):
     return jsonify({"success": True, "message": "Template updated", "data": {"template": template}}), 200
 
 @students_bp.route("/find-teammates", methods=["POST"])
+@limit_public()
+@require_json_schema(schemas.FIND_TEAMMATES)
 def find_teammates():
     """Search for teammates by region and skills."""
-    body = request.get_json() or {}
-    hackathon_type = body.get("type", "Online")
-    region = body.get("region", "").strip().lower()
-    
-    # Skills logic: we receive an array of strings, or comma separated string
-    skills_raw = body.get("skills", [])
-    if isinstance(skills_raw, str):
-        required_skills = [s.strip().lower() for s in skills_raw.split(",") if s.strip()]
-    else:
-        required_skills = [s.strip().lower() for s in skills_raw if s.strip()]
+    body          = request.validated
+    hackathon_type = body["type"]
+    region        = body.get("region") or ""
+    required_skills = [s.lower() for s in (body.get("skills") or [])]
         
     query = Student.query
     

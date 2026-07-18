@@ -506,6 +506,23 @@ export default function Auth() {
                     {loading ? 'SENDING...' : 'SEND CODE →'}
                   </button>
                 </div>
+                
+                <p style={{
+                  fontSize: '12px',
+                  color: '#999',
+                  textAlign: 'center',
+                  margin: '16px 0 0',
+                  lineHeight: '1.6'
+                }}>
+                  By signing up you agree to our{' '}
+                  <a href="/terms" style={{ color: '#1A1A1A', textDecoration: 'underline' }}>
+                    Terms of Service
+                  </a>
+                  {' '}and{' '}
+                  <a href="/privacy" style={{ color: '#1A1A1A', textDecoration: 'underline' }}>
+                    Privacy Policy
+                  </a>
+                </p>
               </form>
             </div>
           )}

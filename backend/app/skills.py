@@ -3,6 +3,8 @@ from flask_jwt_extended import jwt_required
 from app import db
 from app.models import CustomSkill
 from better_profanity import profanity
+from app.rate_limiter import limit_public, limit_authed
+from app.validators import require_json_schema, schemas
 
 profanity.load_censor_words()
 if "aryan" in profanity.CENSOR_WORDSET:
@@ -12,12 +14,11 @@ skills_bp = Blueprint('skills', __name__, url_prefix='/api/skills')
 
 @skills_bp.route('/custom', methods=['POST'])
 @jwt_required()
+@limit_authed()
+@require_json_schema(schemas.SAVE_SKILL)
 def save_custom_skill():
-    data = request.get_json() or {}
-    skill = data.get('skill', '').strip()
-
-    if not skill or len(skill) < 2 or len(skill) > 60:
-        return jsonify({"success": False}), 400
+    data  = request.validated
+    skill = data["skill"]
 
     # No profanity in custom skills
     if profanity.contains_profanity(skill):
@@ -39,6 +40,7 @@ def save_custom_skill():
 
 
 @skills_bp.route('/custom', methods=['GET'])
+@limit_public()
 def get_custom_skills():
     # Return top 50 most used custom skills
     # Frontend can merge these with the hardcoded list

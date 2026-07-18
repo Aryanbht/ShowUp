@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_migrate import Migrate
 from dotenv import load_dotenv
+from app.rate_limiter import limiter
 
 load_dotenv()
 
@@ -32,16 +33,40 @@ def create_app():
     
     os.environ.setdefault("OAUTHLIB_RELAX_TOKEN_SCOPE", "1")
 
+    # Rate-limiter storage (override with Redis URL in production)
+    app.config["RATELIMIT_STORAGE_URL"] = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
+
     # Extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    limiter.init_app(app)
 
     allowed_origins = ["http://localhost:5173", "http://localhost:3000"]
     if os.getenv("FRONTEND_URL"):
         allowed_origins.append(os.getenv("FRONTEND_URL"))
         
     CORS(app, origins=allowed_origins, supports_credentials=True)
+
+    # ── Consistent 429 error shape ──────────────────────────────────────────
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return jsonify({
+            "success": False,
+            "data": None,
+            "code": "RATE_LIMIT_EXCEEDED",
+            "message": f"Too many requests. {e.description}",
+        }), 429
+
+    # ── Consistent 422 error shape (schema validation) ──────────────────────
+    @app.errorhandler(422)
+    def validation_error_handler(e):
+        return jsonify({
+            "success": False,
+            "data": None,
+            "code": "VALIDATION_ERROR",
+            "message": "Validation failed. Please check the fields below.",
+        }), 422
 
     # ── Consistent JWT error codes for frontend ─────────────────────
     @jwt.expired_token_loader
