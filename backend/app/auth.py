@@ -179,7 +179,9 @@ def google_login():
         session.pop("google_oauth_token", None)
         return redirect(url_for("google.login"))
     except Exception as e:
-        return _error(f"Google OAuth not configured: {str(e)}", 500)
+        from flask import current_app
+        current_app.logger.exception(e)
+        return _error("Google OAuth configuration error.", 500)
 
 
 @auth_bp.route("/google/callback")
@@ -227,12 +229,14 @@ def google_callback():
         )
 
     except Exception as e:
+        from flask import current_app
+        current_app.logger.exception(e)
         error_msg = str(e)
         if "token_expired" in error_msg.lower() or "expired" in error_msg.lower():
             session.pop("google_oauth_token", None)
             session.clear()
             return redirect(url_for("google.login"))
-        return _error(f"Google auth error: {error_msg}", 500)
+        return _error("Google authentication failed.", 500)
 
 
 # ═══════════════════════════════════════════════════════════════════

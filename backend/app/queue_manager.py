@@ -34,6 +34,8 @@ def process_analysis(task_id, analysis_func, *args, **kwargs):
         try:
             result_container["result"] = analysis_func(*args, **kwargs)
         except Exception as e:
+            import logging
+            logging.exception("Background task failed:")
             result_container["error"] = str(e)
         finally:
             with active_lock:

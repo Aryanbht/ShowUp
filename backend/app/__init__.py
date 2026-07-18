@@ -68,6 +68,30 @@ def create_app():
             "message": "Validation failed. Please check the fields below.",
         }), 422
 
+    # ── Global error handler (prevent leaking stack traces) ─────────────────
+    from werkzeug.exceptions import HTTPException
+    
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        return jsonify({
+            "success": False,
+            "data": None,
+            "code": "HTTP_ERROR",
+            "message": e.description,
+        }), e.code
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        """Catch all other exceptions, log them, and return a generic 500 error."""
+        app.logger.exception("Unhandled Exception:")
+        return jsonify({
+            "success": False,
+            "data": None,
+            "code": "INTERNAL_SERVER_ERROR",
+            "message": "An unexpected error occurred. Please try again later.",
+        }), 500
+
     # ── Consistent JWT error codes for frontend ─────────────────────
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):

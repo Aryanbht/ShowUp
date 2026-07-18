@@ -93,8 +93,8 @@ function DateDivider({ isoStr }) {
 
 // Upload voice blob to Cloudinary
 async function uploadVoiceToCloudinary(blob) {
-  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "hioivuqy";
-  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "ShowUp";
+  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
   const formData = new FormData();
   formData.append("file", blob, "voice_note.webm");
   formData.append("upload_preset", UPLOAD_PRESET);

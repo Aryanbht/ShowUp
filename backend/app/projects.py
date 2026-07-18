@@ -237,7 +237,9 @@ def analyse_project(project_id):
             readme_content=readme_content  # pass actual README now
         )
     except Exception as e:
-        return _error(f"AI analysis failed: {str(e)}", 500)
+        from flask import current_app
+        current_app.logger.exception(e)
+        return _error("AI analysis failed due to an internal error.", 500)
 
     from datetime import datetime
     new_hash = compute_project_hash(
@@ -384,6 +386,8 @@ def github_fetch():
             "message": "GitHub took too long to respond. Try again."
         }), 504
     except Exception as e:
+        from flask import current_app
+        current_app.logger.exception(e)
         return jsonify({
             "success": False,
             "message": "Something went wrong. Try again."
