@@ -54,18 +54,19 @@ export default function EditProfilePage() {
   const [error, setError] = useState("");
 
   // Portfolio customization state
-  const [template, setTemplate] = useState(user?.portfolio_template || 'classic');
-  const [bgColor, setBgColor] = useState(user?.portfolio_bg_color || '#FFFFFF');
-  const [textColor, setTextColor] = useState(user?.portfolio_text_color || '#1A1A1A');
-  const [accentColor, setAccentColor] = useState(user?.portfolio_accent_color || '#1A1A1A');
-  const [cardColor, setCardColor] = useState(user?.portfolio_card_color || '#F8F8F8');
-  const [portfolioFont, setPortfolioFont] = useState(user?.portfolio_font || 'Inter');
+  const [template, setTemplate] = useState(user?.portfolio_template || 'terminal_core');
+  const [bgColor, setBgColor] = useState(user?.portfolio_bg_color || '#131313');
+  const [textColor, setTextColor] = useState(user?.portfolio_text_color || '#e5e2e1');
+  const [accentColor, setAccentColor] = useState(user?.portfolio_accent_color || '#4be277');
+  const [cardColor, setCardColor] = useState(user?.portfolio_card_color || '#1c1b1b');
+  const [portfolioFont, setPortfolioFont] = useState(user?.portfolio_font || 'JetBrains Mono');
   const [username, setUsername] = useState(user?.username || '');
   const [usernameError, setUsernameError] = useState('');
   const [usernameChecking, setUsernameChecking] = useState(false);
   const [custSaving, setCustSaving] = useState(false);
   const [custMsg, setCustMsg] = useState('');
   const [previewView, setPreviewView] = useState('desktop');
+  const [previewKey, setPreviewKey] = useState(0);
   const usernameTimer = useRef(null);
 
   const PRESET_TEMPLATES = {
@@ -83,10 +84,11 @@ export default function EditProfilePage() {
       setCardColor(PRESET_TEMPLATES[tId].card);
       setPortfolioFont(PRESET_TEMPLATES[tId].font);
     }
-    // Auto-save template selection immediately
+    // Auto-save template selection immediately, then reload preview
     try {
       const res = await api.patch('/api/portfolio/customization', { template: tId });
       updateUser({ ...user, ...res.data.data });
+      setPreviewKey(k => k + 1); // force iframe reload AFTER save
     } catch { /* silent */ }
   };
 
@@ -668,7 +670,7 @@ export default function EditProfilePage() {
                         </div>
                       </div>
                       <iframe
-                        key={`desktop-${username || user?.username}-${template}`}
+                        key={`desktop-${username || user?.username}-${previewKey}`}
                         src={`/portfolio/${username || user?.username}?preview=true`}
                         style={{ width: '100%', height: '380px', border: 'none', display: 'block' }}
                         title="Portfolio Desktop Preview"
@@ -685,7 +687,7 @@ export default function EditProfilePage() {
                         {/* Clipping container at phone width */}
                         <div style={{ width: '256px', height: '520px', overflow: 'hidden', position: 'relative' }}>
                           <iframe
-                            key={`mobile-${username || user?.username}-${template}`}
+                            key={`mobile-${username || user?.username}-${previewKey}`}
                             src={`/portfolio/${username || user?.username}?preview=true`}
                             style={{
                               width: '390px',
