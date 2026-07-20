@@ -45,7 +45,12 @@ class Student(db.Model):
     following = db.relationship("Follow", foreign_keys="Follow.follower_id", backref="follower", lazy=True)
     followers = db.relationship("Follow", foreign_keys="Follow.following_id", backref="following_student", lazy=True)
 
-    def to_dict(self, include_email=False):
+    def to_dict(self, include_email=False, include_private=False):
+        """
+        Safe public serializer by default.
+        Use include_private=True ONLY for the authenticated owner.
+        Use include_email=True ONLY for the authenticated owner.
+        """
         data = {
             "id": self.id,
             "name": self.name,
@@ -54,27 +59,33 @@ class Student(db.Model):
             "bio": self.bio,
             "avatar_url": self.avatar_url,
             "credibility_score": self.credibility_score,
+            "credibility_level": self._get_credibility_level(),
             "is_senior": self.is_senior,
             "is_verified_senior": self.is_verified_senior,
-            "college_start_year": self.college_start_year,
-            "college_end_year": self.college_end_year,
             "course": self.course,
-            "location": self.location,
             "github_url": self.github_url,
-            "github_username": self.github_username,
             "skills": self.skills.split(",") if self.skills else [],
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "project_count": len(self.projects),
-            "credibility_level": self._get_credibility_level(),
             "portfolio_template": self.portfolio_template,
             "portfolio_bg_color": self.portfolio_bg_color or '#FFFFFF',
             "portfolio_text_color": self.portfolio_text_color or '#1A1A1A',
             "portfolio_accent_color": self.portfolio_accent_color or '#1A1A1A',
             "portfolio_card_color": self.portfolio_card_color or '#F8F8F8',
             "portfolio_font": self.portfolio_font or 'Inter',
+            # NEVER expose: email, location, college_start_year, college_end_year,
+            # github_username, github_access_token, password_hash
         }
-        if include_email:
+        if include_email or include_private:
             data["email"] = self.email
+        if include_private:
+            data["location"] = self.location
+            data["college_start_year"] = self.college_start_year
+            data["college_end_year"] = self.college_end_year
+            data["github_username"] = self.github_username
+            data["email_verified"] = self.email_verified
+            data["is_google_auth"] = self.is_google_auth
+            data["portfolio_url"] = f"/portfolio/{self.username or self.id}"
         return data
 
     def _get_credibility_level(self):
@@ -138,11 +149,12 @@ class Project(db.Model):
             "can_analyze_reason": reason,
             "last_analyzed_at": self.last_analyzed_at.isoformat() if self.last_analyzed_at else None,
             "view_count": self.view_count,
-            "readme": self.readme,
+            # readme is only exposed to the project owner
+            "readme": self.readme if is_owner else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
         if include_student and self.student:
-            data["student"] = self.student.to_dict()
+            data["student"] = self.student.to_dict()  # safe public serializer
         return data
 
 
@@ -236,6 +248,7 @@ class ChatRequest(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            # Use safe public serializer — never exposes email/location
             'sender': self.sender.to_dict() if self.sender else None,
             'receiver': self.receiver.to_dict() if self.receiver else None,
             'note': self.note,
@@ -312,7 +325,12 @@ class Message(db.Model):
             'id': self.id,
             'conversation_id': self.conversation_id,
             'sender_id': self.sender_id,
-            'sender': self.sender.to_dict() if self.sender else None,
+            # Safe public serializer — never exposes sender email/location
+            'sender': {
+                'id': self.sender.id,
+                'name': self.sender.name,
+                'avatar_url': self.sender.avatar_url,
+            } if self.sender else None,
             'content': self.content,
             'voice_url': self.voice_url,
             'message_type': self.message_type,

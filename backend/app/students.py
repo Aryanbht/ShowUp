@@ -146,7 +146,7 @@ def update_student(student_id):
     return jsonify({
         "success": True,
         "message": "Profile updated successfully",
-        "data": student.to_dict(include_email=True)
+        "data": student.to_dict(include_private=True)
     }), 200
 
 

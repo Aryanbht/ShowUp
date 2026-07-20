@@ -91,7 +91,7 @@ def register():
     access_token, refresh_token = _make_tokens(student.id)
     return _success(
         {"access_token": access_token, "refresh_token": refresh_token,
-         "student": student.to_dict(include_email=True)},
+         "student": student.to_dict(include_private=True)},
         "Account created successfully! 🎉"
     ), 201
 
@@ -118,7 +118,7 @@ def login():
     access_token, refresh_token = _make_tokens(student.id)
     return _success(
         {"access_token": access_token, "refresh_token": refresh_token,
-         "student": student.to_dict(include_email=True)},
+         "student": student.to_dict(include_private=True)},
         "Welcome back! 👋"
     )
 
@@ -141,7 +141,7 @@ def me():
     student = Student.query.get(student_id)
     if not student:
         return _error("Student not found", 404)
-    return _success(student.to_dict(include_email=True))
+    return _success(student.to_dict(include_private=True))
 
 
 @auth_bp.route("/refresh", methods=["POST"])
@@ -401,6 +401,6 @@ def verify_otp():
     access_token, refresh_token = _make_tokens(student.id)
     return _success(
         {"access_token": access_token, "refresh_token": refresh_token,
-         "student": student.to_dict(include_email=True)},
+         "student": student.to_dict(include_private=True)},
         "Verified! Welcome to ShowUp 🎉"
     )
