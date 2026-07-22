@@ -352,9 +352,16 @@ export default function StudentPortfolioPage() {
             {projects.length === 0 ? (
               <div className="text-center py-16 border-2 border-dashed border-outline-variant">
                 <span className="material-symbols-outlined text-5xl text-outline mb-4 block">folder_open</span>
-                <p className="font-grotesk font-bold text-lg text-on-surface mb-2">No projects yet</p>
+                <p className="font-grotesk font-bold text-lg text-on-surface mb-2">
+                  {isOwn ? "You haven't added anything yet" : "No projects posted yet"}
+                </p>
+                <p className="font-nunito text-sm text-on-surface-variant mb-4 max-w-xs mx-auto">
+                  {isOwn
+                    ? "Add your first project and start building your credibility."
+                    : `${student.name} hasn't uploaded any projects yet — check back later.`}
+                </p>
                 {isOwn && (
-                  <Link to="/upload" className="btn-primary text-sm mt-4 inline-flex">
+                  <Link to="/upload" className="btn-primary text-sm mt-2 inline-flex">
                     <span className="material-symbols-outlined text-sm">add</span>
                     Upload First Project
                   </Link>

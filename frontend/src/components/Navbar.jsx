@@ -47,16 +47,12 @@ export default function Navbar() {
     <>
       {/* ─── Desktop Sidebar ─── */}
       <nav
-        className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64"
-        style={{
-          background: "linear-gradient(180deg, #0A0A18 0%, #0D0D1F 100%)",
-          borderRight: "1px solid rgba(255,255,255,0.07)",
-        }}
+        className="hidden md:flex fixed left-0 top-0 h-screen flex-col z-40 w-64 bg-gradient-to-b from-sidebar-from to-sidebar-to border-r border-white/[0.07]"
       >
         {/* Brand */}
-        <div className="px-6 py-7" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="px-6 py-7 border-b border-white/[0.07]">
           <NavLink to="/" className="block">
-            <div className="flex items-center gap-2.5 mb-1">
+            <div className="flex items-center gap-2.5">
               {/* Logo mark */}
               <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{ background: "#0a0a0f", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
@@ -67,9 +63,6 @@ export default function Navbar() {
               </div>
               <h1 className="font-mono font-bold text-lg text-white tracking-tight">ShowUp</h1>
             </div>
-            <p className="font-nunito uppercase tracking-widest text-[10px] text-on-surface-variant ml-9">
-              Portfolio v1.0
-            </p>
           </NavLink>
         </div>
 
@@ -100,16 +93,14 @@ export default function Navbar() {
               <div className="relative">
                 <span className="material-symbols-outlined text-[20px]">inbox</span>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                  <span className="absolute -top-1.5 -right-1.5 bg-brand-gradient text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </div>
               <span className="font-nunito uppercase tracking-wider text-sm font-semibold">Inbox</span>
               {unreadCount > 0 && (
-                <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white"
-                  style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                <span className="ml-auto bg-brand-gradient text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white">
                   {unreadCount}
                 </span>
               )}
@@ -141,8 +132,7 @@ export default function Navbar() {
                   style={{ border: "1px solid rgba(255,255,255,0.12)" }}
                 />
               ) : (
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)", border: "1px solid rgba(139,92,246,0.4)" }}>
+                <div className="w-9 h-9 rounded-xl bg-brand-gradient border border-violet-500/40 flex items-center justify-center flex-shrink-0">
                   <span className="font-mono font-bold text-sm text-white">
                     {user.name?.[0]?.toUpperCase()}
                   </span>
@@ -166,13 +156,7 @@ export default function Navbar() {
       </nav>
       {/* ─── Mobile Bottom Nav ─── */}
       {!location.pathname.startsWith("/inbox/chat") && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex"
-          style={{
-            background: "rgba(9,9,15,0.95)",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-          }}>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-[#09090F]/95 backdrop-blur-[16px] border-t border-white/[0.07]">
           <NavLink
             to="/feed"
             className={({ isActive }) =>
@@ -213,8 +197,7 @@ export default function Navbar() {
               <div className="relative">
                 <span className="material-symbols-outlined text-xl">inbox</span>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg,#7c3aed,#8b5cf6)" }}>
+                  <span className="absolute -top-1 -right-1 bg-brand-gradient text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}

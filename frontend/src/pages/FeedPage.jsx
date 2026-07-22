@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { projectsApi, feedApi } from "../api";
 import ProjectCard from "../components/ProjectCard";
 import Navbar from "../components/Navbar";
@@ -77,13 +78,9 @@ export default function FeedPage() {
                 onClick={() => handleFilterChange(f.key)}
                 className={`flex items-center gap-1.5 px-4 py-1.5 font-nunito text-xs font-semibold uppercase tracking-wide rounded-lg transition-all ${
                   filter === f.key
-                    ? "text-white"
+                    ? "bg-brand-gradient text-white shadow-glow-brand-sm"
                     : "text-on-surface-variant hover:text-on-surface hover:bg-white/5"
                 }`}
-                style={filter === f.key ? {
-                  background: "linear-gradient(135deg,#7c3aed,#8b5cf6)",
-                  boxShadow: "0 0 12px rgba(124,58,237,0.35)",
-                } : {}}
               >
                 <span className="material-symbols-outlined text-sm">{f.icon}</span>
                 {f.label}
@@ -97,14 +94,14 @@ export default function FeedPage() {
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: "#111122", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="aspect-video" style={{ background: "#18182E" }} />
+                <div key={i} className="rounded-2xl overflow-hidden animate-pulse bg-surface-container border border-white/[0.06]">
+                  <div className="aspect-video bg-surface-container-high" />
                   <div className="p-4 space-y-3">
-                    <div className="h-4 rounded-lg w-3/4" style={{ background: "#18182E" }} />
-                    <div className="h-3 rounded-lg w-1/2" style={{ background: "#18182E" }} />
+                    <div className="h-4 rounded-lg w-3/4 bg-surface-container-high" />
+                    <div className="h-3 rounded-lg w-1/2 bg-surface-container-high" />
                     <div className="flex gap-2">
-                      <div className="h-5 rounded-full w-16" style={{ background: "#18182E" }} />
-                      <div className="h-5 rounded-full w-16" style={{ background: "#18182E" }} />
+                      <div className="h-5 rounded-full w-16 bg-surface-container-high" />
+                      <div className="h-5 rounded-full w-16 bg-surface-container-high" />
                     </div>
                   </div>
                 </div>
@@ -130,8 +127,16 @@ export default function FeedPage() {
                   <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style={{ background: "rgba(109,40,217,0.15)", border: "1px solid rgba(139,92,246,0.25)" }}>
                     <span className="material-symbols-outlined text-3xl text-violet-400">folder_open</span>
                   </div>
-                  <p className="font-grotesk font-bold text-lg text-on-surface mb-2">No projects yet</p>
-                  <p className="font-nunito text-sm text-on-surface-variant">Be the first to upload a project!</p>
+                  <p className="font-grotesk font-bold text-lg text-on-surface mb-2">Nothing here yet</p>
+                  <p className="font-nunito text-sm text-on-surface-variant max-w-xs mx-auto">
+                    Upload your first project or explore what others are building.
+                  </p>
+                  <div className="flex gap-3 justify-center mt-5">
+                    <Link to="/upload" className="btn-primary text-xs py-2">
+                      <span className="material-symbols-outlined text-sm">add_circle</span>
+                      Upload a project
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">

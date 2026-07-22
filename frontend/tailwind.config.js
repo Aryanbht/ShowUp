@@ -55,6 +55,21 @@ export default {
         background: "var(--color-background, #fdf7ff)",
         // Accent
         ink: "var(--color-ink, #2A2A2A)",
+        // Brand tokens — ShowUp purple-magenta
+        brand: {
+          400: '#CC6CF5',
+          500: '#B845EE',
+          600: '#9E2FD4',
+          glow: 'rgba(184,69,238,0.3)',
+        },
+        coral: {
+          500: '#F76F53',
+        },
+        // Sidebar/nav dark surface tokens
+        sidebar: {
+          from: '#0A0A18',
+          to:   '#0D0D1F',
+        },
       },
       borderRadius: {
         DEFAULT: "0.125rem",
@@ -81,6 +96,8 @@ export default {
         "glow-violet-sm": "0 0 10px rgba(124, 58, 237, 0.25), 0 2px 12px rgba(0, 0, 0, 0.35)",
         "glow-violet-lg": "0 0 40px rgba(124, 58, 237, 0.5), 0 8px 40px rgba(0, 0, 0, 0.6)",
         "card-dark": "0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+        "glow-brand":    "0 0 20px rgba(184,69,238,0.35), 0 4px 24px rgba(0,0,0,0.5)",
+        "glow-brand-sm": "0 0 12px rgba(184,69,238,0.25)",
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-in-out",

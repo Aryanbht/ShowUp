@@ -249,6 +249,10 @@
 /* ─── Utilities ──────────────────────────────────────────── */
 @layer utilities {
   .text-balance { text-wrap: balance; }
+  /* Centralised brand gradient — replaces all inline style gradient strings */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  }
 }
 
 /* ─── Scrollbar — dark violet ────────────────────────────── */
