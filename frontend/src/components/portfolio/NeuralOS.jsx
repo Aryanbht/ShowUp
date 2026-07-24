@@ -120,7 +120,7 @@ export default function NeuralOS({ data, handleJoinShowUp, selectedProject, setS
         {/* Section 2: System Metrics */}
         <section id="metrics" className="flex flex-col gap-12 scroll-mt-24">
           <h2 className="font-space font-semibold text-3xl md:text-4xl text-on-surface">System Metrics</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="os-border rounded-xl p-8 bg-surface-container-low flex flex-col gap-6 os-glow-hover transition-all duration-300">
               <div className="font-jetbrains text-xs font-medium text-on-surface-variant flex justify-between">
                 <span>PROJECTS DEPLOYED</span>
@@ -130,15 +130,7 @@ export default function NeuralOS({ data, handleJoinShowUp, selectedProject, setS
                 <div className="h-full bg-cyan w-[75%] shadow-[0_0_8px_#00f3ff]"></div>
               </div>
             </div>
-            <div className="os-border rounded-xl p-8 bg-surface-container-low flex flex-col gap-6 os-glow-hover transition-all duration-300">
-              <div className="font-jetbrains text-xs font-medium text-on-surface-variant flex justify-between">
-                <span>CREDIBILITY SCORE</span>
-                <span className="text-cyan">{student.credibility_score}</span>
-              </div>
-              <div className="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
-                <div className="h-full bg-cyan w-[98%] shadow-[0_0_8px_#00f3ff]"></div>
-              </div>
-            </div>
+
             <div className="os-border rounded-xl p-8 bg-surface-container-low flex flex-col gap-6 os-glow-hover transition-all duration-300">
               <div className="font-jetbrains text-xs font-medium text-on-surface-variant flex justify-between">
                 <span>AI REVIEWS</span>

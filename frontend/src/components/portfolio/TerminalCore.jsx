@@ -182,15 +182,12 @@ export default function TerminalCore({ data, handleJoinShowUp, selectedProject, 
           </section>
 
           {/* Data Grid Section */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="terminal-card p-6 text-center animate-on-scroll">
                   <div className="font-jetbrains text-primary text-4xl mb-2">{projects.length}</div>
                   <div className="font-jetbrains text-on-surface/60 text-xs uppercase tracking-widest">Projects</div>
               </div>
-              <div className="terminal-card p-6 text-center animate-on-scroll" style={{transitionDelay: '100ms'}}>
-                  <div className="font-jetbrains text-primary text-4xl mb-2">{student.credibility_score}</div>
-                  <div className="font-jetbrains text-on-surface/60 text-xs uppercase tracking-widest">Credibility</div>
-              </div>
+
               <div className="terminal-card p-6 text-center animate-on-scroll" style={{transitionDelay: '200ms'}}>
                   <div className="font-jetbrains text-primary text-4xl mb-2">{projects.filter(p => p.ai_analysis_used).length}</div>
                   <div className="font-jetbrains text-on-surface/60 text-xs uppercase tracking-widest">Analyzed</div>

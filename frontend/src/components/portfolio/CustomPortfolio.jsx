@@ -86,13 +86,7 @@ export default function CustomPortfolio({ data, handleJoinShowUp, selectedProjec
                   <h1 style={{ fontSize: '32px', fontWeight: '700', margin: 0, color: theme.textPrimary }}>
                     {student.name}
                   </h1>
-                  <span style={{
-                    fontSize: '12px', padding: '4px 10px',
-                    border: `1px solid ${theme.accent}`, color: theme.accent,
-                    borderRadius: '4px', fontWeight: '600'
-                  }}>
-                    ⚡ {getLevel(student.credibility_score)} · {student.credibility_score}
-                  </span>
+
                 </div>
 
                 <p style={{ fontSize: '14px', color: theme.textSecondary, margin: '0 0 12px' }}>
@@ -150,7 +144,6 @@ export default function CustomPortfolio({ data, handleJoinShowUp, selectedProjec
             <div style={{ display: 'flex', gap: '40px', marginTop: '32px', flexWrap: 'wrap' }}>
               {[
                 { label: 'PROJECTS', value: projects.length },
-                { label: 'CREDIBILITY', value: student.credibility_score },
                 { label: 'AI REVIEWS', value: projects.filter(p => p.ai_analysis_used).length },
               ].map(stat => (
                 <div key={stat.label}>

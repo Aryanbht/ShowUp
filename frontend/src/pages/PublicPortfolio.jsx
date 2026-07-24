@@ -85,30 +85,30 @@ export default function PublicPortfolio() {
     tagBg: customization.text_color + '11',
   }
 
-  // Template overrides for midnight / blueprint presets (legacy)
-  if (customization.template === 'midnight' && customization.bg_color === '#FFFFFF') {
+  // Template overrides
+  if (customization.template === 'neural_os') {
     Object.assign(theme, {
-      pageBg: '#0D0D0D', textPrimary: '#F0F0F0', cardBg: '#161616',
-      border: '#2A2A2A', tagBg: '#1A1A1A',
-      textSecondary: '#F0F0F099',
+      pageBg: '#131313', textPrimary: '#e5e2e1', cardBg: '#1c1b1b',
+      border: '#2a2a2a', tagBg: '#201f1f',
+      textSecondary: '#b9cacb', accent: '#00f3ff', font: 'Hanken Grotesk'
     })
-  }
-  if (customization.template === 'blueprint' && customization.bg_color === '#FFFFFF') {
+  } else if (customization.template === 'terminal_core') {
     Object.assign(theme, {
-      pageBg: '#0A1628', textPrimary: '#E8F4FD', cardBg: '#0D1F3C',
-      border: '#1A3A5C', tagBg: '#0A1628',
-      textSecondary: '#E8F4FD99',
+      pageBg: '#131313', textPrimary: '#e5e2e1', cardBg: '#000000',
+      border: '#343d35', tagBg: '#131313',
+      textSecondary: '#e5e2e199', accent: '#4be277', font: 'JetBrains Mono'
     })
-  }
-
-  // Template overrides for obsidian_iridescence
-  if (customization.template === 'obsidian_iridescence' || customization.template === 'neural_interface') {
+  } else if (customization.template === 'obsidian_iridescence') {
     Object.assign(theme, {
       pageBg: '#13131b', textPrimary: '#e4e1ed', cardBg: '#1b1b23',
       border: '#464554', tagBg: '#292932',
-      textSecondary: '#c7c4d7',
-      accent: '#c0c1ff',
-      font: 'Geist',
+      textSecondary: '#c7c4d7', accent: '#c0c1ff', font: 'Geist'
+    })
+  } else if (customization.template === 'shaolin_zen') {
+    Object.assign(theme, {
+      pageBg: '#121414', textPrimary: '#e1e3e3', cardBg: '#1e2020',
+      border: 'rgba(255,255,255,0.1)', tagBg: 'rgba(255,255,255,0.05)',
+      textSecondary: '#bfc8c8', accent: '#d84315', font: 'Libre Caslon Text'
     })
   }
 

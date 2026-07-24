@@ -177,6 +177,8 @@ export const chatApi = {
   listConversations: () => api.get("/api/chat/conversations"),
   getMessages: (convoId, page = 1) => api.get(`/api/chat/conversations/${convoId}/messages`, { params: { page } }),
   sendMessage: (convoId, data) => api.post(`/api/chat/conversations/${convoId}/messages`, data),
+  editMessage: (messageId, content) => api.patch(`/api/chat/messages/${messageId}`, { content }),
+  deleteMessage: (messageId) => api.delete(`/api/chat/messages/${messageId}`),
   // Notifications
   getNotifications: () => api.get("/api/chat/notifications"),
   markNotificationsRead: () => api.post("/api/chat/notifications/read"),

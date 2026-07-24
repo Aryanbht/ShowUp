@@ -14,6 +14,7 @@ import UploadPage from "./pages/UploadPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import StudentPortfolioPage from "./pages/StudentPortfolioPage";
 import EditProfilePage from "./pages/EditProfilePage";
+import PortfolioCustomizationPage from "./pages/PortfolioCustomizationPage";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import FindTeammatePage from "./pages/FindTeammatePage";
 import PublicPortfolio from "./pages/PublicPortfolio";
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/upload" element={<AuthGuard><UploadPage /></AuthGuard>} />
           <Route path="/project/:id/edit" element={<AuthGuard><UploadPage editMode={true} /></AuthGuard>} />
           <Route path="/profile/edit" element={<AuthGuard><EditProfilePage /></AuthGuard>} />
+          <Route path="/portfolio/customize" element={<AuthGuard><PortfolioCustomizationPage /></AuthGuard>} />
           <Route path="/inbox" element={<AuthGuard><InboxPage /></AuthGuard>} />
           <Route path="/inbox/chat/:conversationId" element={<AuthGuard><ChatPage /></AuthGuard>} />
 

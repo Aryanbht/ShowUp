@@ -166,18 +166,14 @@ export default function ObsidianIridescence({ data, handleJoinShowUp, selectedPr
               </div>
               <div className="h-[1px] flex-grow bg-outline-variant/30 mx-8 hidden md:block mb-4"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="glass-card p-6 md:p-8 rounded-2xl iridescent-hover transition-all duration-500 group">
                 <span className="material-symbols-outlined text-primary text-3xl md:text-4xl mb-4 transition-transform group-hover:scale-110">deployed_code</span>
                 <div className="font-bricolage text-4xl md:text-6xl font-medium mb-2">{projects.length}</div>
                 <p className="font-geist text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant">Projects Deployed</p>
               </div>
-              <div className="glass-card p-6 md:p-8 rounded-2xl iridescent-hover transition-all duration-500 group border-primary/20">
-                <span className="material-symbols-outlined text-primary text-3xl md:text-4xl mb-4 transition-transform group-hover:scale-110">analytics</span>
-                <div className="font-bricolage text-4xl md:text-6xl font-medium mb-2">{student.credibility_score}</div>
-                <p className="font-geist text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant">Credibility Score</p>
-              </div>
-              <div className="glass-card p-6 md:p-8 rounded-2xl iridescent-hover transition-all duration-500 group sm:col-span-2 md:col-span-1">
+
+              <div className="glass-card p-6 md:p-8 rounded-2xl iridescent-hover transition-all duration-500 group">
                 <span className="material-symbols-outlined text-primary text-3xl md:text-4xl mb-4 transition-transform group-hover:scale-110">history_edu</span>
                 <div className="font-bricolage text-4xl md:text-6xl font-medium mb-2">{projects.filter(p => p.ai_analysis).length}</div>
                 <p className="font-geist text-[10px] md:text-xs uppercase tracking-widest text-on-surface-variant">AI Reviews</p>

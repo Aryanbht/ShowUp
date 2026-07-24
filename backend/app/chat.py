@@ -322,6 +322,55 @@ def send_message(convo_id):
     return _success(msg.to_dict(), "Message sent"), 201
 
 
+@chat_bp.route('/messages/<string:message_id>', methods=['PATCH'])
+@jwt_required()
+def edit_message(message_id):
+    """Edit a text message."""
+    user_id = get_jwt_identity()
+    msg = Message.query.get(message_id)
+    if not msg:
+        return _error("Message not found", 404)
+    if msg.sender_id != user_id:
+        return _error("Forbidden", 403)
+    if msg.message_type != 'text':
+        return _error("Only text messages can be edited")
+    if msg.is_deleted:
+        return _error("Cannot edit a deleted message")
+
+    body = request.get_json()
+    new_content = body.get('content')
+    if not new_content or not new_content.strip():
+        return _error("Content cannot be empty")
+
+    msg.content = new_content.strip()
+    msg.is_edited = True
+    msg.edited_at = datetime.utcnow()
+    db.session.commit()
+
+    return _success(msg.to_dict(), "Message edited")
+
+
+@chat_bp.route('/messages/<string:message_id>', methods=['DELETE'])
+@jwt_required()
+def delete_message(message_id):
+    """Delete a message."""
+    user_id = get_jwt_identity()
+    msg = Message.query.get(message_id)
+    if not msg:
+        return _error("Message not found", 404)
+    if msg.sender_id != user_id:
+        return _error("Forbidden", 403)
+    if msg.is_deleted:
+        return _error("Message already deleted")
+
+    msg.is_deleted = True
+    msg.content = None
+    msg.voice_url = None
+    db.session.commit()
+
+    return _success(msg.to_dict(), "Message deleted")
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # NOTIFICATIONS
 # ─────────────────────────────────────────────────────────────────────────────

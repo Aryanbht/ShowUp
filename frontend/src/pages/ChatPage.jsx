@@ -120,6 +120,8 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [hoveredMsgId, setHoveredMsgId] = useState(null);
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [showMsgMenu, setShowMsgMenu] = useState(null);
 
   // Trust & Safety State
   const [showMenu, setShowMenu] = useState(false);
@@ -185,6 +187,20 @@ export default function ChatPage() {
     if (!text.trim() || sending) return;
     setSending(true);
     const content = text.trim();
+    if (editingMessage) {
+      try {
+        await chatApi.editMessage(editingMessage.id, content);
+        setEditingMessage(null);
+        await fetchMessages(true);
+      } catch (err) {
+        setText(content);
+        alert(err.response?.data?.message || "Failed to edit message");
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
+
     setText("");
     inputRef.current?.focus();
     try {
@@ -199,6 +215,16 @@ export default function ChatPage() {
   };
 
   // Trust & Safety Handlers
+  const handleDeleteMessage = async (msgId) => {
+    if (!window.confirm("Are you sure you want to delete this message?")) return;
+    try {
+      await chatApi.deleteMessage(msgId);
+      setShowMsgMenu(null);
+      await fetchMessages(true);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete message");
+    }
+  };
   const handleStop = async () => {
     setShowMenu(false);
     if (!window.confirm("Are you sure you want to stop this conversation? You will have to send a new request to connect again.")) return;
@@ -398,8 +424,12 @@ export default function ChatPage() {
                       className={`flex flex-col ${own ? "items-end" : "items-start"} ${isLastInGroup ? "mb-3" : "mb-0.5"}`}
                       onMouseEnter={() => setHoveredMsgId(msg.id)}
                       onMouseLeave={() => setHoveredMsgId(null)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        setShowMsgMenu(msg.id);
+                      }}
                     >
-                      <div className={`flex items-end gap-1.5 max-w-[80%] sm:max-w-[68%] ${own ? "flex-row-reverse" : "flex-row"}`}>
+                      <div className={`relative flex items-end gap-1.5 max-w-[80%] sm:max-w-[68%] ${own ? "flex-row-reverse" : "flex-row"}`}>
                         {/* Avatar — show only for first in group for other user */}
                         {!own && isLastInGroup ? (
                           otherUser?.avatar_url ? (
@@ -421,7 +451,12 @@ export default function ChatPage() {
                               : `bg-surface-container border border-outline-variant text-on-surface ${isFirstInGroup ? "rounded-tl-md rounded-tr-2xl" : "rounded-tl-2xl rounded-tr-2xl"} rounded-bl-sm rounded-br-2xl`
                             }`}
                         >
-                          {msg.message_type === "voice" ? (
+                          {msg.is_deleted ? (
+                            <p className="italic opacity-70 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">block</span>
+                              {own ? "You deleted this message" : "This message was deleted"}
+                            </p>
+                          ) : msg.message_type === "voice" ? (
                             <div className="flex items-center gap-2 py-0.5">
                               <span className="material-symbols-outlined text-base">mic</span>
                               <audio
@@ -432,16 +467,48 @@ export default function ChatPage() {
                               />
                             </div>
                           ) : (
-                            <p>{msg.content}</p>
+                            <p className="whitespace-pre-wrap">{msg.content}</p>
                           )}
                         </div>
+
+                        {/* Message Context Menu */}
+                        {showMsgMenu === msg.id && own && !msg.is_deleted && (
+                          <div className={`absolute bottom-full mb-1 z-10 bg-surface-container border-2 border-outline-variant shadow-[4px_4px_0_#4f378a] flex flex-col font-mono text-sm ${own ? "right-0" : "left-0"}`}>
+                            {msg.message_type === 'text' && (
+                              <button
+                                onClick={() => {
+                                  setEditingMessage(msg);
+                                  setText(msg.content);
+                                  setShowMsgMenu(null);
+                                  inputRef.current?.focus();
+                                }}
+                                className="px-4 py-2 text-left hover:bg-surface-container transition-colors font-bold text-on-surface border-b border-outline-variant/20 whitespace-nowrap"
+                              >
+                                Edit
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              className="px-4 py-2 text-left hover:bg-error hover:text-on-error transition-colors text-error font-bold whitespace-nowrap"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => setShowMsgMenu(null)}
+                              className="px-4 py-2 text-left hover:bg-surface-container transition-colors font-bold text-on-surface-variant border-t border-outline-variant/20 whitespace-nowrap"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {/* Timestamp + seen status — show on hover or for last message */}
-                      {(hoveredMsgId === msg.id || isLastOwn) && (
+                      {(hoveredMsgId === msg.id || isLastOwn || showMsgMenu === msg.id) && (
                         <div className={`flex items-center gap-1 mt-0.5 px-2 ${own ? "flex-row-reverse" : "flex-row"}`}>
                           <span className="text-[10px] font-mono text-on-surface-variant">
                             {formatMessageTime(msg.created_at)}
+                            {msg.is_edited && !msg.is_deleted && " (edited)"}
                           </span>
                           {/* Seen / Delivered indicators — only for own messages */}
                           {own && (
@@ -483,6 +550,25 @@ export default function ChatPage() {
               )}
             </div>
           )}
+
+          {editingMessage && (
+            <div className="px-4 py-2 bg-primary-container border-b-2 border-outline-variant flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-sm">edit</span>
+                <span className="text-xs font-mono text-on-surface">Editing message</span>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingMessage(null);
+                  setText("");
+                }}
+                className="p-1 hover:bg-surface-container rounded"
+              >
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+          )}
+
           {isBlockedByMe ? (
             <div className="p-4 text-center">
               <p className="text-on-surface-variant font-mono text-sm mb-3">You have blocked this user.</p>
@@ -511,19 +597,21 @@ export default function ChatPage() {
             />
 
             {/* Mic button — hold to record */}
-            <button
-              type="button"
-              onMouseDown={startRecording}
-              onMouseUp={stopRecording}
-              onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-              onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-              disabled={uploading || sending}
-              className={`flex-shrink-0 w-10 h-10 border-2 border-outline-variant flex items-center justify-center transition-all select-none
-                ${recording ? "bg-error text-on-error scale-110" : "hover:bg-surface-container active:scale-95"}`}
-              title="Hold to record"
-            >
-              <span className="material-symbols-outlined text-xl">{recording ? "mic" : "mic_none"}</span>
-            </button>
+            {!editingMessage && (
+              <button
+                type="button"
+                onMouseDown={startRecording}
+                onMouseUp={stopRecording}
+                onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
+                onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
+                disabled={uploading || sending}
+                className={`flex-shrink-0 w-10 h-10 border-2 border-outline-variant flex items-center justify-center transition-all select-none
+                  ${recording ? "bg-error text-on-error scale-110" : "hover:bg-surface-container active:scale-95"}`}
+                title="Hold to record"
+              >
+                <span className="material-symbols-outlined text-xl">{recording ? "mic" : "mic_none"}</span>
+              </button>
+            )}
 
             {/* Send button */}
             <button

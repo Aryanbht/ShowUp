@@ -316,6 +316,9 @@ class Message(db.Model):
     voice_url = db.Column(db.String(500), nullable=True)  # cloudinary URL for voice notes
     message_type = db.Column(db.String(10), default='text')  # text | voice
     is_read = db.Column(db.Boolean, default=False)
+    is_edited = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
+    edited_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     sender = db.relationship('Student', foreign_keys=[sender_id])
@@ -335,6 +338,9 @@ class Message(db.Model):
             'voice_url': self.voice_url,
             'message_type': self.message_type,
             'is_read': self.is_read,
+            'is_edited': self.is_edited,
+            'is_deleted': self.is_deleted,
+            'edited_at': self.edited_at.isoformat() if self.edited_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
 

@@ -207,10 +207,9 @@ export default function ShaolinZen({ data, handleJoinShowUp, selectedProject, se
         <section className="py-20 md:py-28 px-6 md:px-20 reveal">
           <div className="max-w-5xl mx-auto">
             <div className="divider-line mb-16" />
-            <div className="grid grid-cols-3 gap-8 text-center">
+            <div className="grid grid-cols-2 gap-8 text-center">
               {[
                 { value: projects.length, label: 'Projects Built' },
-                { value: student.credibility_score || '–', label: 'Credibility Score' },
                 { value: projects.filter(p => p.ai_analysis).length, label: 'AI Rated' },
               ].map((stat, i) => (
                 <div key={i} className="space-y-2">

@@ -78,6 +78,11 @@ export default function Navbar() {
             <span className="font-nunito uppercase tracking-wider text-sm font-semibold">Upload</span>
           </NavLink>
 
+          <NavLink to="/portfolio/customize" className={navLinkClass}>
+            <span className="material-symbols-outlined text-[20px]">dashboard_customize</span>
+            <span className="font-nunito uppercase tracking-wider text-sm font-semibold">Portfolio</span>
+          </NavLink>
+
           <NavLink to="/leaderboard" className={navLinkClass}>
             <span className="material-symbols-outlined text-[20px]">leaderboard</span>
             <span className="font-nunito uppercase tracking-wider text-sm font-semibold">Top Devs</span>
@@ -178,13 +183,13 @@ export default function Navbar() {
           </NavLink>
 
           <NavLink
-            to="/find-teammate"
+            to="/portfolio/customize"
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${isActive ? "text-violet-300" : "text-on-surface-variant"}`
             }
           >
-            <span className="material-symbols-outlined text-xl">group</span>
-            <span className="font-nunito text-[10px] uppercase tracking-wide">Team</span>
+            <span className="material-symbols-outlined text-xl">dashboard_customize</span>
+            <span className="font-nunito text-[10px] uppercase tracking-wide">Portfolio</span>
           </NavLink>
 
           {user && (
