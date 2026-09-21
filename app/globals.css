@@ -1,27 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F4F4F0;
+    color: #1A1A1A;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #FFC629;
+    color: #1A1A1A;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@layer components {
+  /* ===== BUTTONS ===== */
+  .btn-primary {
+    @apply bg-primary border-3 border-ink shadow-brutal font-grotesk font-bold text-ink
+           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+           transition-all duration-150 cursor-pointer
+           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .btn-secondary {
+    @apply bg-surface border-3 border-ink shadow-brutal font-grotesk font-bold text-ink
+           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+           transition-all duration-150 cursor-pointer
+           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
+  }
+
+  .btn-destructive {
+    @apply bg-red-500 border-3 border-ink shadow-brutal font-grotesk font-bold text-white
+           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+           transition-all duration-150 cursor-pointer
+           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent border-3 border-transparent font-grotesk font-bold text-ink
+           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+           transition-all duration-150 cursor-pointer
+           hover:border-ink hover:shadow-brutal-sm
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-icon {
+    @apply bg-surface border-3 border-ink shadow-brutal-sm
+           p-2 rounded-none transition-all duration-150 cursor-pointer
+           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal
+           active:translate-x-0.5 active:translate-y-0.5 active:shadow-brutal-none;
+  }
+
+  /* ===== CARDS ===== */
+  .card-brutal {
+    @apply bg-surface border-3 border-ink shadow-brutal
+           transition-all duration-150;
+  }
+
+  .card-brutal:hover {
+    @apply -translate-x-0.5 -translate-y-0.5 shadow-brutal-lg;
+  }
+
+  /* ===== INPUTS ===== */
+  .input-brutal {
+    @apply bg-surface border-3 border-ink px-4 py-3 rounded-none
+           font-inter text-ink text-sm w-full outline-none
+           placeholder:text-ink/50
+           focus:bg-cream focus:shadow-brutal
+           transition-all duration-150;
+  }
+
+  /* ===== TAGS & PILLS ===== */
+  .skill-pill {
+    @apply bg-cream border-2 border-ink rounded-full
+           font-grotesk font-bold text-xs text-ink
+           px-3 py-1 inline-flex items-center gap-1
+           transition-all duration-150;
+  }
+
+  .skill-pill-active {
+    @apply bg-primary border-2 border-ink rounded-full
+           font-grotesk font-bold text-xs text-ink
+           px-3 py-1 inline-flex items-center gap-1
+           shadow-brutal-sm;
+  }
+
+  /* ===== BADGES ===== */
+  .badge-status {
+    @apply bg-ink text-primary font-grotesk font-bold text-xs
+           uppercase tracking-widest px-2.5 py-1 rounded-none;
+  }
+
+  .badge-teaming {
+    @apply bg-primary text-ink font-grotesk font-bold text-xs
+           border-2 border-ink uppercase tracking-wider px-2.5 py-1 rounded-none;
+  }
+
+  /* ===== DIVIDERS ===== */
+  .divider-brutal {
+    @apply border-t-3 border-ink;
+  }
+
+  /* ===== MODAL OVERLAY ===== */
+  .modal-overlay {
+    @apply fixed inset-0 bg-ink/60 z-50 flex items-center justify-center
+           animate-fade-in;
+  }
+
+  .modal-content {
+    @apply bg-surface border-3 border-ink shadow-brutal-xl
+           w-full max-h-[90vh] overflow-y-auto
+           animate-slide-up;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F4F4F0;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1A1A1A;
   }
 }
