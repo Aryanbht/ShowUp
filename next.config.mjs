@@ -17,6 +17,19 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
   },
+  // Serve video with caching + range-request support so scrubbing is fast
+  async headers() {
+    return [
+      {
+        source: '/showup-demo.mp4',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Accept-Ranges', value: 'bytes' },
+          { key: 'Content-Type', value: 'video/mp4' },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig

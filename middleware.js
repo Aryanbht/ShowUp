@@ -25,6 +25,8 @@ export default withAuth(
         // Allow public routes
         if (pathname === '/') return true
         if (pathname.startsWith('/api/auth')) return true
+        // Allow static media files
+        if (/\.(mp4|webm|ogg|mp3|wav|png|jpg|jpeg|svg|ico|gif|webp)$/i.test(pathname)) return true
         // All other routes need auth
         return !!token
       },
@@ -34,6 +36,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.mp4$|.*\\.webm$|.*\\.ico$).*)',
   ],
 }
