@@ -2,37 +2,47 @@
 
 import { signIn } from 'next-auth/react'
 import { useState, useEffect, useRef } from 'react'
-import gsap from 'gsap'
 
 /* ═══════════════════════════════════════════════════════════════════
    SCROLL-DRIVEN VIDEO LANDING
-   · Layout, video, scroll mechanics: UNCHANGED
-   · Typography: Bebas Neue (headlines) + IBM Plex Mono (body/labels)
-   · Hero: GSAP timeline on mount
-   · Scroll scenes: CSS entrance animations triggered on mount
+   · Layout, video, scroll mechanics: perfectly intact
+   · Typography: Space Grotesk (sans) + Playfair Display (serif italic)
+   · UI: Gen Z Editorial (No Boxes, White/Yellow Typography on Video)
+   · Responsive: Added extensive mobile media queries and clamp() tweaks
 ═══════════════════════════════════════════════════════════════════ */
 
 const CSS = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: auto !important; }
-  body { background: #000; overflow-x: hidden; }
+  html { 
+    scroll-behavior: auto !important; 
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  body { background: #000; overflow-x: hidden; font-family: 'Inter', sans-serif; }
 
   /* ── Layout — UNCHANGED ── */
-  .scroll-driver { position: relative; height: 600vh; }
+  .scroll-driver { position: relative; height: 600vh; background: #000; }
   .stage {
     position: sticky; top: 0;
     width: 100vw; height: 100vh; overflow: hidden;
+    background: #000;
   }
-  .video-layer { position: absolute; inset: 0; }
+  .video-layer { position: absolute; inset: 0; background: #000; }
   .video-layer video {
     width: 100%; height: 100%; object-fit: cover; display: block;
+    opacity: 1;
   }
+  
+  /* ── Vignette: Darkened significantly to make the scene richer and darker ── */
   .vignette {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.62) 100%),
-      linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 25%,
-        transparent 70%, rgba(0,0,0,0.58) 100%);
+      radial-gradient(ellipse at center, rgba(0,0,0,0.4) 15%, rgba(0,0,0,0.85) 100%),
+      linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 25%,
+        rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.8) 100%);
     pointer-events: none;
   }
   .scene {
@@ -43,101 +53,129 @@ const CSS = `
   .scene.center { justify-content: center; }
   .scene.left   { justify-content: flex-start; }
   .scene.right  { justify-content: flex-end; }
-  .scene-inner  { max-width: 660px; pointer-events: auto; }
+  .scene-inner  { max-width: 660px; pointer-events: auto; width: 100%; }
 
+  /* ── Text Container (No Background Box) ── */
+  .content-block {
+    padding: 24px 0; /* Just spacing, no background */
+    width: 100%;
+  }
+
+  /* ── Typography Mix ── */
+  .serif-italic {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #b451e2; /* Highlight accent in yellow */
+  }
+  
   /* ── Labels ── */
   .overline {
     display: block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; font-weight: 400;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 700;
     letter-spacing: 0.15em; text-transform: uppercase;
-    color: #b8ff57;
+    color: #b451e2;
     background: none; padding: 0;
     margin-bottom: 24px;
   }
   .overline-badge {
     display: inline-block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: #0a0a0a; background: #b8ff57;
-    padding: 4px 10px; border-radius: 0;
-    margin-bottom: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: #0A0A0A; background: #b451e2;
+    padding: 6px 14px; border-radius: 0;
+    margin-bottom: 24px;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
   }
 
   /* ── Hero headline ── */
   .hero-line-wrap { overflow: hidden; display: block; }
   .hero-line {
     display: block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(72px, 10vw, 120px);
-    font-weight: 400; color: #fff;
-    line-height: 0.92; letter-spacing: 0.02em;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(42px, 10vw, 110px);
+    font-weight: 800; color: #fff;
+    line-height: 0.95; letter-spacing: -0.04em;
     will-change: transform, opacity;
   }
-  .hero-line.lime {
-    display: inline-block;
-    color: #0a0a0a; background: #b8ff57;
-    padding: 2px 10px 8px;
-    line-height: 0.96;
+  
+  .hero-line.serif {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #b451e2;
+    letter-spacing: -0.02em;
+    padding-left: 8px; /* Slight indent for visual flair */
   }
 
   /* ── Hero subtext ── */
   .hero-sub {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 14px; font-weight: 400;
-    color: rgba(255,255,255,0.65);
-    max-width: 480px; line-height: 1.7;
+    font-size: clamp(15px, 3.5vw, 17px); font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 480px; line-height: 1.6;
     margin-bottom: 32px;
     will-change: opacity;
   }
 
   /* ── Section headings ── */
   .scene-h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(56px, 8vw, 96px);
-    font-weight: 400; line-height: 0.95;
-    color: #fff; letter-spacing: 0.02em;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(36px, 8vw, 72px);
+    font-weight: 800; line-height: 1.05;
+    color: #fff; letter-spacing: -0.04em;
     margin-bottom: 20px;
+  }
+  .scene-h2 .serif-italic {
+    font-size: 1.1em; /* Make serif slightly larger to balance x-height */
   }
 
   /* ── Body text ── */
   .scene-sub {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 14px; font-weight: 400;
-    color: rgba(255,255,255,0.65);
-    max-width: 420px; line-height: 1.7;
+    font-size: clamp(15px, 3.5vw, 17px); font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 420px; line-height: 1.6;
   }
 
-  /* ── Buttons ── */
-  .btn-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  /* ── Buttons (Brutalist Solid) ── */
+  .btn-row { display: flex; gap: 16px; flex-wrap: wrap; }
 
   .btn-primary-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #b8ff57; color: #0a0a0a;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
-    padding: 14px 28px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: #b451e2; color: #0A0A0A;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 18px 36px;
     border: none; border-radius: 0; cursor: pointer;
-    transition: opacity 0.15s, transform 0.12s; outline: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease; outline: none;
     will-change: opacity, transform;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
   }
   .btn-primary-cta:hover:not(:disabled) {
-    opacity: 0.85; transform: translateY(-2px);
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
   }
-  .btn-primary-cta:active:not(:disabled) { transform: translateY(0); }
+  .btn-primary-cta:active:not(:disabled) { 
+    transform: translate(2px, 2px);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+  }
   .btn-primary-cta:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-ghost-cta {
-    display: inline-flex; align-items: center; gap: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: transparent; color: #fff;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px; font-weight: 400; letter-spacing: 0.04em;
-    padding: 14px 28px;
-    border: 1.5px solid rgba(255,255,255,0.45); border-radius: 0;
-    cursor: pointer; transition: border-color 0.15s, transform 0.12s; outline: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 18px 36px;
+    border: 2px solid #fff; border-radius: 0;
+    cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease; outline: none;
   }
-  .btn-ghost-cta:hover { border-color: rgba(255,255,255,0.9); transform: translateY(-2px); }
+  .btn-ghost-cta:hover { 
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+  }
 
   /* ── CTA scene (final) ── */
   .cta-block {
@@ -145,23 +183,27 @@ const CSS = `
     align-items: flex-start; gap: 16px;
   }
   .cta-sub {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 14px; color: rgba(255,255,255,0.5);
+    font-size: clamp(15px, 3.5vw, 17px); color: rgba(255, 255, 255, 0.85); font-weight: 500;
   }
   .btn-cta {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: #b8ff57; color: #0a0a0a;
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 600; font-size: 13px; letter-spacing: 0.06em;
-    padding: 16px 32px; border: none; border-radius: 0;
-    cursor: pointer; transition: opacity 0.15s, transform 0.12s; outline: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+    background: #b451e2; color: #0A0A0A;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 20px 40px; border: none; border-radius: 0;
+    cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; outline: none;
+    box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
   }
-  .btn-cta:hover:not(:disabled) { opacity: 0.85; transform: translateY(-2px); }
-  .btn-cta:active:not(:disabled) { transform: translateY(0); }
+  .btn-cta:hover:not(:disabled) { 
+    transform: translate(-2px, -2px); 
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+  }
+  .btn-cta:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 4px 4px 0px rgba(0,0,0,0.3); }
   .btn-cta:disabled { opacity: 0.6; cursor: not-allowed; }
+  
   .cta-fine {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: rgba(255,255,255,0.28); letter-spacing: 0.06em;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; color: rgba(255, 255, 255, 0.5); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
   }
 
   /* ── Stats ── */
@@ -169,18 +211,19 @@ const CSS = `
     display: flex; gap: clamp(20px, 4vw, 64px);
     align-items: flex-end; justify-content: center;
   }
-  .stat-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .stat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(48px, 7vw, 80px);
-    font-weight: 400; color: #b8ff57;
-    line-height: 1; letter-spacing: 0.02em;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(40px, 10vw, 80px);
+    font-weight: 800; color: #b451e2;
+    line-height: 1; letter-spacing: -0.04em;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
   .stat-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; font-weight: 400;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(10px, 2.5vw, 12px); font-weight: 800;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   /* ── Scroll hint ── */
@@ -190,15 +233,15 @@ const CSS = `
     gap: 8px; pointer-events: none; transition: opacity 0.5s;
   }
   .scroll-hint-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; font-weight: 400;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 800;
     letter-spacing: 0.2em; text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.8);
   }
   .scroll-arrow {
-    width: 18px; height: 18px;
-    border-right: 2px solid rgba(255,255,255,0.25);
-    border-bottom: 2px solid rgba(255,255,255,0.25);
+    width: 16px; height: 16px;
+    border-right: 3px solid #b451e2;
+    border-bottom: 3px solid #b451e2;
     transform: rotate(45deg);
     animation: arrowBounce 1.5s ease-in-out infinite;
   }
@@ -206,13 +249,6 @@ const CSS = `
     0%,100% { transform: rotate(45deg) translateY(0); }
     50%      { transform: rotate(45deg) translateY(6px); }
   }
-
-  /* ── Progress bar ── */
-  .progress-track {
-    position: absolute; bottom: 0; left: 0;
-    width: 100%; height: 3px; background: rgba(255,255,255,0.08);
-  }
-  .progress-fill { height: 100%; background: #b8ff57; will-change: width; }
 
   /* ── Loading ── */
   .loading-overlay {
@@ -223,17 +259,17 @@ const CSS = `
   }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
   .loading-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 64px; font-weight: 400;
-    color: #fff; letter-spacing: 0.04em; line-height: 1;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 64px; font-weight: 800;
+    color: #fff; letter-spacing: -0.04em; line-height: 1;
   }
-  .loading-logo .hl { background: #b8ff57; color: #0a0a0a; padding: 0 8px; }
+  .loading-logo .hl { background: #b451e2; color: #0A0A0A; padding: 0 12px; margin-left: 4px; }
   .loading-bar-track {
-    width: 180px; height: 2px;
-    background: rgba(255,255,255,0.1); overflow: hidden;
+    width: 180px; height: 4px;
+    background: rgba(255,255,255,0.2); overflow: hidden;
   }
   .loading-bar-fill {
-    height: 100%; background: #b8ff57; width: 40%;
+    height: 100%; background: #b451e2; width: 40%;
     animation: loadSlide 1s ease-in-out infinite;
   }
   @keyframes loadSlide {
@@ -241,40 +277,59 @@ const CSS = `
     100% { transform: translateX(350%); }
   }
   .loading-text {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; font-weight: 400;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
   }
 
   /* ── CSS scene-entrance animations (triggered on DOM mount) ── */
-  @keyframes slideUp {
-    from { transform: translateY(60px); opacity: 0; }
+  /* Brutalist snappy entrance */
+  @keyframes slideUpSnappy {
+    from { transform: translateY(20px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
   }
   @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-  .anim-up   { animation: slideUp 0.8s cubic-bezier(0.22,1,0.36,1) both; }
-  .anim-fade { animation: fadeIn 0.6s ease both; }
+  .anim-up   { animation: slideUpSnappy 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) both; }
+  .anim-fade { animation: fadeIn 0.4s ease both; }
   .ad-0 { animation-delay: 0s;     }
-  .ad-1 { animation-delay: 0.15s;  }
-  .ad-2 { animation-delay: 0.3s;   }
-  .ad-3 { animation-delay: 0.45s;  }
+  .ad-1 { animation-delay: 0.1s;  }
+  .ad-2 { animation-delay: 0.2s;   }
+  .ad-3 { animation-delay: 0.3s;  }
 
   /* ── Spinner ── */
   .btn-spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(10,10,10,0.25); border-top-color: #0a0a0a;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(10, 10, 10, 0.2); border-top-color: #0A0A0A;
     border-radius: 50%; animation: spin 0.65s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 600px) {
-    .scene { padding: 0 5vw; }
-    .scroll-hint { left: 5vw; }
-    .stats-grid { gap: 16px; }
+  /* ── RESPONSIVE TWEAKS ── */
+  @media (max-width: 768px) {
+    .scene { padding: 0 6vw; }
+    .scene.left, .scene.right { justify-content: flex-start; } /* Override right-align on mobile so text is legible */
+    
+    .btn-row { flex-direction: column; width: 100%; gap: 12px; }
+    .btn-primary-cta, .btn-ghost-cta { width: 100%; padding: 16px; }
+    
+    .stats-grid { flex-wrap: wrap; justify-content: flex-start; gap: 32px 24px; }
+    .stat-item { align-items: flex-start; }
+    
+    .hero-sub { margin-bottom: 24px; }
+    .overline { margin-bottom: 16px; }
+    
+    .scroll-hint { left: 6vw; bottom: 24px; }
+  }
+
+  @media (max-width: 480px) {
+    .scene-h2 { margin-bottom: 16px; }
+    .scene-sub { font-size: 15px; }
+    .hero-line.serif { padding-left: 0; } /* Remove indent on mobile to save space */
+    .btn-cta { width: 100%; padding: 16px; }
   }
 `
 
@@ -284,14 +339,14 @@ const CSS = `
 const SCENES = [
   {
     id: 'build',
-    start: 0.16,
+    start: 0.17,
     end: 0.32,
     side: 'left',
     render: () => (
-      <div>
+      <div className="content-block">
         <div className="overline-badge anim-fade ad-0">01 — Project Feed</div>
         <h2 className="scene-h2 anim-up ad-1">
-          Share what<br />you build.
+          Share what <br/><span className="serif-italic">you build.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Post projects. Get discovered by peers,<br />
@@ -306,10 +361,10 @@ const SCENES = [
     end: 0.52,
     side: 'right',
     render: () => (
-      <div>
+      <div className="content-block">
         <div className="overline-badge anim-fade ad-0">02 — Teammates</div>
         <h2 className="scene-h2 anim-up ad-1">
-          Find your<br />hackathon squad.
+          Find your <br/><span className="serif-italic">hackathon squad.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Filter by skill, college &amp; interest.<br />
@@ -324,10 +379,10 @@ const SCENES = [
     end: 0.72,
     side: 'left',
     render: () => (
-      <div>
+      <div className="content-block">
         <div className="overline-badge anim-fade ad-0">03 — Connections</div>
         <h2 className="scene-h2 anim-up ad-1">
-          No noise.<br />Just builders.
+          No noise. <br/><span className="serif-italic">Just builders.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Real connections with people who ship.<br />
@@ -342,7 +397,7 @@ const SCENES = [
     end: 0.88,
     side: 'center',
     render: () => (
-      <div className="stats-grid">
+      <div className="content-block stats-grid">
         {[['500+', 'Colleges'], ['10K+', 'Projects'], ['2K+', 'Teams Formed']].map(([num, label], i) => (
           <div key={label} className={`stat-item anim-up ad-${i}`}>
             <span className="stat-num">{num}</span>
@@ -358,10 +413,9 @@ const SCENES = [
 function opacity(p, start, end) {
   const fade = 0.04
   if (p < start || p > end) return 0
-  return Math.min(
-    Math.min(1, (p - start) / fade),
-    Math.min(1, (end - p) / fade)
-  )
+  const fadeIn = start <= 0 ? 1 : Math.min(1, (p - start) / fade)
+  const fadeOut = end >= 1 ? 1 : Math.min(1, (end - p) / fade)
+  return Math.min(fadeIn, fadeOut)
 }
 
 /* ── Slide translation driven by opacity ── */
@@ -377,49 +431,25 @@ export default function LandingClient() {
   const [loading, setLoading]       = useState(false)
   const [videoReady, setVideoReady] = useState(false)
   const [progress, setProgress]     = useState(0)
+  const [isMobile, setIsMobile]     = useState(false)
 
   /* scroll-driver + video refs — layout unchanged */
   const driverRef = useRef(null)
   const videoRef  = useRef(null)
   const rafRef    = useRef(null)
 
-  /* GSAP targets for hero intro */
-  const heroLabelRef = useRef(null)
-  const heroLine1Ref = useRef(null)
-  const heroLine2Ref = useRef(null)
-  const heroLine3Ref = useRef(null)
-  const heroSubRef   = useRef(null)
-  const heroBtnsRef  = useRef(null)
+  /* ── Check Mobile for Animation Tuning ── */
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   /* ── 400ms loading dismiss ── */
   useEffect(() => {
     const t = setTimeout(() => setVideoReady(true), 400)
     return () => clearTimeout(t)
-  }, [])
-
-  /* ── GSAP hero entrance (runs once on mount) ── */
-  useEffect(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-
-    /* Label */
-    tl.from(heroLabelRef.current, { opacity: 0, duration: 0.5 }, 0.1)
-
-    /* Headline lines — clip-reveal via overflow:hidden wrapper */
-    tl.from(heroLine1Ref.current, { y: 80, opacity: 0, duration: 0.8 }, 0.3)
-    tl.from(heroLine2Ref.current, { y: 80, opacity: 0, duration: 0.8 }, 0.5)
-    tl.from(heroLine3Ref.current, { y: 80, opacity: 0, duration: 0.8 }, 0.7)
-
-    /* Subtext */
-    tl.from(heroSubRef.current,   { opacity: 0, duration: 0.6 }, 1.0)
-
-    /* Buttons */
-    if (heroBtnsRef.current) {
-      tl.from(heroBtnsRef.current.children, {
-        opacity: 0, y: 16, duration: 0.5, stagger: 0.1,
-      }, 1.2)
-    }
-
-    return () => { tl.kill() }
   }, [])
 
   /* ── Scroll → progress → video.currentTime ── */
@@ -456,11 +486,15 @@ export default function LandingClient() {
     await signIn('google', { callbackUrl: '/feed' })
   }
 
-  /* Intro visibility (progress 0–0.14) */
-  const introOp = opacity(progress, 0, 0.14)
+  /* Logo visibility (progress 0–0.04) */
+  const logoOp = opacity(progress, 0, 0.04)
+  /* Intro visibility (progress 0.05–0.15) */
+  const introOp = opacity(progress, 0.05, 0.15)
   /* CTA visibility (progress 0.90–1.0) */
   const ctaOp   = opacity(progress, 0.90, 1.0)
-  const ctaTx   = translate('center', ctaOp)
+  
+  /* On mobile, disable the center translate to keep text left-aligned and readable */
+  const ctaTx   = isMobile ? 'translateY(0px)' : translate('center', ctaOp)
 
   return (
     <>
@@ -482,56 +516,80 @@ export default function LandingClient() {
             />
           </div>
 
-          {/* ── Cinematic vignette — UNCHANGED ── */}
+          {/* ── Cinematic vignette: Darkened for pure text readability ── */}
           <div className="vignette" />
 
-          {/* ══ INTRO SCENE — rendered with GSAP refs ══ */}
+          {/* ══ BIG LOGO SCENE (First frame) ══ */}
+          {logoOp > 0 && (
+            <div className="scene center" style={{ opacity: logoOp }}>
+              <div className="scene-inner" style={{ textAlign: 'center' }}>
+                <h1 className="anim-fade ad-0" style={{ 
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: "italic",
+                  fontSize: "clamp(64px, 15vw, 180px)", 
+                  fontWeight: 400, 
+                  color: "#fff", 
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1,
+                  textShadow: "0 10px 40px rgba(0,0,0,0.8)" 
+                }}>
+                  Show<span style={{ color: "#b451e2" }}>Up.</span>
+                </h1>
+              </div>
+            </div>
+          )}
+
+          {/* ══ INTRO SCENE (Second frame) ══ */}
           {introOp > 0 && (
             <div className="scene left" style={{ opacity: introOp }}>
               <div className="scene-inner">
 
-                {/* Label */}
-                <div className="overline" ref={heroLabelRef}>
-                  FOR INDIAN COLLEGE STUDENTS
-                </div>
+                <div className="content-block" style={{ maxWidth: '620px' }}>
+                  
+                  {/* Label */}
+                  <div className="overline anim-fade ad-0">
+                    FOR INDIAN COLLEGE STUDENTS
+                  </div>
 
-                {/* Headline — three lines, each wrapped for clip-reveal */}
-                <div style={{ marginBottom: 28 }}>
-                  <span className="hero-line-wrap">
-                    <span className="hero-line" ref={heroLine1Ref}>BUILD.</span>
-                  </span>
-                  <span className="hero-line-wrap">
-                    <span className="hero-line" ref={heroLine2Ref}>SHARE.</span>
-                  </span>
-                  <span className="hero-line-wrap">
-                    <span className="hero-line lime" ref={heroLine3Ref}>SHOWUP.</span>
-                  </span>
-                </div>
+                  {/* Headline — three lines, each wrapped for clip-reveal */}
+                  <div style={{ marginBottom: 32 }}>
+                    <span className="hero-line-wrap">
+                      <span className="hero-line anim-up ad-1">BUILD.</span>
+                    </span>
+                    <span className="hero-line-wrap">
+                      <span className="hero-line anim-up ad-2">SHARE.</span>
+                    </span>
+                    <span className="hero-line-wrap">
+                      <span className="hero-line serif anim-up ad-3">ShowUp.</span>
+                    </span>
+                  </div>
 
-                {/* Subtext */}
-                <p className="hero-sub" ref={heroSubRef}>
-                  Where Indian college students showcase projects,<br />
-                  find hackathon teammates &amp; get discovered.
-                </p>
+                  {/* Subtext */}
+                  <p className="hero-sub anim-fade ad-2">
+                    Where Indian college students showcase projects,
+                    find hackathon teammates &amp; get discovered.
+                  </p>
 
-                {/* Buttons */}
-                <div className="btn-row" ref={heroBtnsRef}>
-                  <button
-                    id="hero-get-started-btn"
-                    className="btn-primary-cta"
-                    onClick={handleSignIn}
-                    disabled={loading}
-                  >
-                    {loading ? <span className="btn-spinner" /> : 'Get Started →'}
-                  </button>
-                  <button
-                    id="hero-explore-btn"
-                    className="btn-ghost-cta"
-                    onClick={handleSignIn}
-                    disabled={loading}
-                  >
-                    Explore Projects
-                  </button>
+                  {/* Buttons */}
+                  <div className="btn-row anim-up ad-3">
+                    <button
+                      id="hero-get-started-btn"
+                      className="btn-primary-cta"
+                      onClick={handleSignIn}
+                      disabled={loading}
+                    >
+                      {loading ? <span className="btn-spinner" /> : 'Get Started'}
+                    </button>
+                    <button
+                      id="hero-explore-btn"
+                      className="btn-ghost-cta"
+                      onClick={() => window.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' })}
+                      disabled={loading}
+                    >
+                      Explore Platform
+                    </button>
+                  </div>
+                  
                 </div>
 
               </div>
@@ -542,15 +600,19 @@ export default function LandingClient() {
           {SCENES.map((scene) => {
             const op = opacity(progress, scene.start, scene.end)
             if (op === 0) return null
+            /* On mobile, force all scenes to the left for better readability */
+            const sideClass = isMobile ? 'left' : scene.side
+            const tx = isMobile ? translate('left', op) : translate(scene.side, op)
+            
             return (
               <div
                 key={scene.id}
-                className={`scene ${scene.side}`}
+                className={`scene ${sideClass}`}
                 style={{ opacity: op }}
               >
                 <div
                   className="scene-inner"
-                  style={{ transform: translate(scene.side, op) }}
+                  style={{ transform: tx }}
                 >
                   {scene.render()}
                 </div>
@@ -560,35 +622,37 @@ export default function LandingClient() {
 
           {/* ══ CTA SCENE ══ */}
           {ctaOp > 0 && (
-            <div className="scene left" style={{ opacity: ctaOp }}>
+            <div className={`scene ${isMobile ? 'left' : 'center'}`} style={{ opacity: ctaOp }}>
               <div className="scene-inner" style={{ transform: ctaTx }}>
-                <div className="cta-block">
+                <div className="content-block cta-block">
                   <div className="overline">Ready to build?</div>
                   <h2 className="scene-h2">
-                    Your next team<br />is already here.
+                    Your next team<br /><span className="serif-italic">is already here.</span>
                   </h2>
                   <p className="cta-sub">
                     Join hundreds of builders from IITs, NITs, BITs &amp; beyond.
                   </p>
-                  <button
-                    id="cta-signin-btn"
-                    onClick={handleSignIn}
-                    disabled={loading}
-                    className="btn-cta"
-                  >
-                    {loading ? (
-                      <span className="btn-spinner" />
-                    ) : (
-                      <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.657 12.016 17.64 10.71 17.64 9.2Z" fill="#0a0a0a"/>
-                        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#0a0a0a"/>
-                        <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#0a0a0a"/>
-                        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#0a0a0a"/>
-                      </svg>
-                    )}
-                    Get started with Google
-                  </button>
-                  <p className="cta-fine">Free · No credit card · 2 min setup</p>
+                  <div style={{ marginTop: '12px', marginBottom: '8px', width: '100%' }}>
+                    <button
+                      id="cta-signin-btn"
+                      onClick={handleSignIn}
+                      disabled={loading}
+                      className="btn-cta"
+                    >
+                      {loading ? (
+                        <span className="btn-spinner" />
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.657 12.016 17.64 10.71 17.64 9.2Z" fill="#0A0A0A"/>
+                          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#0A0A0A"/>
+                          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#0A0A0A"/>
+                          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#0A0A0A"/>
+                        </svg>
+                      )}
+                      Continue with Google
+                    </button>
+                  </div>
+                  <p className="cta-fine">Free forever · No credit card required</p>
                 </div>
               </div>
             </div>
@@ -596,13 +660,8 @@ export default function LandingClient() {
 
           {/* ── Scroll hint ── */}
           <div className="scroll-hint" style={{ opacity: progress < 0.04 ? 1 : 0 }}>
-            <span className="scroll-hint-label">Scroll to explore ↓</span>
+            <span className="scroll-hint-label">Scroll to explore</span>
             <div className="scroll-arrow" />
-          </div>
-
-          {/* ── Progress bar ── */}
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${progress * 100}%` }} />
           </div>
 
           {/* ── Loading overlay ── */}
