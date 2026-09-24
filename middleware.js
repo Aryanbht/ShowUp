@@ -24,6 +24,7 @@ export default withAuth(
         const pathname = req.nextUrl.pathname
         // Allow public routes
         if (pathname === '/') return true
+        if (pathname === '/about') return true
         if (pathname.startsWith('/api/auth')) return true
         // Allow static media files
         if (/\.(mp4|webm|ogg|mp3|wav|png|jpg|jpeg|svg|ico|gif|webp)$/i.test(pathname)) return true
