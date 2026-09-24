@@ -402,18 +402,23 @@ const SCENES = [
     ),
   },
   {
-    id: 'stats',
+    id: 'about',
     start: 0.74,
     end: 0.88,
     side: 'center',
     render: () => (
-      <div className="content-block stats-grid">
-        {[['500+', 'Colleges'], ['10K+', 'Projects'], ['2K+', 'Teams Formed']].map(([num, label], i) => (
-          <div key={label} className={`stat-item anim-up ad-${i}`}>
-            <span className="stat-num">{num}</span>
-            <span className="stat-label">{label}</span>
-          </div>
-        ))}
+      <div className="content-block" style={{ textAlign: 'center' }}>
+        <h2 className="scene-h2 anim-up ad-0">
+          Know more <br/><span className="serif-italic">about us.</span>
+        </h2>
+        <div className="btn-row anim-fade ad-2" style={{ justifyContent: 'center', marginTop: '32px' }}>
+          <button 
+            className="btn-primary-cta"
+            onClick={() => window.location.href = '/about'}
+          >
+            About Us
+          </button>
+        </div>
       </div>
     ),
   },
