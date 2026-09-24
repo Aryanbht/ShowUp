@@ -66,7 +66,7 @@ const CSS = `
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-weight: 400;
-    color: #b451e2; /* Highlight accent in yellow */
+    color: #FFC629; /* Highlight accent in yellow */
   }
   
   /* ── Labels ── */
@@ -75,7 +75,7 @@ const CSS = `
     font-family: 'Space Grotesk', sans-serif;
     font-size: 13px; font-weight: 700;
     letter-spacing: 0.15em; text-transform: uppercase;
-    color: #b451e2;
+    color: #FFC629;
     background: none; padding: 0;
     margin-bottom: 24px;
   }
@@ -84,7 +84,7 @@ const CSS = `
     font-family: 'Space Grotesk', sans-serif;
     font-size: 11px; font-weight: 800;
     letter-spacing: 0.15em; text-transform: uppercase;
-    color: #0A0A0A; background: #b451e2;
+    color: #0A0A0A; background: #FFC629;
     padding: 6px 14px; border-radius: 0;
     margin-bottom: 24px;
     box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
@@ -105,7 +105,7 @@ const CSS = `
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-weight: 400;
-    color: #b451e2;
+    color: #FFC629;
     letter-spacing: -0.02em;
     padding-left: 8px; /* Slight indent for visual flair */
   }
@@ -143,7 +143,7 @@ const CSS = `
 
   .btn-primary-cta {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: #b451e2; color: #0A0A0A;
+    background: #FFC629; color: #0A0A0A;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
     padding: 18px 36px;
@@ -187,7 +187,7 @@ const CSS = `
   }
   .btn-cta {
     display: inline-flex; align-items: center; justify-content: center; gap: 12px;
-    background: #b451e2; color: #0A0A0A;
+    background: #FFC629; color: #0A0A0A;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 800; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
     padding: 20px 40px; border: none; border-radius: 0;
@@ -215,7 +215,7 @@ const CSS = `
   .stat-num {
     font-family: 'Space Grotesk', sans-serif;
     font-size: clamp(40px, 10vw, 80px);
-    font-weight: 800; color: #b451e2;
+    font-weight: 800; color: #FFC629;
     line-height: 1; letter-spacing: -0.04em;
     text-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
@@ -240,8 +240,8 @@ const CSS = `
   }
   .scroll-arrow {
     width: 16px; height: 16px;
-    border-right: 3px solid #b451e2;
-    border-bottom: 3px solid #b451e2;
+    border-right: 3px solid #FFC629;
+    border-bottom: 3px solid #FFC629;
     transform: rotate(45deg);
     animation: arrowBounce 1.5s ease-in-out infinite;
   }
@@ -263,13 +263,13 @@ const CSS = `
     font-size: 64px; font-weight: 800;
     color: #fff; letter-spacing: -0.04em; line-height: 1;
   }
-  .loading-logo .hl { background: #b451e2; color: #0A0A0A; padding: 0 12px; margin-left: 4px; }
+  .loading-logo .hl { background: #FFC629; color: #0A0A0A; padding: 0 12px; margin-left: 4px; }
   .loading-bar-track {
     width: 180px; height: 4px;
     background: rgba(255,255,255,0.2); overflow: hidden;
   }
   .loading-bar-fill {
-    height: 100%; background: #b451e2; width: 40%;
+    height: 100%; background: #FFC629; width: 40%;
     animation: loadSlide 1s ease-in-out infinite;
   }
   @keyframes loadSlide {
@@ -281,6 +281,14 @@ const CSS = `
     font-size: 11px; font-weight: 800;
     letter-spacing: 0.2em; text-transform: uppercase;
     color: rgba(255,255,255,0.5);
+  }
+
+  /* ── Intro Logo ── */
+  .intro-logo {
+    width: 80vw;
+    max-width: 600px;
+    height: auto;
+    filter: drop-shadow(0 10px 40px rgba(0,0,0,0.8));
   }
 
   /* ── CSS scene-entrance animations (triggered on DOM mount) ── */
@@ -310,6 +318,8 @@ const CSS = `
 
   /* ── RESPONSIVE TWEAKS ── */
   @media (max-width: 768px) {
+    .intro-logo { width: 95vw; }
+    
     .scene { padding: 0 6vw; }
     .scene.left, .scene.right { justify-content: flex-start; } /* Override right-align on mobile so text is legible */
     
@@ -522,19 +532,12 @@ export default function LandingClient() {
           {/* ══ BIG LOGO SCENE (First frame) ══ */}
           {logoOp > 0 && (
             <div className="scene center" style={{ opacity: logoOp }}>
-              <div className="scene-inner" style={{ textAlign: 'center' }}>
-                <h1 className="anim-fade ad-0" style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: "italic",
-                  fontSize: "clamp(64px, 15vw, 180px)", 
-                  fontWeight: 400, 
-                  color: "#fff", 
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1,
-                  textShadow: "0 10px 40px rgba(0,0,0,0.8)" 
-                }}>
-                  Show<span style={{ color: "#b451e2" }}>Up.</span>
-                </h1>
+              <div className="scene-inner" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
+                <img 
+                  src="/logo.png" 
+                  alt="ShowUp Logo" 
+                  className="intro-logo anim-fade ad-0" 
+                />
               </div>
             </div>
           )}
