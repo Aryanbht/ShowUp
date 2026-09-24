@@ -64,7 +64,6 @@ const CSS = `
   /* ── Typography Mix ── */
   .serif-italic {
     font-family: 'Playfair Display', serif;
-    font-style: italic;
     font-weight: 400;
     color: #FFC629; /* Highlight accent in yellow */
   }
@@ -103,11 +102,10 @@ const CSS = `
   
   .hero-line.serif {
     font-family: 'Playfair Display', serif;
-    font-style: italic;
     font-weight: 400;
     color: #FFC629;
     letter-spacing: -0.02em;
-    padding-left: 8px; /* Slight indent for visual flair */
+    
   }
 
   /* ── Hero subtext ── */
@@ -356,7 +354,7 @@ const SCENES = [
       <div className="content-block">
         <div className="overline-badge anim-fade ad-0">01 — Project Feed</div>
         <h2 className="scene-h2 anim-up ad-1">
-          Share what <br/><span className="serif-italic">you build.</span>
+          Share what <br /><span className="serif-italic">you build.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Post projects. Get discovered by peers,<br />
@@ -374,7 +372,7 @@ const SCENES = [
       <div className="content-block">
         <div className="overline-badge anim-fade ad-0">02 — Teammates</div>
         <h2 className="scene-h2 anim-up ad-1">
-          Find your <br/><span className="serif-italic">hackathon squad.</span>
+          Find your <br /><span className="serif-italic">hackathon squad.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Filter by skill, college &amp; interest.<br />
@@ -392,7 +390,7 @@ const SCENES = [
       <div className="content-block">
         <div className="overline-badge anim-fade ad-0">03 — Connections</div>
         <h2 className="scene-h2 anim-up ad-1">
-          No noise. <br/><span className="serif-italic">Just builders.</span>
+          No noise. <br /><span className="serif-italic">Just builders.</span>
         </h2>
         <p className="scene-sub anim-fade ad-2">
           Real connections with people who ship.<br />
@@ -409,10 +407,10 @@ const SCENES = [
     render: () => (
       <div className="content-block" style={{ textAlign: 'center' }}>
         <h2 className="scene-h2 anim-up ad-0">
-          Know more <br/><span className="serif-italic">about us.</span>
+          Know more <br /><span className="serif-italic">about us.</span>
         </h2>
         <div className="btn-row anim-fade ad-2" style={{ justifyContent: 'center', marginTop: '32px' }}>
-          <button 
+          <button
             className="btn-primary-cta"
             onClick={() => window.location.href = '/about'}
           >
@@ -436,22 +434,22 @@ function opacity(p, start, end) {
 /* ── Slide translation driven by opacity ── */
 function translate(side, op) {
   const px = (1 - op) * 44
-  if (side === 'left')  return `translateX(-${px}px)`
+  if (side === 'left') return `translateX(-${px}px)`
   if (side === 'right') return `translateX(${px}px)`
   return `translateY(${px * 0.45}px)`
 }
 
 /* ════════════════════════════════════════════════════════════════ */
 export default function LandingClient() {
-  const [loading, setLoading]       = useState(false)
+  const [loading, setLoading] = useState(false)
   const [videoReady, setVideoReady] = useState(false)
-  const [progress, setProgress]     = useState(0)
-  const [isMobile, setIsMobile]     = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
 
   /* scroll-driver + video refs — layout unchanged */
   const driverRef = useRef(null)
-  const videoRef  = useRef(null)
-  const rafRef    = useRef(null)
+  const videoRef = useRef(null)
+  const rafRef = useRef(null)
 
   /* ── Check Mobile for Animation Tuning ── */
   useEffect(() => {
@@ -475,10 +473,10 @@ export default function LandingClient() {
       const driver = driverRef.current
       if (!driver || !video) return
 
-      const rect    = driver.getBoundingClientRect()
-      const total   = driver.offsetHeight - window.innerHeight
+      const rect = driver.getBoundingClientRect()
+      const total = driver.offsetHeight - window.innerHeight
       const scrolled = Math.max(0, -rect.top)
-      const p       = Math.min(1, scrolled / total)
+      const p = Math.min(1, scrolled / total)
 
       setProgress(p)
 
@@ -506,10 +504,10 @@ export default function LandingClient() {
   /* Intro visibility (progress 0.05–0.15) */
   const introOp = opacity(progress, 0.05, 0.15)
   /* CTA visibility (progress 0.90–1.0) */
-  const ctaOp   = opacity(progress, 0.90, 1.0)
-  
+  const ctaOp = opacity(progress, 0.90, 1.0)
+
   /* On mobile, disable the center translate to keep text left-aligned and readable */
-  const ctaTx   = isMobile ? 'translateY(0px)' : translate('center', ctaOp)
+  const ctaTx = isMobile ? 'translateY(0px)' : translate('center', ctaOp)
 
   return (
     <>
@@ -538,10 +536,10 @@ export default function LandingClient() {
           {logoOp > 0 && (
             <div className="scene center" style={{ opacity: logoOp }}>
               <div className="scene-inner" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
-                <img 
-                  src="/logo.png" 
-                  alt="ShowUp Logo" 
-                  className="intro-logo anim-fade ad-0" 
+                <img
+                  src="/logo.png"
+                  alt="ShowUp Logo"
+                  className="intro-logo anim-fade ad-0"
                 />
               </div>
             </div>
@@ -553,7 +551,7 @@ export default function LandingClient() {
               <div className="scene-inner">
 
                 <div className="content-block" style={{ maxWidth: '620px' }}>
-                  
+
                   {/* Label */}
                   <div className="overline anim-fade ad-0">
                     FOR INDIAN COLLEGE STUDENTS
@@ -562,13 +560,13 @@ export default function LandingClient() {
                   {/* Headline — three lines, each wrapped for clip-reveal */}
                   <div style={{ marginBottom: 32 }}>
                     <span className="hero-line-wrap">
-                      <span className="hero-line anim-up ad-1">BUILD.</span>
+                      <span className="hero-line anim-up ad-1">SUIT UP</span>
                     </span>
                     <span className="hero-line-wrap">
-                      <span className="hero-line anim-up ad-2">SHARE.</span>
+                      <span className="hero-line anim-up ad-2">TEAM UP</span>
                     </span>
                     <span className="hero-line-wrap">
-                      <span className="hero-line serif anim-up ad-3">ShowUp.</span>
+                      <span className="hero-line serif anim-up ad-3">ShowUP.</span>
                     </span>
                   </div>
 
@@ -597,7 +595,7 @@ export default function LandingClient() {
                       Explore Platform
                     </button>
                   </div>
-                  
+
                 </div>
 
               </div>
@@ -611,7 +609,7 @@ export default function LandingClient() {
             /* On mobile, force all scenes to the left for better readability */
             const sideClass = isMobile ? 'left' : scene.side
             const tx = isMobile ? translate('left', op) : translate(scene.side, op)
-            
+
             return (
               <div
                 key={scene.id}
@@ -651,10 +649,10 @@ export default function LandingClient() {
                         <span className="btn-spinner" />
                       ) : (
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.657 12.016 17.64 10.71 17.64 9.2Z" fill="#0A0A0A"/>
-                          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#0A0A0A"/>
-                          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#0A0A0A"/>
-                          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#0A0A0A"/>
+                          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.657 12.016 17.64 10.71 17.64 9.2Z" fill="#0A0A0A" />
+                          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#0A0A0A" />
+                          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#0A0A0A" />
+                          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#0A0A0A" />
                         </svg>
                       )}
                       Continue with Google
@@ -672,16 +670,6 @@ export default function LandingClient() {
             <div className="scroll-arrow" />
           </div>
 
-          {/* ── Loading overlay ── */}
-          <div className={`loading-overlay${videoReady ? ' hidden' : ''}`}>
-            <div className="loading-logo">
-              SHOW<span className="hl">UP</span>
-            </div>
-            <div className="loading-bar-track">
-              <div className="loading-bar-fill" />
-            </div>
-            <span className="loading-text">Loading experience…</span>
-          </div>
 
         </div>
       </div>
