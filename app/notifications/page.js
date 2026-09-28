@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { Check, X, Bell, BellOff } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import MobileNav from '@/components/layout/MobileNav'
@@ -32,6 +31,9 @@ function NotificationItem({ notification, onAction, onRead }) {
       if (res.ok) {
         onAction(notification.id, action)
         toast.success(action === 'accept' ? 'Connection accepted!' : 'Connection declined')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Unable to update connection')
       }
     } catch {
       toast.error('Something went wrong')
@@ -96,7 +98,6 @@ function NotificationItem({ notification, onAction, onRead }) {
 }
 
 export default function NotificationsPage() {
-  const { data: session } = useSession()
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [markingRead, setMarkingRead] = useState(false)
@@ -117,7 +118,8 @@ export default function NotificationsPage() {
   const handleMarkAllRead = async () => {
     setMarkingRead(true)
     try {
-      await fetch('/api/notifications/read', { method: 'PATCH' })
+      const res = await fetch('/api/notifications/read', { method: 'PATCH' })
+      if (!res.ok) throw new Error('Failed to mark notifications as read')
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
       toast.success('All notifications marked as read')
     } catch {
@@ -126,8 +128,20 @@ export default function NotificationsPage() {
     setMarkingRead(false)
   }
 
-  const handleRead = (id) => {
+  const handleRead = async (id) => {
+    const previous = notifications
     setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n))
+    try {
+      const res = await fetch('/api/notifications/read', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (!res.ok) throw new Error('Failed to mark notification as read')
+    } catch {
+      setNotifications(previous)
+      toast.error('Failed to mark as read')
+    }
   }
 
   const handleAction = (notifId, action) => {

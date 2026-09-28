@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { Bell, Search, Plus, Users, Home } from 'lucide-react'
+import { useSession, signOut } from 'next-auth/react'
+import { Bell, Search, Plus, Users, Home, LogOut } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
 
@@ -98,14 +98,24 @@ export default function Header({ onPost, onSearch }) {
 
           {/* Avatar */}
           {session?.user && (
-            <Link href={session.user.username ? `/profile/${session.user.username}` : '/feed'}>
-              <Avatar
-                src={session.user.avatar || session.user.image}
-                name={session.user.name}
-                size="sm"
-                className="cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-sm transition-all"
-              />
-            </Link>
+            <div className="flex items-center gap-3 ml-2 border-l-2 border-ink pl-3">
+              <Link href={session.user.username ? `/profile/${session.user.username}` : '/feed'}>
+                <Avatar
+                  src={session.user.avatar || session.user.image}
+                  name={session.user.name}
+                  size="sm"
+                  className="cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-sm transition-all"
+                />
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="btn-icon hover:bg-red-100 text-red-600 hover:text-red-700 transition-colors"
+                title="Log Out"
+                aria-label="Log Out"
+              >
+                <LogOut size={18} strokeWidth={2.5} />
+              </button>
+            </div>
           )}
         </div>
       </div>

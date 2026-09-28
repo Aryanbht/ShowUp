@@ -43,7 +43,7 @@ export async function POST(req) {
         userId: toUserId,
         type: 'CONNECTION_REQUEST',
         message: `${sender.name} wants to connect with you`,
-        link: `/notifications`,
+        link: `/notifications?connectionId=${connection.id}`,
       },
     })
 

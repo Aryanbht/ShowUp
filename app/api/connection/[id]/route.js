@@ -22,6 +22,13 @@ export async function PATCH(req, { params }) {
 
     if (action === 'decline') {
       await prisma.connection.delete({ where: { id } })
+      await prisma.notification.deleteMany({
+        where: {
+          userId: session.user.id,
+          type: 'CONNECTION_REQUEST',
+          link: { contains: `connectionId=${id}` },
+        },
+      })
       return NextResponse.json({ message: 'Connection declined' })
     }
 
@@ -42,6 +49,13 @@ export async function PATCH(req, { params }) {
           type: 'CONNECTION_ACCEPTED',
           message: `${acceptor.name} accepted your connection request`,
           link: `/profile/${(await prisma.user.findUnique({ where: { id: session.user.id }, select: { username: true } })).username}`,
+        },
+      })
+      await prisma.notification.deleteMany({
+        where: {
+          userId: session.user.id,
+          type: 'CONNECTION_REQUEST',
+          link: { contains: `connectionId=${id}` },
         },
       })
 

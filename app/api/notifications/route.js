@@ -18,9 +18,12 @@ export async function GET(req) {
     const enriched = await Promise.all(
       notifications.map(async (n) => {
         if (n.type === 'CONNECTION_REQUEST') {
-          // Parse sender name from message
+          const connectionId = n.link?.match(/[?&]connectionId=([^&]+)/)?.[1]
+          const connectionWhere = connectionId
+            ? { id: connectionId, toUserId: session.user.id, status: 'PENDING' }
+            : { toUserId: session.user.id, status: 'PENDING' }
           const connection = await prisma.connection.findFirst({
-            where: { toUserId: session.user.id, status: 'PENDING' },
+            where: connectionWhere,
             include: {
               from: { select: { id: true, name: true, username: true, avatar: true } },
             },

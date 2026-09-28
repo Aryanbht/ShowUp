@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -31,6 +31,13 @@ const INITIAL_DATA = {
 export default function OnboardingPage() {
   const router = useRouter()
   const { data: session, update } = useSession()
+
+  useEffect(() => {
+    if (session?.user?.onboarded) {
+      router.push('/feed')
+    }
+  }, [session, router])
+
   const [step, setStep] = useState(1)
   const [data, setData] = useState(() => ({
     ...INITIAL_DATA,
@@ -54,8 +61,27 @@ export default function OnboardingPage() {
     return true
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateStep()) return
+
+    if (step === 1) {
+      setSubmitting(true)
+      try {
+        const res = await fetch(`/api/user/${data.username}`, { method: 'POST' })
+        const json = await res.json()
+        if (!json.available) {
+          toast.error('Username has already been used, try using a different username.')
+          setSubmitting(false)
+          return
+        }
+      } catch (err) {
+        toast.error('Error verifying username')
+        setSubmitting(false)
+        return
+      }
+      setSubmitting(false)
+    }
+
     setStep((s) => s + 1)
     window.scrollTo(0, 0)
   }
@@ -165,8 +191,8 @@ export default function OnboardingPage() {
               </button>
             )}
             {step < 3 ? (
-              <button onClick={handleNext} className="bg-white text-black font-bold px-10 py-3 mx-2 shadow-sm uppercase tracking-widest text-sm hover:bg-gray-100 transition-colors border border-black/20">
-                Next
+              <button onClick={handleNext} disabled={submitting} className="bg-white text-black font-bold px-10 py-3 mx-2 shadow-sm uppercase tracking-widest text-sm hover:bg-gray-100 transition-colors border border-black/20 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px] text-center">
+                {submitting && step === 1 ? 'Checking...' : 'Next'}
               </button>
             ) : (
               <button onClick={handleSubmit} disabled={submitting} className="bg-white text-black font-bold px-10 py-3 mx-2 shadow-sm uppercase tracking-widest text-sm hover:bg-gray-100 transition-colors border border-black/20 flex items-center gap-2">
