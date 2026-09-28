@@ -46,7 +46,7 @@ export default function StepOne({ data, onChange }) {
     <div className="flex flex-col gap-5">
       {/* Full Name */}
       <div>
-        <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+        <label className="block font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
           Full Name <span className="text-red-500">*</span>
         </label>
         <input
@@ -54,7 +54,7 @@ export default function StepOne({ data, onChange }) {
           value={data.name}
           onChange={(e) => onChange({ name: e.target.value })}
           placeholder="Aryan Sharma"
-          className="input-brutal"
+          className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm"
           maxLength={60}
           required
         />
@@ -62,11 +62,11 @@ export default function StepOne({ data, onChange }) {
 
       {/* Username */}
       <div>
-        <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+        <label className="block font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
           Username <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-grotesk font-bold text-ink/40 text-sm">@</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-grotesk font-bold text-black/50 text-sm">@</span>
           <input
             type="text"
             value={data.username}
@@ -77,7 +77,7 @@ export default function StepOne({ data, onChange }) {
             }}
             onBlur={() => checkUsername(data.username)}
             placeholder="aryan_sharma"
-            className="input-brutal pl-8 pr-10"
+            className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm pl-8 pr-10"
             maxLength={20}
             required
           />
@@ -92,7 +92,7 @@ export default function StepOne({ data, onChange }) {
 
       {/* College */}
       <div>
-        <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+        <label className="block font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
           College <span className="text-red-500">*</span>
         </label>
         <input
@@ -100,7 +100,7 @@ export default function StepOne({ data, onChange }) {
           value={data.college}
           onChange={(e) => onChange({ college: e.target.value })}
           placeholder="IIT Delhi / BITS Pilani / VIT..."
-          className="input-brutal"
+          className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm"
           maxLength={100}
           required
         />
@@ -109,14 +109,14 @@ export default function StepOne({ data, onChange }) {
       {/* Branch + Year Grid */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+          <label className="block font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             Branch <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
               value={data.branch}
               onChange={(e) => onChange({ branch: e.target.value })}
-              className="input-brutal appearance-none cursor-pointer"
+              className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm appearance-none cursor-pointer"
               required
             >
               <option value="">Select branch</option>
@@ -126,14 +126,14 @@ export default function StepOne({ data, onChange }) {
           </div>
         </div>
         <div>
-          <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+          <label className="block font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
             Year <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <select
               value={data.year}
               onChange={(e) => onChange({ year: e.target.value })}
-              className="input-brutal appearance-none cursor-pointer"
+              className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm appearance-none cursor-pointer"
               required
             >
               <option value="">Select year</option>
@@ -147,7 +147,7 @@ export default function StepOne({ data, onChange }) {
       {/* Bio */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <label className="font-grotesk font-bold text-xs uppercase tracking-wider">Bio</label>
+          <label className="font-bold text-xs uppercase tracking-wider text-black mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>Bio</label>
           <span className={`font-inter text-xs ${data.bio?.length >= MAX_BIO ? 'text-red-500' : 'text-ink/40'}`}>
             {data.bio?.length || 0}/{MAX_BIO}
           </span>
@@ -156,7 +156,7 @@ export default function StepOne({ data, onChange }) {
           value={data.bio}
           onChange={(e) => onChange({ bio: e.target.value.slice(0, MAX_BIO) })}
           placeholder="Full-stack dev from Delhi. Building things that matter."
-          className="input-brutal resize-none"
+          className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm resize-none"
           rows={3}
         />
       </div>

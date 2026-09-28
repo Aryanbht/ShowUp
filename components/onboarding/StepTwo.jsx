@@ -53,19 +53,7 @@ export default function StepTwo({ data, onChange }) {
         />
       </div>
 
-      {/* LinkedIn */}
-      <div>
-        <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
-          💼 LinkedIn URL <span className="text-ink/40 normal-case font-inter font-normal">(optional)</span>
-        </label>
-        <input
-          type="url"
-          value={data.linkedinUrl}
-          onChange={(e) => onChange({ linkedinUrl: e.target.value })}
-          placeholder="https://linkedin.com/in/yourprofile"
-          className="input-brutal"
-        />
-      </div>
+
     </div>
   )
 }
