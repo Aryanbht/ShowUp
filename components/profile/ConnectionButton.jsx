@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { UserPlus, Clock, CheckCircle, Check, X } from 'lucide-react'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function ConnectionButton({ targetUserId, initialStatus = null, initialConnectionId = null }) {
   const { data: session } = useSession()
@@ -93,8 +94,13 @@ export default function ConnectionButton({ targetUserId, initialStatus = null, i
 
   if (status === 'ACCEPTED') {
     return (
-      <div className="btn-secondary flex items-center gap-2 text-xs cursor-default opacity-80">
-        <CheckCircle size={14} className="text-green-600" /> Connected ✓
+      <div className="flex gap-2">
+        <Link href={`/messages?user=${targetUserId}`} className="btn-primary flex items-center gap-1.5 text-xs py-2 px-3">
+          Message
+        </Link>
+        <div className="btn-secondary flex items-center gap-2 text-xs cursor-default opacity-80">
+          <CheckCircle size={14} className="text-green-600" /> Connected ✓
+        </div>
       </div>
     )
   }

@@ -11,8 +11,8 @@ export default withAuth(
       return NextResponse.next()
     }
 
-    // If authenticated but not onboarded, redirect to onboarding
-    if (token && !token.onboarded && pathname !== '/onboarding') {
+    // If authenticated but not onboarded, redirect to onboarding (except for API routes)
+    if (token && !token.onboarded && pathname !== '/onboarding' && !pathname.startsWith('/api/')) {
       return NextResponse.redirect(new URL('/onboarding', req.url))
     }
 

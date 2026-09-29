@@ -12,6 +12,7 @@ import ConnectionButton from '@/components/profile/ConnectionButton'
 import Header from '@/components/layout/Header'
 import MobileNav from '@/components/layout/MobileNav'
 import ProfileProjectGrid from '@/components/profile/ProfileProjectGrid'
+import GlassLayout from '@/components/layout/GlassLayout'
 
 export async function generateMetadata({ params }) {
   const user = await prisma.user.findUnique({
@@ -62,34 +63,30 @@ export default async function ProfilePage({ params }) {
   }))
 
   return (
-    <>
+    <GlassLayout>
       <Header />
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6">
-
-        {/* Profile Card */}
-        <div className="bg-surface border-3 border-ink shadow-brutal mb-6 overflow-hidden">
-          {/* Yellow Banner */}
-          <div className="h-20 bg-primary border-b-3 border-ink" />
-
-          <div className="px-5 pb-5 -mt-10">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-5">
-              {/* Avatar */}
-              <Avatar
-                src={user.avatar}
-                name={user.name}
-                size="xl"
-                className="border-4 bg-surface"
-              />
+      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+        
+        {/* Profile Container */}
+        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-5">
+            {/* Avatar */}
+            <Avatar
+              src={user.avatar}
+              name={user.name}
+              size="xl"
+              className="border-4 border-white/40 shadow-sm"
+            />
 
               {/* Name + Actions */}
               <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <h1 className="font-grotesk font-extrabold text-2xl text-ink">{user.name}</h1>
-                  <p className="font-inter text-sm text-ink/50">@{user.username}</p>
+                  <h1 className="font-grotesk font-extrabold text-2xl text-black">{user.name}</h1>
+                  <p className="font-inter text-sm text-black/60">@{user.username}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {isOwnProfile ? (
-                    <Link href="/onboarding" className="btn-secondary text-xs">Edit Profile</Link>
+                    <Link href="/onboarding" className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm text-xs px-4 py-2 rounded-md transition-colors">Edit Profile</Link>
                   ) : (
                     <ConnectionButton targetUserId={user.id} />
                   )}
@@ -100,27 +97,27 @@ export default async function ProfilePage({ params }) {
             {/* Info Row */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3">
               {user.college && (
-                <span className="font-inter text-sm text-ink/70">🎓 {user.college}</span>
+                <span className="font-inter text-sm text-black/70">🎓 {user.college}</span>
               )}
               {user.branch && (
-                <span className="font-inter text-sm text-ink/70">{user.branch}</span>
+                <span className="font-inter text-sm text-black/70">{user.branch}</span>
               )}
               {user.year && (
-                <span className="font-inter text-sm text-ink/70">{YEAR_LABELS[user.year] || user.year}</span>
+                <span className="font-inter text-sm text-black/70">{YEAR_LABELS[user.year] || user.year}</span>
               )}
-              <span className="font-grotesk font-bold text-sm text-ink">
+              <span className="font-grotesk font-bold text-sm text-black">
                 {connectionCount} {connectionCount === 1 ? 'connection' : 'connections'}
               </span>
             </div>
 
             {/* Bio */}
             {user.bio && (
-              <p className="font-inter text-sm text-ink/80 mb-4 leading-relaxed max-w-lg">{user.bio}</p>
+              <p className="font-inter text-sm text-black/80 mb-4 leading-relaxed max-w-lg">{user.bio}</p>
             )}
 
             {/* Teaming Badge */}
             {user.lookingForTeam && (
-              <div className="badge-teaming inline-flex items-center gap-1 mb-4 text-xs">
+              <div className="bg-white/50 border border-white/60 text-black rounded-md px-2 py-1 font-bold inline-flex items-center gap-1 self-start text-xs shadow-sm mb-4">
                 🔍 Open to Teaming
               </div>
             )}
@@ -141,7 +138,7 @@ export default async function ProfilePage({ params }) {
                   href={user.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-icon text-xl no-underline"
+                  className="bg-white/40 hover:bg-white/60 text-black rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-sm transition-colors no-underline"
                   aria-label="GitHub"
                 >
                   🐙
@@ -152,29 +149,28 @@ export default async function ProfilePage({ params }) {
                   href={user.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-icon text-xl no-underline"
+                  className="bg-white/40 hover:bg-white/60 text-black rounded-full w-10 h-10 flex items-center justify-center text-xl shadow-sm transition-colors no-underline"
                   aria-label="LinkedIn"
                 >
                   💼
                 </a>
               )}
             </div>
-          </div>
         </div>
 
         {/* Projects */}
-        <div>
-          <div className="flex items-center justify-between mb-4 border-b-3 border-ink pb-3">
-            <h2 className="font-grotesk font-extrabold text-xl text-ink">
-              Projects <span className="text-ink/30 font-bold text-lg">({user.projects.length})</span>
+        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col">
+          <div className="flex items-center justify-between mb-4 border-b border-black/20 pb-3">
+            <h2 className="font-grotesk font-extrabold text-xl text-black">
+              Projects <span className="text-black/50 font-bold text-lg">({user.projects.length})</span>
             </h2>
           </div>
 
           {user.projects.length === 0 ? (
-            <div className="bg-surface border-3 border-ink shadow-brutal p-12 text-center">
+            <div className="bg-white/30 border border-white/40 shadow-sm rounded-xl p-12 text-center">
               <p className="text-3xl mb-3">🚀</p>
-              <p className="font-grotesk font-bold text-lg text-ink mb-1">No projects yet</p>
-              <p className="font-inter text-sm text-ink/50">
+              <p className="font-grotesk font-bold text-lg text-black mb-1">No projects yet</p>
+              <p className="font-inter text-sm text-black/60">
                 {isOwnProfile ? "You haven't shared any projects yet." : `${user.name} hasn't shared any projects yet.`}
               </p>
             </div>
@@ -184,6 +180,6 @@ export default async function ProfilePage({ params }) {
         </div>
       </main>
       <MobileNav />
-    </>
+    </GlassLayout>
   )
 }

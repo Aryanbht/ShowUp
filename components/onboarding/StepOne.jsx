@@ -42,6 +42,21 @@ export default function StepOne({ data, onChange }) {
     }
   }
 
+  // Real-time username check with debounce
+  useEffect(() => {
+    if (!data.username || data.username.length < 3) {
+      setUsernameStatus('idle')
+      return
+    }
+    
+    setUsernameStatus('checking')
+    const timeoutId = setTimeout(() => {
+      checkUsername(data.username)
+    }, 500)
+    
+    return () => clearTimeout(timeoutId)
+  }, [data.username])
+
   return (
     <div className="flex flex-col gap-5">
       {/* Full Name */}
@@ -73,20 +88,21 @@ export default function StepOne({ data, onChange }) {
             onChange={(e) => {
               const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')
               onChange({ username: val, usernameManuallyEdited: true })
-              setUsernameStatus('idle')
             }}
-            onBlur={() => checkUsername(data.username)}
             placeholder="aryan_sharma"
-            className="w-full bg-white/70 border border-black/30 px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm pl-8 pr-10"
+            className={`w-full bg-white/70 border ${usernameStatus === 'taken' ? 'border-red-500' : 'border-black/30'} px-3 py-2 text-black text-sm focus:outline-none focus:border-black shadow-sm pl-8 pr-10`}
             maxLength={20}
             required
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
             {usernameStatus === 'checking' && <LoadingSpinner size="sm" />}
             {usernameStatus === 'available' && <CheckCircle size={16} className="text-green-600" />}
             {usernameStatus === 'taken' && <span className="text-red-500 text-xs font-grotesk font-bold">Taken!</span>}
           </div>
         </div>
+        {usernameStatus === 'taken' && (
+          <p className="text-red-500 text-xs mt-1 font-bold">This username is already taken. Please choose another one.</p>
+        )}
         <p className="font-inter text-xs text-ink/40 mt-1">Lowercase letters, numbers, underscores only</p>
       </div>
 

@@ -3,13 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Bell, Home, Users, Plus, User } from 'lucide-react'
+import { Bell, Home, Users, Plus, User, MessageSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export default function MobileNav({ onPost }) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [unreadCount, setUnreadCount] = useState(0)
+
+  const [unreadChatCount, setUnreadChatCount] = useState(0)
 
   useEffect(() => {
     async function fetchUnread() {
@@ -21,12 +23,39 @@ export default function MobileNav({ onPost }) {
         }
       } catch {}
     }
-    if (session) fetchUnread()
+    async function fetchUnreadChat() {
+      try {
+        const res = await fetch('/api/chat/unread-count')
+        if (res.ok) {
+          const data = await res.json()
+          setUnreadChatCount(data.count)
+        }
+      } catch {}
+    }
+    if (session) {
+      fetchUnread()
+      fetchUnreadChat()
+    }
+    // Set up intervals
+    const interval = setInterval(() => {
+      if (session) {
+        fetchUnread()
+        fetchUnreadChat()
+      }
+    }, 30000)
+    const chatInterval = setInterval(() => {
+      if (session) fetchUnreadChat()
+    }, 15000)
+    
+    return () => {
+      clearInterval(interval)
+      clearInterval(chatInterval)
+    }
   }, [session, pathname])
 
   const navItems = [
     { href: '/feed', icon: Home, label: 'Feed' },
-    { href: '/teammates', icon: Users, label: 'Team' },
+    { href: '/messages', icon: MessageSquare, label: 'Chat', badge: unreadChatCount },
     { action: onPost, icon: Plus, label: 'Post', special: true },
     { href: '/notifications', icon: Bell, label: 'Alerts', badge: unreadCount },
     { href: session?.user?.username ? `/profile/${session.user.username}` : '/feed', icon: User, label: 'Me' },
@@ -35,7 +64,7 @@ export default function MobileNav({ onPost }) {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t-3 border-ink z-40 flex">
       {navItems.map((item, i) => {
-        const isActive = item.href && pathname === item.href
+        const isActive = item.href && pathname.startsWith(item.href)
 
         if (item.special) {
           return (

@@ -42,7 +42,7 @@ export default function ProjectCard({ project, onClick, onLike }) {
 
   return (
     <article
-      className="card-brutal cursor-pointer overflow-hidden flex flex-col animate-fade-in"
+      className="bg-white/30 backdrop-blur-md border border-white/40 shadow-sm rounded-xl cursor-pointer overflow-hidden flex flex-col animate-fade-in hover:bg-white/40 transition-colors"
       onClick={() => onClick(project)}
       role="button"
       tabIndex={0}
@@ -50,7 +50,7 @@ export default function ProjectCard({ project, onClick, onLike }) {
       aria-label={`View project: ${project.title}`}
     >
       {/* Cover Image */}
-      <div className="relative w-full aspect-video bg-canvas border-b-3 border-ink">
+      <div className="relative w-full aspect-video bg-white/20 border-b border-white/40">
         {project.coverImage ? (
           <Image
             src={project.coverImage}
@@ -61,7 +61,7 @@ export default function ProjectCard({ project, onClick, onLike }) {
           />
         ) : (
           <div className="w-full h-full bg-primary flex items-center justify-center">
-            <span className="font-grotesk font-bold text-ink text-lg">No Image</span>
+            <span className="font-grotesk font-bold text-black/50 text-lg">No Image</span>
           </div>
         )}
       </div>
@@ -72,17 +72,17 @@ export default function ProjectCard({ project, onClick, onLike }) {
         <div className="flex items-center gap-2.5">
           <Avatar src={project.user?.avatar} name={project.user?.name} size="sm" />
           <div className="min-w-0">
-            <p className="font-grotesk font-bold text-sm text-ink truncate leading-tight">
+            <p className="font-grotesk font-bold text-sm text-black truncate leading-tight">
               {project.user?.name}
             </p>
             {project.user?.college && (
-              <p className="font-inter text-xs text-ink/50 truncate">{project.user.college}</p>
+              <p className="font-inter text-xs text-black/50 truncate">{project.user.college}</p>
             )}
           </div>
         </div>
 
         {/* Title */}
-        <h2 className="font-grotesk font-bold text-base text-ink leading-tight line-clamp-2">
+        <h2 className="font-grotesk font-bold text-base text-black leading-tight line-clamp-2">
           {project.title}
         </h2>
 
@@ -99,11 +99,11 @@ export default function ProjectCard({ project, onClick, onLike }) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-4 pt-1 border-t-2 border-ink/10 mt-auto">
+        <div className="flex items-center gap-4 pt-1 border-t border-black/10 mt-auto">
           <button
             onClick={handleLike}
             className={`flex items-center gap-1.5 font-grotesk font-bold text-xs uppercase tracking-wider transition-all duration-150 ${
-              liked ? 'text-red-500' : 'text-ink/50 hover:text-red-500'
+              liked ? 'text-red-500' : 'text-black/50 hover:text-red-500'
             }`}
             aria-label={liked ? 'Unlike' : 'Like'}
             disabled={liking}
@@ -121,7 +121,7 @@ export default function ProjectCard({ project, onClick, onLike }) {
               e.stopPropagation()
               onClick(project)
             }}
-            className="flex items-center gap-1.5 font-grotesk font-bold text-xs uppercase tracking-wider text-ink/50 hover:text-ink transition-colors"
+            className="flex items-center gap-1.5 font-grotesk font-bold text-xs uppercase tracking-wider text-black/50 hover:text-black transition-colors"
             aria-label="Comments"
           >
             <MessageCircle size={16} strokeWidth={2.5} />

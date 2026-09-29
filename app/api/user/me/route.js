@@ -56,7 +56,15 @@ export async function PATCH(req) {
     return NextResponse.json(updated)
   } catch (error) {
     console.error('PATCH /api/user/me error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    
+    // Prisma error code for "Record not found"
+    if (error.code === 'P2025') {
+      return NextResponse.json({ 
+        error: 'Your account was not found in the database. This usually happens during development if the database was reset. Please clear your cookies and log in again.' 
+      }, { status: 404 })
+    }
+
+    return NextResponse.json({ error: 'Internal server error: ' + (error.message || String(error)) }, { status: 500 })
   }
 }
 

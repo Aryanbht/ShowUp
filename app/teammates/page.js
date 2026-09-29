@@ -7,6 +7,7 @@ import TeammateCard from '@/components/teammates/TeammateCard'
 import FilterBar from '@/components/teammates/FilterBar'
 import EmptyState from '@/components/ui/EmptyState'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import GlassLayout from '@/components/layout/GlassLayout'
 
 export default function TeammatesPage() {
   const [teammates, setTeammates] = useState([])
@@ -40,20 +41,21 @@ export default function TeammatesPage() {
   }, [filters])
 
   return (
-    <>
+    <GlassLayout>
       <Header />
-      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6">
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col min-h-[500px]">
         {/* Page Header with marquee banner */}
         <div className="mb-6">
-          <div className="bg-primary border-3 border-ink shadow-brutal mb-4 overflow-hidden">
+          <div className="bg-white/40 border border-white/60 shadow-sm rounded-lg mb-4 overflow-hidden">
             <div className="py-2.5 px-4 flex items-center gap-2 overflow-hidden">
-              <div className="whitespace-nowrap animate-marquee flex gap-8 items-center font-grotesk font-extrabold text-xs uppercase tracking-widest text-ink">
+              <div className="whitespace-nowrap animate-marquee flex gap-8 items-center font-grotesk font-extrabold text-xs uppercase tracking-widest text-black">
                 {Array(6).fill('🔍 Find Your Hackathon Team · ').map((t, i) => <span key={i}>{t}</span>)}
               </div>
             </div>
           </div>
-          <h1 className="font-grotesk font-extrabold text-2xl text-ink">Find Teammates</h1>
-          <p className="font-inter text-sm text-ink/50 mt-1">
+          <h1 className="font-grotesk font-extrabold text-2xl text-black">Find Teammates</h1>
+          <p className="font-inter text-sm text-black/60 mt-1">
             Connect with students open to hackathon teaming
           </p>
         </div>
@@ -66,7 +68,7 @@ export default function TeammatesPage() {
           <div className="flex items-center justify-center py-32">
             <div className="flex flex-col items-center gap-3">
               <LoadingSpinner size="lg" />
-              <p className="font-grotesk font-bold text-sm text-ink/50 uppercase tracking-wider">Finding teammates...</p>
+              <p className="font-grotesk font-bold text-sm text-black/50 uppercase tracking-wider">Finding teammates...</p>
             </div>
           </div>
         ) : teammates.length === 0 ? (
@@ -78,7 +80,7 @@ export default function TeammatesPage() {
           />
         ) : (
           <>
-            <p className="font-grotesk font-bold text-xs text-ink/50 uppercase tracking-wider mb-4">
+            <p className="font-grotesk font-bold text-xs text-black/50 uppercase tracking-wider mb-4">
               {teammates.length} student{teammates.length !== 1 ? 's' : ''} looking for teams
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -88,8 +90,9 @@ export default function TeammatesPage() {
             </div>
           </>
         )}
+        </div>
       </main>
       <MobileNav />
-    </>
+    </GlassLayout>
   )
 }

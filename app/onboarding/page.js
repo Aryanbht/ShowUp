@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import StepOne from '@/components/onboarding/StepOne'
 import StepTwo from '@/components/onboarding/StepTwo'
@@ -119,6 +119,12 @@ export default function OnboardingPage() {
       if (!res.ok) {
         const err = await res.json()
         toast.error(err.error || 'Failed to save profile')
+        
+        if (res.status === 404) {
+          toast.loading('Redirecting to login...')
+          setTimeout(() => signOut({ callbackUrl: '/' }), 1500)
+        }
+        
         setSubmitting(false)
         return
       }

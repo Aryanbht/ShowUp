@@ -8,6 +8,7 @@ import Avatar from '@/components/ui/Avatar'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
 import toast from 'react-hot-toast'
+import GlassLayout from '@/components/layout/GlassLayout'
 
 const TYPE_ICONS = {
   CONNECTION_REQUEST: '🤝',
@@ -55,8 +56,8 @@ function NotificationItem({ notification, onAction, onRead }) {
 
   return (
     <div
-      className={`flex items-start gap-4 p-4 border-b-2 border-ink/10 last:border-0 transition-colors ${
-        !notification.read ? 'bg-cream' : 'bg-surface'
+      className={`flex items-start gap-4 p-4 border-b border-black/10 last:border-0 transition-colors ${
+        !notification.read ? 'bg-white/40' : 'hover:bg-white/30'
       }`}
       onClick={() => !notification.read && onRead(notification.id)}
     >
@@ -69,8 +70,8 @@ function NotificationItem({ notification, onAction, onRead }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-inter text-sm text-ink">{notification.message}</p>
-        <p className="font-inter text-xs text-ink/40 mt-1">{timeAgo(notification.createdAt)}</p>
+        <p className="font-inter text-sm text-black">{notification.message}</p>
+        <p className="font-inter text-xs text-black/50 mt-1">{timeAgo(notification.createdAt)}</p>
 
         {/* Accept/Decline for connection requests */}
         {notification.type === 'CONNECTION_REQUEST' && notification.connectionData && (
@@ -78,7 +79,7 @@ function NotificationItem({ notification, onAction, onRead }) {
             <button
               onClick={(e) => { e.stopPropagation(); handleAction('accept') }}
               disabled={acting}
-              className="btn-primary flex items-center gap-1.5 text-xs py-1.5 px-3"
+              className="bg-white/70 hover:bg-white text-black font-bold border border-white/40 shadow-sm flex items-center gap-1.5 text-xs py-1.5 px-3 rounded-md transition-colors"
             >
               {acting ? <LoadingSpinner size="sm" color="ink" /> : <Check size={12} strokeWidth={3} />}
               Accept
@@ -86,7 +87,7 @@ function NotificationItem({ notification, onAction, onRead }) {
             <button
               onClick={(e) => { e.stopPropagation(); handleAction('decline') }}
               disabled={acting}
-              className="btn-destructive flex items-center gap-1.5 text-xs py-1.5 px-3"
+              className="bg-white/40 hover:bg-red-500 hover:text-white hover:border-red-600 text-red-500 font-bold border border-red-500/50 shadow-sm flex items-center gap-1.5 text-xs py-1.5 px-3 rounded-md transition-colors"
             >
               <X size={12} strokeWidth={3} /> Decline
             </button>
@@ -149,22 +150,23 @@ export default function NotificationsPage() {
   }
 
   return (
-    <>
+    <GlassLayout>
       <Header />
-      <main className="max-w-2xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6">
+      <main className="max-w-2xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col min-h-[500px]">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 border-b-3 border-ink pb-4">
+        <div className="flex items-center justify-between mb-6 border-b border-black/20 pb-4">
           <div>
-            <h1 className="font-grotesk font-extrabold text-2xl text-ink">Notifications</h1>
+            <h1 className="font-grotesk font-extrabold text-2xl text-black">Notifications</h1>
             {unreadCount > 0 && (
-              <p className="font-inter text-sm text-ink/50 mt-0.5">{unreadCount} unread</p>
+              <p className="font-inter text-sm text-black/60 mt-0.5">{unreadCount} unread</p>
             )}
           </div>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
               disabled={markingRead}
-              className="btn-secondary flex items-center gap-2 text-xs"
+              className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm flex items-center gap-2 text-xs py-1.5 px-3 rounded-md transition-colors"
             >
               {markingRead ? <LoadingSpinner size="sm" /> : <BellOff size={13} />}
               Mark all read
@@ -181,7 +183,7 @@ export default function NotificationsPage() {
             description="When someone likes your project or wants to connect, you'll see it here."
           />
         ) : (
-          <div className="bg-surface border-3 border-ink shadow-brutal overflow-hidden">
+          <div className="bg-white/30 border border-white/40 shadow-sm rounded-xl overflow-hidden flex flex-col">
             {notifications.map((n) => (
               <NotificationItem
                 key={n.id}
@@ -192,8 +194,9 @@ export default function NotificationsPage() {
             ))}
           </div>
         )}
+        </div>
       </main>
       <MobileNav />
-    </>
+    </GlassLayout>
   )
 }

@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header'
 import MobileNav from '@/components/layout/MobileNav'
 import EmptyState from '@/components/ui/EmptyState'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import GlassLayout from '@/components/layout/GlassLayout'
 
 export default function FeedClient() {
   const [projects, setProjects] = useState([])
@@ -88,21 +89,32 @@ export default function FeedClient() {
   }
 
   return (
-    <>
+    <GlassLayout>
       <Header onPost={() => setShowPost(true)} />
 
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6">
-        {/* Page Title */}
-        <div className="mb-6 border-b-3 border-ink pb-4">
-          <h1 className="font-grotesk font-extrabold text-2xl text-ink">Feed</h1>
-          <p className="font-inter text-sm text-ink/50 mt-1">Latest projects from the community</p>
-        </div>
+      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+        <div 
+          className="relative w-full bg-white/70 rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 border border-white/50 flex flex-col min-h-[500px] z-0 overflow-hidden"
+          style={{
+            backdropFilter: 'blur(32px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(140%)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6), 0 20px 60px rgba(30, 60, 120, 0.18)'
+          }}
+        >
+          {/* Gradient overlay to neutralize dark spots */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/10 pointer-events-none -z-10" />
+
+          {/* Page Title */}
+          <div className="mb-6 border-b border-black/20 pb-4 relative">
+            <h1 className="font-grotesk font-extrabold text-2xl text-black">Feed</h1>
+            <p className="font-inter text-sm text-gray-700 mt-1">Latest projects from the community</p>
+          </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-32">
             <div className="flex flex-col items-center gap-3">
               <LoadingSpinner size="lg" />
-              <p className="font-grotesk font-bold text-sm text-ink/50 uppercase tracking-wider">
+              <p className="font-grotesk font-bold text-sm text-black/50 uppercase tracking-wider">
                 Loading Feed...
               </p>
             </div>
@@ -133,19 +145,20 @@ export default function FeedClient() {
               {loadingMore && (
                 <div className="flex items-center gap-2">
                   <LoadingSpinner size="sm" />
-                  <span className="font-grotesk font-bold text-xs text-ink/50 uppercase tracking-wider">
+                  <span className="font-grotesk font-bold text-xs text-black/50 uppercase tracking-wider">
                     Loading more...
                   </span>
                 </div>
               )}
               {!hasMore && projects.length > 0 && (
-                <div className="badge-status text-xs px-4 py-2">
+                <div className="bg-white/40 border border-white/60 shadow-sm text-black rounded-md text-xs px-4 py-2 font-bold font-grotesk">
                   You've seen it all! 🎉
                 </div>
               )}
             </div>
           </>
         )}
+        </div>
       </main>
 
       {/* Mobile Nav */}
@@ -165,6 +178,6 @@ export default function FeedClient() {
           onCreated={handleProjectCreated}
         />
       )}
-    </>
+    </GlassLayout>
   )
 }
