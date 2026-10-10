@@ -20,7 +20,7 @@ export default function MessageInput({ onSend }) {
   const handleSend = async () => {
     const trimmed = content.trim()
     if (!trimmed || sending) return
-    
+
     if (trimmed.length > 2000) {
       toast.error('Message is too long (max 2000 characters)')
       return
@@ -28,16 +28,15 @@ export default function MessageInput({ onSend }) {
 
     setSending(true)
     setContent('')
-    // reset height manually immediately
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
-    
+
     try {
       await onSend(trimmed)
     } catch (err) {
       toast.error('Failed to send message')
-      setContent(trimmed) // rollback input
+      setContent(trimmed)
     } finally {
       setSending(false)
     }
@@ -50,23 +49,30 @@ export default function MessageInput({ onSend }) {
     }
   }
 
+  const isDisabled = !content.trim() || sending
+
   return (
-    <div className="p-3 border-t border-white/40 bg-white/20 backdrop-blur-md flex items-end gap-2">
+    <div className="p-3 border-t-2 border-ink bg-white flex items-end gap-3 shrink-0">
       <textarea
         ref={textareaRef}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
-        className="flex-1 bg-white/40 border border-white/60 p-2 px-3 text-sm font-inter rounded-md focus:outline-none focus:bg-white/60 resize-none custom-scrollbar max-h-[120px] text-black placeholder:text-black/50 shadow-sm transition-colors"
+        placeholder="Message..."
+        className="flex-1 bg-white border-2 border-ink rounded-xl p-2.5 px-3.5 text-sm font-inter focus:outline-none focus:shadow-brutal resize-none max-h-[120px] text-ink placeholder:text-muted transition-all duration-[120ms]"
         rows={1}
       />
       <button
         onClick={handleSend}
-        disabled={!content.trim() || sending}
-        className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-400 text-white border border-white/60 rounded-full shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:bg-blue-500 active:scale-95 transition-all"
+        disabled={isDisabled}
+        aria-label="Send message"
+        className={`w-11 h-11 flex-shrink-0 flex items-center justify-center bg-accent text-ink border-2 border-ink rounded-full transition-all duration-[120ms] ${
+          isDisabled 
+            ? 'opacity-40 cursor-not-allowed'
+            : 'shadow-brutal hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg active:translate-x-[2px] active:translate-y-[2px] active:shadow-brutal-none'
+        }`}
       >
-        <SendHorizontal size={18} />
+        <SendHorizontal size={18} strokeWidth={2.5} />
       </button>
     </div>
   )

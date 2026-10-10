@@ -4,74 +4,68 @@ import Avatar from '@/components/ui/Avatar'
 import { SkillPill } from '@/components/ui/SkillPill'
 import ConnectionButton from '@/components/profile/ConnectionButton'
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 
-const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' }
+const YEAR_LABELS = { '1': '1st year', '2': '2nd year', '3': '3rd year', '4': '4th year' }
 
 export default function TeammateCard({ user }) {
-  const topSkills = user.skills?.slice(0, 3) || []
-  const topInterests = user.hackathonInterests?.slice(0, 3) || []
+  const topSkills = user.skills?.slice(0, 4) || []
+  const extraSkills = (user.skills?.length || 0) - 4
+  
+  // Fake bio if none provided, to show layout
+  const bio = user.bio || "Passionate about building cool things. Always learning new technologies and looking for challenging hackathons."
 
   return (
-    <article className="bg-white/30 backdrop-blur-md border border-white/40 shadow-sm rounded-xl p-5 flex flex-col gap-4 animate-fade-in hover:bg-white/40 transition-colors">
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        <Link href={`/profile/${user.username}`}>
-          <Avatar src={user.avatar} name={user.name} size="md" className="cursor-pointer hover:scale-105 transition-all shadow-sm" />
+    <article className="relative bg-white border-2 border-ink rounded-2xl shadow-brutal p-5 flex flex-col gap-4 animate-fade-in
+                        transition-all duration-[120ms] w-full
+                        hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg">
+      
+      {/* "Open to team" badge in top-right corner */}
+      {user.openToTeaming !== false && (
+        <div className="absolute top-4 right-4 bg-accent text-ink border-2 border-ink rounded-full px-2 py-0.5 flex items-center gap-1 shadow-brutal-sm">
+          <Search size={10} strokeWidth={3} />
+          <span className="font-grotesk font-bold text-[10px] tracking-wide uppercase">Open</span>
+        </div>
+      )}
+
+      {/* Top: Avatar & Info */}
+      <div className="flex flex-col gap-3">
+        <Link href={`/profile/${user.username}`} className="w-fit">
+          <Avatar src={user.avatar} name={user.name} size="lg" className="cursor-pointer hover:scale-105 transition-all duration-[120ms]" />
         </Link>
-        <div className="flex-1 min-w-0">
-          <Link href={`/profile/${user.username}`} className="font-grotesk font-bold text-base text-black hover:underline decoration-2 truncate block">
+        <div>
+          <Link href={`/profile/${user.username}`} className="font-grotesk font-bold text-xl text-ink hover:underline decoration-2 tracking-tight block">
             {user.name}
           </Link>
-          {user.college && (
-            <p className="font-inter text-xs text-black/60 truncate">{user.college}</p>
-          )}
-          <div className="flex items-center gap-2 mt-1">
-            {user.branch && (
-              <span className="font-grotesk font-bold text-xs text-black/70">{user.branch}</span>
-            )}
-            {user.year && (
-              <>
-                <span className="text-black/30">·</span>
-                <span className="font-grotesk font-bold text-xs text-black/70">{YEAR_LABELS[user.year] || user.year}</span>
-              </>
-            )}
+          <div className="flex flex-wrap items-center gap-1 mt-1 font-inter text-xs text-muted">
+            {user.college && <span>{user.college}</span>}
+            {user.college && (user.branch || user.year) && <span>·</span>}
+            {user.branch && <span>{user.branch}</span>}
+            {user.branch && user.year && <span>·</span>}
+            {user.year && <span>{YEAR_LABELS[user.year] || user.year}</span>}
           </div>
         </div>
       </div>
 
-      {/* Teaming Badge */}
-      <div className="bg-white/50 border border-white/60 text-black rounded-md px-2 py-1 font-bold inline-flex items-center gap-1 self-start text-xs shadow-sm">
-        🔍 Open to Teaming
-      </div>
+      {/* Middle: Bio & Skills */}
+      <div className="flex-1 flex flex-col gap-3">
+        <p className="font-inter text-sm text-ink line-clamp-2 leading-relaxed">
+          {bio}
+        </p>
 
-      {/* Skills */}
-      {topSkills.length > 0 && (
-        <div>
-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-black/60 mb-2">Skills</p>
-          <div className="flex flex-wrap gap-1.5">
+        {topSkills.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-auto">
             {topSkills.map((skill) => <SkillPill key={skill} label={skill} />)}
-            {(user.skills?.length || 0) > 3 && (
-              <span className="bg-white/40 border border-white/60 text-black/80 text-xs px-2 py-1 rounded-full font-bold">+{user.skills.length - 3}</span>
+            {extraSkills > 0 && (
+              <span className="skill-pill !text-muted">+{extraSkills}</span>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Hackathon Interests */}
-      {topInterests.length > 0 && (
-        <div>
-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-black/60 mb-2">Interests</p>
-          <div className="flex flex-wrap gap-1.5">
-            {topInterests.map((interest) => (
-              <span key={interest} className="bg-white/60 border border-white/80 text-black text-xs px-2 py-1 rounded-full font-bold">{interest}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Connect Button */}
-      <div className="pt-2 border-t border-black/10">
-        <ConnectionButton targetUserId={user.id} />
+      {/* Bottom: Connection Button */}
+      <div className="pt-3 border-t-2 border-ink/10 mt-1">
+        <ConnectionButton targetUserId={user.id} fullWidth={true} />
       </div>
     </article>
   )

@@ -1,0 +1,65 @@
+diff a/components/chat/ChatWindow.jsx b/components/chat/ChatWindow.jsx	(rejected hunks)
+@@ -220,31 +238,50 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         ) : error ? (
+           <div className="h-full flex items-center justify-center flex-col gap-2">
+             <p className="text-red-500 font-bold font-grotesk">Failed to load chat</p>
+-            <p className="text-xs text-black/50">{error}</p>
++            <p className="text-xs text-muted">{error}</p>
+           </div>
+         ) : messages.length === 0 ? (
+-          <div className="h-full flex items-center justify-center flex-col gap-3 text-black/40">
+-            <div className="text-4xl opacity-50 drop-shadow-md">≡ƒæï</div>
++          <div className="h-full flex items-center justify-center flex-col gap-3 text-muted">
++            <div className="w-12 h-12 bg-cream border-2 border-ink rounded-full flex items-center justify-center">
++              <span className="font-grotesk font-bold text-xl text-ink">≡ƒæï</span>
++            </div>
+             <p className="font-inter text-sm">Send a message to start chatting</p>
+           </div>
+         ) : (
+           <div className="flex flex-col justify-end min-h-full pb-2">
+             {messages.map((msg, index) => {
+               const prevMsg = messages[index - 1]
+-              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId
++              const nextMsg = messages[index + 1]
+               
+-              // Only show "Seen" on the VERY LAST message if it's sent by me and is read
++              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId
++              const isLastInGroup = !nextMsg || nextMsg.senderId !== msg.senderId
+               const isLastMessage = index === messages.length - 1
+-              const showSeen = isLastMessage && msg.senderId === currentUserId && msg.readAt
+               
++              const showSeen = isLastMessage && msg.senderId === currentUserId && msg.readAt
++              const showTimestamp = isLastInGroup
++
++              // Date separator logic
++              const msgDate = new Date(msg.createdAt)
++              const prevMsgDate = prevMsg ? new Date(prevMsg.createdAt) : null
++              const showDateSeparator = !prevMsgDate || !isSameDay(msgDate, prevMsgDate)
++
+               return (
+-                <MessageBubble 
+-                  key={msg.id}
+-                  message={msg}
+-                  isMine={msg.senderId === currentUserId}
+-                  isFirstInGroup={isFirstInGroup}
+-                  showSeen={showSeen}
+-                />
++                <div key={msg.id}>
++                  {showDateSeparator && (
++                    <div className="flex justify-center my-6">
++                      <span className="bg-sky-50 border-2 border-ink/10 rounded-full px-3 py-1 font-inter font-bold text-[10px] text-muted uppercase tracking-wider">
++                        {getDateLabel(msgDate)}
++                      </span>
++                    </div>
++                  )}
++                  <MessageBubble
++                    message={msg}
++                    isMine={msg.senderId === currentUserId}
++                    isFirstInGroup={isFirstInGroup}
++                    showSeen={showSeen}
++                    showTimestamp={showTimestamp}
++                  />
++                </div>
+               )
+             })}
+             <div ref={messagesEndRef} />

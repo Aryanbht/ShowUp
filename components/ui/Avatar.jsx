@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 export default function Avatar({ src, name, size = 'md', className = '' }) {
   const sizes = {
-    xs: 'w-6 h-6 text-xs',
+    xs: 'w-6 h-6 text-[10px]',
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
     lg: 'w-16 h-16 text-lg',
@@ -23,7 +23,7 @@ export default function Avatar({ src, name, size = 'md', className = '' }) {
   if (src) {
     return (
       <div
-        className={`${sizes[size]} relative border-3 border-ink overflow-hidden flex-shrink-0 ${className}`}
+        className={`${sizes[size]} relative border-2 border-ink rounded-full overflow-hidden flex-shrink-0 ${className}`}
       >
         <Image
           src={src}
@@ -36,10 +36,10 @@ export default function Avatar({ src, name, size = 'md', className = '' }) {
     )
   }
 
-  // Fallback initials
+  // Fallback: initial letter on sky-200 background
   return (
     <div
-      className={`${sizes[size]} bg-primary border-3 border-ink flex items-center justify-center flex-shrink-0 ${className}`}
+      className={`${sizes[size]} bg-sky-200 border-2 border-ink rounded-full flex items-center justify-center flex-shrink-0 ${className}`}
     >
       <span className="font-grotesk font-bold text-ink leading-none">{initials}</span>
     </div>

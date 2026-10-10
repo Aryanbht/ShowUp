@@ -1,0 +1,2930 @@
+﻿diff --git a/app/globals.css b/app/globals.css
+index 8b4614c..fe5661b 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -4,6 +4,24 @@
+ @tailwind components;
+ @tailwind utilities;
+ 
++/* ===== CSS DESIGN TOKENS ===== */
++:root {
++  --sky-50:  #F2F8FE;
++  --sky-100: #E8F1FB;
++  --sky-200: #C9DBF0;
++  --sky-400: #6FA8DC;
++  --sky-600: #3B7DC4;
++  --cream:   #FBF6E9;
++  --ink:     #0F1B2D;
++  --accent:  #FFC629;
++  --accent-hover: #FFD24F;
++  --violet:  #7C3AED;
++  --muted:   #4B5B73;
++
++  --page-bg: var(--sky-100);
++  --dot-color: var(--sky-200);
++}
++
+ @layer base {
+   * {
+     box-sizing: border-box;
+@@ -16,134 +34,180 @@
+   }
+ 
+   body {
+-    background-color: #F4F4F0;
+-    color: #1A1A1A;
++    background-color: var(--page-bg);
++    background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
++    background-size: 20px 20px;
++    color: var(--ink);
+     font-family: 'Inter', sans-serif;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+   }
+ 
+   ::selection {
+-    background-color: #FFC629;
+-    color: #1A1A1A;
++    background-color: var(--accent);
++    color: var(--ink);
++  }
++
++  /* Global Accessibility Focus Ring */
++  *:focus-visible {
++    outline: 2px solid var(--accent);
++    outline-offset: 2px;
++  }
++
++  /* Respect prefers-reduced-motion */
++  @media (prefers-reduced-motion: reduce) {
++    *, ::before, ::after {
++      animation-duration: 0.01ms !important;
++      animation-iteration-count: 1 !important;
++      transition-duration: 0.01ms !important;
++      scroll-behavior: auto !important;
++    }
+   }
+ }
+ 
+ @layer components {
++
+   /* ===== BUTTONS ===== */
++
++  /* Primary: accent bg, ink text, hard shadow */
+   .btn-primary {
+-    @apply bg-primary border-3 border-ink shadow-brutal font-grotesk font-bold text-ink
+-           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+-           transition-all duration-150 cursor-pointer
+-           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+-           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+-           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
++    @apply inline-flex items-center justify-center gap-1.5
++           bg-accent border-2 border-ink shadow-brutal
++           font-grotesk font-bold text-ink text-sm
++           px-4 py-2 rounded-xl
++           transition-all duration-[120ms] cursor-pointer
++           hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg
++           active:translate-x-[3px] active:translate-y-[3px] active:shadow-brutal-none
++           disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
+   }
+ 
++  /* Secondary: white bg, ink border, same shadow */
+   .btn-secondary {
+-    @apply bg-surface border-3 border-ink shadow-brutal font-grotesk font-bold text-ink
+-           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+-           transition-all duration-150 cursor-pointer
+-           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+-           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+-           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
++    @apply inline-flex items-center justify-center gap-1.5
++           bg-white border-2 border-ink shadow-brutal
++           font-grotesk font-bold text-ink text-sm
++           px-4 py-2 rounded-xl
++           transition-all duration-[120ms] cursor-pointer
++           hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg
++           active:translate-x-[3px] active:translate-y-[3px] active:shadow-brutal-none
++           disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-brutal;
+   }
+ 
+-  .btn-destructive {
+-    @apply bg-red-500 border-3 border-ink shadow-brutal font-grotesk font-bold text-white
+-           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+-           transition-all duration-150 cursor-pointer
+-           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal-lg
+-           active:translate-x-1 active:translate-y-1 active:shadow-brutal-none
+-           disabled:opacity-50 disabled:cursor-not-allowed;
++  /* Ghost: no border, hover sky-100 bg */
++  .btn-ghost {
++    @apply inline-flex items-center justify-center gap-1.5
++           bg-transparent border-2 border-transparent
++           font-grotesk font-semibold text-ink text-sm
++           px-4 py-2 rounded-xl
++           transition-all duration-[120ms] cursor-pointer
++           hover:bg-sky-100 hover:border-sky-100
++           disabled:opacity-40 disabled:cursor-not-allowed;
+   }
+ 
+-  .btn-ghost {
+-    @apply bg-transparent border-3 border-transparent font-grotesk font-bold text-ink
+-           px-5 py-2.5 rounded-none text-sm uppercase tracking-widest
+-           transition-all duration-150 cursor-pointer
+-           hover:border-ink hover:shadow-brutal-sm
+-           disabled:opacity-50 disabled:cursor-not-allowed;
++  /* Destructive: red */
++  .btn-destructive {
++    @apply inline-flex items-center justify-center gap-1.5
++           bg-red-500 border-2 border-ink shadow-brutal
++           font-grotesk font-bold text-white text-sm
++           px-4 py-2 rounded-xl
++           transition-all duration-[120ms] cursor-pointer
++           hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg
++           active:translate-x-[3px] active:translate-y-[3px] active:shadow-brutal-none
++           disabled:opacity-40 disabled:cursor-not-allowed;
+   }
+ 
++  /* Icon button: square, white bg */
+   .btn-icon {
+-    @apply bg-surface border-3 border-ink shadow-brutal-sm
+-           p-2 rounded-none transition-all duration-150 cursor-pointer
+-           hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-brutal
+-           active:translate-x-0.5 active:translate-y-0.5 active:shadow-brutal-none;
++    @apply inline-flex items-center justify-center
++           bg-white border-2 border-ink shadow-brutal-sm
++           w-10 h-10 rounded-xl
++           transition-all duration-[120ms] cursor-pointer
++           hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal
++           active:translate-x-[3px] active:translate-y-[3px] active:shadow-brutal-none;
+   }
+ 
+   /* ===== CARDS ===== */
+   .card-brutal {
+-    @apply bg-surface border-3 border-ink shadow-brutal
+-           transition-all duration-150;
++    @apply bg-white border-2 border-ink shadow-brutal rounded-2xl
++           transition-all duration-[120ms];
+   }
+ 
+   .card-brutal:hover {
+-    @apply -translate-x-0.5 -translate-y-0.5 shadow-brutal-lg;
++    @apply -translate-x-[1px] -translate-y-[1px] shadow-brutal-lg;
+   }
+ 
+   /* ===== INPUTS ===== */
++  /* bg-white, border-2 ink, rounded-xl, focus ring: 2px accent offset 2px */
+   .input-brutal {
+-    @apply bg-surface border-3 border-ink px-4 py-3 rounded-none
++    @apply bg-white border-2 border-ink px-4 py-2.5 rounded-xl
+            font-inter text-ink text-sm w-full outline-none
+-           placeholder:text-ink/50
+-           focus:bg-cream focus:shadow-brutal
+-           transition-all duration-150;
++           placeholder:text-muted
++           transition-all duration-[120ms];
++  }
++  .input-brutal:focus {
++    box-shadow: 0 0 0 2px #FFC629, 0 0 0 4px #0F1B2D;
+   }
+ 
+-  /* ===== TAGS & PILLS ===== */
++  /* ===== CHIPS (tech stack / skills) ===== */
++  /* Cream bg, border-2 ink, rounded-full, compact */
+   .skill-pill {
+     @apply bg-cream border-2 border-ink rounded-full
+-           font-grotesk font-bold text-xs text-ink
+-           px-3 py-1 inline-flex items-center gap-1
+-           transition-all duration-150;
++           font-grotesk font-semibold text-xs text-ink
++           px-2.5 py-0.5 inline-flex items-center gap-1
++           transition-all duration-[120ms];
+   }
+ 
++  /* Active variant: accent fill */
+   .skill-pill-active {
+-    @apply bg-primary border-2 border-ink rounded-full
+-           font-grotesk font-bold text-xs text-ink
+-           px-3 py-1 inline-flex items-center gap-1
++    @apply bg-accent border-2 border-ink rounded-full
++           font-grotesk font-semibold text-xs text-ink
++           px-2.5 py-0.5 inline-flex items-center gap-1
+            shadow-brutal-sm;
+   }
+ 
+   /* ===== BADGES ===== */
+   .badge-status {
+-    @apply bg-ink text-primary font-grotesk font-bold text-xs
+-           uppercase tracking-widest px-2.5 py-1 rounded-none;
++    @apply bg-ink text-accent font-grotesk font-bold text-xs
++           px-2.5 py-0.5 rounded-full;
+   }
+ 
+   .badge-teaming {
+-    @apply bg-primary text-ink font-grotesk font-bold text-xs
+-           border-2 border-ink uppercase tracking-wider px-2.5 py-1 rounded-none;
++    @apply bg-accent text-ink font-grotesk font-bold text-xs
++           border-2 border-ink px-2.5 py-0.5 rounded-full;
+   }
+ 
+   /* ===== DIVIDERS ===== */
+   .divider-brutal {
+-    @apply border-t-3 border-ink;
++    @apply border-t-2 border-ink/10;
+   }
+ 
+-  /* ===== MODAL OVERLAY ===== */
++  /* ===== MODAL ===== */
+   .modal-overlay {
+     @apply fixed inset-0 bg-ink/60 z-50 flex items-center justify-center
+            animate-fade-in;
+   }
+ 
+   .modal-content {
+-    @apply bg-surface border-3 border-ink shadow-brutal-xl
++    @apply bg-white border-2 border-ink shadow-brutal-xl rounded-2xl
+            w-full max-h-[90vh] overflow-y-auto
+            animate-slide-up;
+   }
+ 
++  /* ===== SKELETON ===== */
++  .skeleton {
++    @apply bg-sky-200 rounded-xl animate-pulse;
++  }
++
+   /* ===== SCROLLBAR ===== */
+   ::-webkit-scrollbar {
+     width: 6px;
+     height: 6px;
+   }
+   ::-webkit-scrollbar-track {
+-    background: #F4F4F0;
++    background: var(--sky-100);
+   }
+   ::-webkit-scrollbar-thumb {
+-    background: #1A1A1A;
++    background: var(--sky-400);
++    border-radius: 99px;
+   }
+ }
+diff --git a/app/layout.js b/app/layout.js
+index 0010dd5..6de1544 100644
+--- a/app/layout.js
++++ b/app/layout.js
+@@ -24,7 +24,7 @@ export default async function RootLayout({ children }) {
+         <link rel="preconnect" href="https://fonts.googleapis.com" />
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+       </head>
+-      <body className="font-inter bg-canvas min-h-screen">
++      <body className="font-inter min-h-screen">
+         <Providers session={session}>{children}</Providers>
+       </body>
+     </html>
+diff --git a/app/profile/[username]/page.js b/app/profile/[username]/page.js
+index 8f4070a..1188f8d 100644
+--- a/app/profile/[username]/page.js
++++ b/app/profile/[username]/page.js
+@@ -86,7 +86,7 @@ export default async function ProfilePage({ params }) {
+                 </div>
+                 <div className="flex items-center gap-3">
+                   {isOwnProfile ? (
+-                    <Link href="/onboarding" className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm text-xs px-4 py-2 rounded-md transition-colors">Edit Profile</Link>
++                    <Link href="/profile/edit" className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm text-xs px-4 py-2 rounded-md transition-colors">Edit Profile</Link>
+                   ) : (
+                     <ConnectionButton targetUserId={user.id} />
+                   )}
+diff --git a/app/teammates/page.js b/app/teammates/page.js
+index c2bcf44..67fd31c 100644
+--- a/app/teammates/page.js
++++ b/app/teammates/page.js
+@@ -1,35 +1,28 @@
+ 'use client'
+ 
+-import { useState, useEffect } from 'react'
++import { useState, useEffect, useMemo } from 'react'
+ import Header from '@/components/layout/Header'
+ import MobileNav from '@/components/layout/MobileNav'
+ import TeammateCard from '@/components/teammates/TeammateCard'
+-import FilterBar from '@/components/teammates/FilterBar'
+ import EmptyState from '@/components/ui/EmptyState'
+-import LoadingSpinner from '@/components/ui/LoadingSpinner'
++import { TeammateCardSkeleton } from '@/components/ui/Skeletons'
+ import GlassLayout from '@/components/layout/GlassLayout'
++import { Users, Search } from 'lucide-react'
++
++const FILTERS = ['All', 'Frontend', 'Backend', 'ML', 'Design', 'Mobile', 'Looking for team']
+ 
+ export default function TeammatesPage() {
+   const [teammates, setTeammates] = useState([])
+   const [loading, setLoading] = useState(true)
+-  const [filters, setFilters] = useState({
+-    branch: '',
+-    year: '',
+-    skills: [],
+-    interests: [],
+-  })
++  const [activeFilter, setActiveFilter] = useState('All')
++  const [searchQuery, setSearchQuery] = useState('')
+ 
+   useEffect(() => {
+     async function fetchTeammates() {
+       setLoading(true)
+       try {
+-        const params = new URLSearchParams()
+-        if (filters.branch) params.set('branch', filters.branch)
+-        if (filters.year) params.set('year', filters.year)
+-        if (filters.skills?.length) params.set('skills', filters.skills.join(','))
+-        if (filters.interests?.length) params.set('interests', filters.interests.join(','))
+-
+-        const res = await fetch(`/api/teammates?${params.toString()}`)
++        // Fetch all teammates initially, we'll do client-side filtering for this demo UI update
++        const res = await fetch('/api/teammates')
+         if (res.ok) {
+           const data = await res.json()
+           setTeammates(data)
+@@ -38,58 +31,99 @@ export default function TeammatesPage() {
+       setLoading(false)
+     }
+     fetchTeammates()
+-  }, [filters])
++  }, [])
++
++  const filteredTeammates = useMemo(() => {
++    return teammates.filter(user => {
++      // 1. Text/Multi-skill search
++      const tokens = searchQuery.toLowerCase().split(/[\s,]+/).filter(Boolean)
++      const matchesSearch = tokens.length === 0 || tokens.every(token => 
++        user.name?.toLowerCase().includes(token) ||
++        user.bio?.toLowerCase().includes(token) ||
++        user.skills?.some(s => s.toLowerCase().includes(token))
++      )
++      if (!matchesSearch) return false
++
++      // 2. Chip filters
++      if (activeFilter === 'All') return true
++      if (activeFilter === 'Looking for team') return user.openToTeaming !== false // Assume true if not explicitly false for now, or match actual prop
++      
++      const skillMatch = user.skills?.some(s => 
++        s.toLowerCase().includes(activeFilter.toLowerCase()) || 
++        (activeFilter === 'ML' && s.toLowerCase().includes('machine learning')) ||
++        (activeFilter === 'Frontend' && (s.toLowerCase().includes('react') || s.toLowerCase().includes('vue') || s.toLowerCase().includes('html'))) ||
++        (activeFilter === 'Backend' && (s.toLowerCase().includes('node') || s.toLowerCase().includes('python') || s.toLowerCase().includes('django')))
++      )
++      return skillMatch
++    })
++  }, [teammates, searchQuery, activeFilter])
+ 
+   return (
+     <GlassLayout>
+       <Header />
+-      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+-        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col min-h-[500px]">
+-        {/* Page Header with marquee banner */}
+-        <div className="mb-6">
+-          <div className="bg-white/40 border border-white/60 shadow-sm rounded-lg mb-4 overflow-hidden">
+-            <div className="py-2.5 px-4 flex items-center gap-2 overflow-hidden">
+-              <div className="whitespace-nowrap animate-marquee flex gap-8 items-center font-grotesk font-extrabold text-xs uppercase tracking-widest text-black">
+-                {Array(6).fill('≡ƒöì Find Your Hackathon Team ┬╖ ').map((t, i) => <span key={i}>{t}</span>)}
+-              </div>
+-            </div>
++      <main className="max-w-6xl mx-auto px-4 md:px-6 py-8 pb-28 md:pb-10 w-full flex-1 flex flex-col items-center">
++        
++        {/* Header Row */}
++        <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
++          <h1 className="font-grotesk font-extrabold text-3xl text-ink tracking-tight flex-shrink-0">Find teammates</h1>
++          
++          {/* Search Input */}
++          <div className="relative w-full md:max-w-sm">
++            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
++            <input
++              type="text"
++              placeholder="Search by name or skill..."
++              value={searchQuery}
++              onChange={(e) => setSearchQuery(e.target.value)}
++              className="input-brutal pl-9 py-2"
++            />
+           </div>
+-          <h1 className="font-grotesk font-extrabold text-2xl text-black">Find Teammates</h1>
+-          <p className="font-inter text-sm text-black/60 mt-1">
+-            Connect with students open to hackathon teaming
+-          </p>
+         </div>
+ 
+-        {/* Filters */}
+-        <FilterBar filters={filters} onChange={setFilters} />
++        {/* Filter Chips */}
++        <div className="w-full flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
++          {FILTERS.map(filter => (
++            <button
++              key={filter}
++              onClick={() => setActiveFilter(filter)}
++              className={`whitespace-nowrap px-4 py-1.5 rounded-full font-grotesk font-semibold text-sm transition-all duration-[120ms] ${
++                activeFilter === filter
++                  ? 'bg-ink text-white shadow-brutal-sm border-2 border-ink'
++                  : 'bg-white border-2 border-ink text-ink hover:bg-sky-50'
++              }`}
++            >
++              {filter}
++            </button>
++          ))}
++        </div>
+ 
+         {/* Results */}
+-        {loading ? (
+-          <div className="flex items-center justify-center py-32">
+-            <div className="flex flex-col items-center gap-3">
+-              <LoadingSpinner size="lg" />
+-              <p className="font-grotesk font-bold text-sm text-black/50 uppercase tracking-wider">Finding teammates...</p>
++        <div className="w-full">
++          {loading ? (
++            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
++              {Array(6).fill(null).map((_, i) => <TeammateCardSkeleton key={i} />)}
+             </div>
+-          </div>
+-        ) : teammates.length === 0 ? (
+-          <EmptyState
+-            icon="≡ƒñ¥"
+-            title="No teammates found"
+-            description="Try adjusting your filters or check back later!"
+-            action={{ label: 'Clear Filters', onClick: () => setFilters({ branch: '', year: '', skills: [], interests: [] }) }}
+-          />
+-        ) : (
+-          <>
+-            <p className="font-grotesk font-bold text-xs text-black/50 uppercase tracking-wider mb-4">
+-              {teammates.length} student{teammates.length !== 1 ? 's' : ''} looking for teams
+-            </p>
+-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+-              {teammates.map((user) => (
+-                <TeammateCard key={user.id} user={user} />
+-              ))}
++          ) : filteredTeammates.length === 0 ? (
++            <div className="mt-12">
++              <EmptyState
++                icon={Users}
++                title="No teammates found"
++                description="Try adjusting your filters or check back later!"
++                action={{ label: 'Clear filters', onClick: () => { setActiveFilter('All'); setSearchQuery('') } }}
++              />
+             </div>
+-          </>
+-        )}
++          ) : (
++            <>
++              <p className="font-inter text-sm text-muted mb-4">
++                Showing {filteredTeammates.length} student{filteredTeammates.length !== 1 ? 's' : ''}
++              </p>
++              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
++                {filteredTeammates.map((user) => (
++                  <TeammateCard key={user.id} user={user} />
++                ))}
++              </div>
++            </>
++          )}
+         </div>
+       </main>
+       <MobileNav />
+diff --git a/components/chat/ChatClient.jsx b/components/chat/ChatClient.jsx
+index 76a0383..9dc2293 100644
+--- a/components/chat/ChatClient.jsx
++++ b/components/chat/ChatClient.jsx
+@@ -5,8 +5,9 @@ import Header from '@/components/layout/Header'
+ import ChatSidebar from './ChatSidebar'
+ import ChatWindow from './ChatWindow'
+ import useSWR from 'swr'
+-import LoadingSpinner from '@/components/ui/LoadingSpinner'
++import { ChatItemSkeleton } from '@/components/ui/Skeletons'
+ import GlassLayout from '@/components/layout/GlassLayout'
++import { MessageSquare } from 'lucide-react'
+ 
+ const fetcher = (url) => fetch(url).then((res) => {
+   if (!res.ok) throw new Error('Failed to fetch')
+@@ -15,8 +16,7 @@ const fetcher = (url) => fetch(url).then((res) => {
+ 
+ export default function ChatClient({ initialUser, currentUserId }) {
+   const [activeUserId, setActiveUserId] = useState(initialUser)
+-  
+-  // Update URL without reloading when active user changes
++
+   useEffect(() => {
+     if (activeUserId) {
+       window.history.replaceState(null, '', `/messages?user=${activeUserId}`)
+@@ -29,7 +29,6 @@ export default function ChatClient({ initialUser, currentUserId }) {
+     refreshInterval: 5000,
+   })
+ 
+-  // Mobile layout handling
+   const [isMobile, setIsMobile] = useState(false)
+   useEffect(() => {
+     const handleResize = () => setIsMobile(window.innerWidth < 768)
+@@ -46,51 +45,58 @@ export default function ChatClient({ initialUser, currentUserId }) {
+   return (
+     <GlassLayout>
+       <Header />
+-      
+-      <main className="flex-1 flex overflow-hidden pt-4 max-w-7xl mx-auto w-full px-4 md:px-6 pb-24 md:pb-6">
+-        <div className="w-full flex bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 overflow-hidden">
+-        {/* Sidebar */}
+-        {showSidebar && (
+-          <div className={`${isMobile ? 'w-full' : 'w-[320px]'} flex-shrink-0 border-r border-white/40 flex flex-col bg-white/10 overflow-hidden`}>
+-            {isLoading && !connections ? (
+-              <div className="flex-1 flex items-center justify-center">
+-                <LoadingSpinner size="md" />
+-              </div>
+-            ) : error ? (
+-              <div className="p-4 text-center text-red-500 font-inter text-sm">Failed to load connections.</div>
+-            ) : (
+-              <ChatSidebar 
+-                connections={connections} 
+-                activeUserId={activeUserId} 
+-                onSelectUser={setActiveUserId} 
+-              />
+-            )}
+-          </div>
+-        )}
+ 
+-        {/* Chat Window */}
+-        {showChatWindow && (
+-          <div className="flex-1 flex flex-col bg-transparent overflow-hidden relative">
+-            {activeUserId ? (
+-              <ChatWindow 
+-                key={activeUserId} // force remount when switching users
+-                connection={activeConnection || { id: activeUserId }} // Pass minimal id if not yet loaded in connections
+-                currentUserId={currentUserId}
+-                onBack={isMobile ? () => setActiveUserId(null) : undefined}
+-              />
+-            ) : (
+-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+-                <div className="w-24 h-24 mb-6 border border-white/40 bg-white/30 rounded-2xl flex items-center justify-center text-4xl shadow-sm backdrop-blur-sm">
+-                  ≡ƒÆ¼
++      <main 
++        className="max-w-6xl mx-auto w-full px-4 md:px-6 py-4 flex-1 flex flex-col"
++      >
++        <div 
++          className="w-full flex bg-white border-2 border-ink rounded-2xl shadow-brutal overflow-hidden" 
++          style={{ height: 'calc(100vh - 64px - 2rem)' }}
++        >
++
++          {/* Sidebar */}
++          {showSidebar && (
++            <div className={`${isMobile ? 'w-full' : 'w-80'} flex-shrink-0 border-r-2 border-ink flex flex-col bg-white overflow-hidden`}>
++              
++              {isLoading && !connections ? (
++                <div className="flex flex-col mt-4">
++                  {Array(5).fill(null).map((_, i) => <ChatItemSkeleton key={i} />)}
++                </div>
++              ) : error ? (
++                <div className="p-4 text-center text-red-500 font-inter text-sm">Failed to load connections.</div>
++              ) : (
++                <ChatSidebar
++                  connections={connections}
++                  activeUserId={activeUserId}
++                  onSelectUser={setActiveUserId}
++                />
++              )}
++            </div>
++          )}
++
++          {/* Chat Window */}
++          {showChatWindow && (
++            <div className="flex-1 flex flex-col overflow-hidden relative bg-white">
++              {activeUserId ? (
++                <ChatWindow
++                  key={activeUserId}
++                  connection={activeConnection || { id: activeUserId }}
++                  currentUserId={currentUserId}
++                  onBack={isMobile ? () => setActiveUserId(null) : undefined}
++                />
++              ) : (
++                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white">
++                  <div className="w-20 h-20 mb-5 bg-sky-100 border-2 border-ink rounded-2xl flex items-center justify-center shadow-brutal">
++                    <MessageSquare size={32} className="text-muted" />
++                  </div>
++                  <h2 className="font-grotesk font-extrabold text-2xl mb-2 text-ink tracking-tight">Select a conversation</h2>
++                  <p className="font-inter text-muted text-sm max-w-xs">
++                    Choose a teammate from the sidebar to start chatting.
++                  </p>
+                 </div>
+-                <h2 className="font-grotesk font-extrabold text-2xl mb-2 text-black uppercase">Select a Conversation</h2>
+-                <p className="font-inter text-black/60 text-sm max-w-sm">
+-                  Choose a teammate from the sidebar to start chatting.
+-                </p>
+-              </div>
+-            )}
+-          </div>
+-        )}
++              )}
++            </div>
++          )}
+ 
+         </div>
+       </main>
+diff --git a/components/chat/ChatSidebar.jsx b/components/chat/ChatSidebar.jsx
+index 6b39534..271a591 100644
+--- a/components/chat/ChatSidebar.jsx
++++ b/components/chat/ChatSidebar.jsx
+@@ -3,6 +3,7 @@
+ import { useState } from 'react'
+ import Image from 'next/image'
+ import Link from 'next/link'
++import { Search } from 'lucide-react'
+ 
+ export default function ChatSidebar({ connections, activeUserId, onSelectUser }) {
+   const [search, setSearch] = useState('')
+@@ -10,83 +11,85 @@ export default function ChatSidebar({ connections, activeUserId, onSelectUser })
+   if (!connections || connections.length === 0) {
+     return (
+       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+-        <div className="w-16 h-16 mb-4 border border-white/40 bg-white/30 rounded-2xl flex items-center justify-center text-2xl shadow-sm backdrop-blur-sm">
+-          ≡ƒñ╖
++        <div className="w-16 h-16 mb-4 bg-sky-100 border-2 border-ink rounded-2xl flex items-center justify-center shadow-brutal-sm">
++          <Search size={28} className="text-muted" />
+         </div>
+-        <h3 className="font-grotesk font-bold text-lg mb-2 uppercase tracking-wide text-black">No connections yet</h3>
+-        <p className="font-inter text-xs text-black/60 mb-6">Find teammates to connect with and start building together.</p>
+-        <Link href="/feed" className="bg-white/70 hover:bg-white text-black font-bold border border-white/40 rounded-md shadow-sm items-center gap-1.5 py-2 px-4 text-xs transition-colors inline-block">
+-          Explore Feed
++        <h3 className="font-grotesk font-bold text-base mb-1 text-ink">No connections yet</h3>
++        <p className="font-inter text-xs text-muted mb-5">Find teammates to connect with and start building together.</p>
++        <Link href="/teammates" className="btn-secondary text-xs px-4 py-2">
++          Explore teammates
+         </Link>
+       </div>
+     )
+   }
+ 
+-  const filteredConnections = connections.filter(c => 
+-    c.name?.toLowerCase().includes(search.toLowerCase()) || 
++  const filteredConnections = connections.filter(c =>
++    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+     c.username?.toLowerCase().includes(search.toLowerCase())
+   )
+ 
+   return (
+-    <div className="flex-1 flex flex-col overflow-hidden">
+-      {/* Search Bar */}
+-      <div className="p-4 border-b border-white/40 bg-white/20 backdrop-blur-md">
+-        <input 
+-          type="text" 
+-          placeholder="Search teammates..." 
+-          value={search}
+-          onChange={(e) => setSearch(e.target.value)}
+-          className="w-full bg-white/40 border border-white/60 px-3 py-2 text-sm font-inter focus:outline-none focus:bg-white/60 transition-colors rounded-md text-black placeholder:text-black/50 shadow-sm"
+-        />
++    <div className="flex-1 flex flex-col overflow-hidden bg-white">
++      {/* Search */}
++      <div className="p-3 border-b-2 border-ink">
++        <div className="relative">
++          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
++          <input
++            type="text"
++            placeholder="Search teammates..."
++            value={search}
++            onChange={(e) => setSearch(e.target.value)}
++            className="input-brutal pl-8 py-2 text-sm border-2 border-ink rounded-xl"
++          />
++        </div>
+       </div>
+ 
+       {/* Connection List */}
+-      <div className="flex-1 overflow-y-auto bg-transparent custom-scrollbar">
++      <div className="flex-1 overflow-y-auto">
+         {filteredConnections.length === 0 ? (
+-          <div className="p-6 text-center text-ink/50 font-inter text-sm">No teammates found.</div>
++          <div className="p-6 text-center text-muted font-inter text-sm">No teammates found.</div>
+         ) : (
+           filteredConnections.map((user) => {
+             const isActive = user.id === activeUserId
+-            
++
+             return (
+               <button
+                 key={user.id}
+                 onClick={() => onSelectUser(user.id)}
+-                className={`w-full text-left p-4 border-b border-white/40 hover:bg-white/30 transition-colors flex items-center gap-3 relative ${
+-                  isActive ? 'bg-blue-300/40 backdrop-blur-md' : 'bg-transparent'
++                className={`w-full text-left px-4 py-3 border-b-2 border-ink/10 flex items-center gap-3 transition-colors duration-[120ms] ${
++                  isActive
++                    ? 'bg-cream border-l-[3px] border-l-accent'
++                    : 'bg-white hover:bg-sky-50 border-l-[3px] border-l-transparent'
+                 }`}
+               >
+-                {isActive && (
+-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
+-                )}
+-                
+-                <div className="relative flex-shrink-0 w-12 h-12 border border-white/60 rounded-full overflow-hidden bg-white/40 shadow-sm flex items-center justify-center">
++                {/* Avatar */}
++                <div className="relative flex-shrink-0 w-10 h-10 border-2 border-ink rounded-full overflow-hidden bg-sky-100 flex items-center justify-center shadow-brutal-sm">
+                   {user.avatar ? (
+                     <Image src={user.avatar} alt={user.name} fill className="object-cover" />
+                   ) : (
+-                    <span className="font-grotesk font-bold text-lg uppercase">{user.name?.charAt(0)}</span>
++                    <span className="font-grotesk font-bold text-sm uppercase text-ink">{user.name?.charAt(0)}</span>
+                   )}
+                 </div>
+-                
+-                <div className="flex-1 min-w-0 flex flex-col justify-center">
+-                  <div className="flex justify-between items-baseline mb-1">
+-                    <span className="font-grotesk font-bold text-sm truncate uppercase tracking-tight text-black pr-2">
+-                      {user.name}
++
++                <div className="flex-1 min-w-0">
++                  <div className="flex justify-between items-baseline mb-0.5">
++                    <span className="font-grotesk font-bold text-sm truncate text-ink pr-2">
++                       {user.name}
+                     </span>
+                     {user.lastMessage && (
+-                      <span className="font-inter text-[10px] text-black/50 flex-shrink-0">
++                      <span className="font-inter text-[10px] text-muted flex-shrink-0">
+                         {new Date(user.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                       </span>
+                     )}
+                   </div>
+-                  
++
+                   <div className="flex justify-between items-center gap-2">
+-                    <p className={`font-inter text-xs truncate ${user.unreadCount > 0 ? 'font-bold text-black' : 'text-black/60'}`}>
++                    <p className={`font-inter text-xs truncate ${user.unreadCount > 0 ? 'font-bold text-ink' : 'text-muted'}`}>
+                       {user.lastMessage ? user.lastMessage.content : 'Start a conversation'}
+                     </p>
+-                    
++
+                     {user.unreadCount > 0 && (
+-                      <span className="flex-shrink-0 w-5 h-5 bg-blue-500 text-white rounded-full shadow-sm text-[10px] font-bold flex items-center justify-center">
++                      <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 bg-violet text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-ink shadow-brutal-sm">
+                         {user.unreadCount > 9 ? '9+' : user.unreadCount}
+                       </span>
+                     )}
+diff --git a/components/chat/ChatWindow.jsx b/components/chat/ChatWindow.jsx
+index 6cdeabd..5de60e0 100644
+--- a/components/chat/ChatWindow.jsx
++++ b/components/chat/ChatWindow.jsx
+@@ -3,20 +3,40 @@
+ import { useState, useEffect, useRef } from 'react'
+ import Image from 'next/image'
+ import Link from 'next/link'
+-import { ArrowLeft } from 'lucide-react'
++import { ArrowLeft, User } from 'lucide-react'
+ import MessageBubble from './MessageBubble'
+ import MessageInput from './MessageInput'
+ import LoadingSpinner from '@/components/ui/LoadingSpinner'
+ 
++// Helper for date separators
++function isSameDay(date1, date2) {
++  return (
++    date1.getFullYear() === date2.getFullYear() &&
++    date1.getMonth() === date2.getMonth() &&
++    date1.getDate() === date2.getDate()
++  )
++}
++
++function getDateLabel(date) {
++  const now = new Date()
++  if (isSameDay(date, now)) return 'Today'
++  
++  const yesterday = new Date(now)
++  yesterday.setDate(yesterday.getDate() - 1)
++  if (isSameDay(date, yesterday)) return 'Yesterday'
++  
++  return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
++}
++
+ export default function ChatWindow({ connection, currentUserId, onBack }) {
+   const [conversationId, setConversationId] = useState(null)
+   const [messages, setMessages] = useState([])
+   const [loading, setLoading] = useState(true)
+   const [error, setError] = useState(null)
+-  
++
+   const messagesEndRef = useRef(null)
+   const scrollContainerRef = useRef(null)
+-  
++
+   // 1. Get or create conversation
+   useEffect(() => {
+     let isMounted = true
+@@ -39,18 +59,18 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         }
+       }
+     }
+-    
++
+     if (connection.id) {
+       initConversation()
+     }
+-    
++
+     return () => { isMounted = false }
+   }, [connection.id])
+ 
+   // 2. Fetch and poll messages
+   useEffect(() => {
+     if (!conversationId) return
+-    
++
+     let isMounted = true
+     let pollInterval
+     let lastMessageDate = null
+@@ -61,12 +81,12 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         const res = await fetch(url)
+         if (!res.ok) throw new Error('Failed to fetch messages')
+         const newMessages = await res.json()
+-        
++
+         if (!isMounted) return
+-        
++
+         if (newMessages.length > 0) {
+           lastMessageDate = new Date(newMessages[newMessages.length - 1].createdAt)
+-          
++
+           setMessages(prev => {
+             const existingIds = new Set(prev.map(m => m.id))
+             const filtered = newMessages.filter(m => !existingIds.has(m.id))
+@@ -79,10 +99,7 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+       }
+     }
+ 
+-    // Initial fetch
+     fetchMessages()
+-
+-    // Poll every 3 seconds
+     pollInterval = setInterval(fetchMessages, 3000)
+ 
+     return () => {
+@@ -94,11 +111,10 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+   // 3. Auto-scroll
+   useEffect(() => {
+     if (!scrollContainerRef.current || messages.length === 0) return
+-    
++
+     const container = scrollContainerRef.current
+     const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
+-    
+-    // Always scroll on first load or if near bottom
++
+     if (isNearBottom || messages.length <= 100) {
+       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+     }
+@@ -107,17 +123,15 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+   // 4. Mark as read
+   useEffect(() => {
+     if (!conversationId || messages.length === 0) return
+-    
++
+     const markRead = async () => {
+-      // Check if there are any unread messages from the other user
+       const hasUnread = messages.some(m => m.senderId !== currentUserId && !m.readAt)
+       if (!hasUnread) return
+-      
++
+       try {
+         await fetch(`/api/chat/conversations/${conversationId}/read`, { method: 'PATCH' })
+-        // Optimistically update local messages
+-        setMessages(prev => prev.map(m => 
+-          m.senderId !== currentUserId && !m.readAt 
++        setMessages(prev => prev.map(m =>
++          m.senderId !== currentUserId && !m.readAt
+             ? { ...m, readAt: new Date().toISOString() }
+             : m
+         ))
+@@ -125,20 +139,18 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         console.error('Failed to mark as read', err)
+       }
+     }
+-    
++
+     const handleFocus = () => {
+       if (document.hasFocus()) markRead()
+     }
+-    
+-    // Run initially and on focus
++
+     handleFocus()
+     window.addEventListener('focus', handleFocus)
+-    
++
+     return () => window.removeEventListener('focus', handleFocus)
+   }, [conversationId, messages, currentUserId])
+ 
+   const handleSendMessage = async (content) => {
+-    // Optimistic UI
+     const tempId = `temp-${Date.now()}`
+     const tempMessage = {
+       id: tempId,
+@@ -148,70 +160,76 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+       createdAt: new Date().toISOString(),
+       readAt: null
+     }
+-    
++
+     setMessages(prev => [...prev, tempMessage])
+-    
+-    // Scroll to bottom immediately
++
+     setTimeout(() => {
+       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+     }, 50)
+-    
++
+     try {
+       const res = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ content })
+       })
+-      
++
+       if (!res.ok) throw new Error('Failed to send')
+       const savedMessage = await res.json()
+-      
+-      // Replace temp message with real one
++
+       setMessages(prev => prev.map(m => m.id === tempId ? savedMessage : m))
+-      
++
+     } catch (err) {
+-      // Rollback
+       setMessages(prev => prev.filter(m => m.id !== tempId))
+-      throw err // will be caught by MessageInput to show toast
++      throw err
+     }
+   }
+ 
+   return (
+-    <div className="flex-1 flex flex-col h-full bg-transparent relative">
+-      {/* Header */}
+-      <div className="h-16 border-b border-white/40 flex items-center px-4 bg-white/20 backdrop-blur-md z-10">
+-        {onBack && (
+-          <button onClick={onBack} className="mr-3 p-1 hover:bg-black/10 rounded">
+-            <ArrowLeft size={20} className="text-black" />
+-          </button>
+-        )}
+-        
+-        {connection.name ? (
+-          <Link href={`/profile/${connection.username}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+-            <div className="w-10 h-10 border border-white/60 bg-white/40 rounded-full overflow-hidden relative flex items-center justify-center shadow-sm">
+-              {connection.avatar ? (
+-                <Image src={connection.avatar} alt={connection.name} fill className="object-cover" />
+-              ) : (
+-                <span className="font-grotesk font-bold uppercase text-black">{connection.name.charAt(0)}</span>
+-              )}
++    <div className="flex-1 flex flex-col h-full bg-white relative">
++      {/* Chat Header */}
++      <div className="h-[72px] border-b-2 border-ink flex items-center px-4 md:px-5 bg-white z-10 flex-shrink-0 justify-between">
++        <div className="flex items-center">
++          {onBack && (
++            <button onClick={onBack} aria-label="Go back" className="mr-4 btn-icon shadow-none">
++              <ArrowLeft size={18} className="text-ink" strokeWidth={2.5} />
++            </button>
++          )}
++
++          {connection.name ? (
++            <div className="flex items-center gap-3">
++              <div className="w-10 h-10 border-2 border-ink bg-sky-100 rounded-full overflow-hidden relative flex items-center justify-center flex-shrink-0">
++                {connection.avatar ? (
++                  <Image src={connection.avatar} alt={connection.name} fill className="object-cover" />
++                ) : (
++                  <span className="font-grotesk font-bold uppercase text-ink text-sm">{connection.name.charAt(0)}</span>
++                )}
++              </div>
++              <div>
++                <h3 className="font-grotesk font-bold text-base text-ink leading-tight tracking-tight">{connection.name}</h3>
++                <p className="font-inter text-xs text-muted">@{connection.username}</p>
++              </div>
+             </div>
+-            <div>
+-              <h3 className="font-grotesk font-bold text-base uppercase text-black leading-tight drop-shadow-sm">{connection.name}</h3>
+-              <p className="font-inter text-xs text-black/60">@{connection.username}</p>
++          ) : (
++            <div className="flex items-center gap-3">
++              <div className="w-10 h-10 border-2 border-ink/20 bg-sky-100 rounded-full animate-pulse" />
++              <div className="h-4 w-24 bg-sky-200 animate-pulse rounded-md" />
+             </div>
++          )}
++        </div>
++
++        {/* View Profile Ghost Button */}
++        {connection.username && (
++          <Link href={`/profile/${connection.username}`} className="btn-ghost hidden md:flex !py-1.5 !px-3 !text-xs items-center gap-1.5">
++            <User size={14} strokeWidth={2.5} /> View profile
+           </Link>
+-        ) : (
+-          <div className="flex items-center gap-3">
+-            <div className="w-10 h-10 border border-white/40 bg-white/20 rounded-full animate-pulse" />
+-            <div className="h-4 w-24 bg-white/20 animate-pulse rounded-md" />
+-          </div>
+         )}
+       </div>
+ 
+       {/* Messages Area */}
+-      <div 
++      <div
+         ref={scrollContainerRef}
+-        className="flex-1 overflow-y-auto p-4 bg-transparent custom-scrollbar"
++        className="flex-1 overflow-y-auto px-4 py-4 bg-white"
+       >
+         {loading ? (
+           <div className="h-full flex items-center justify-center">
+@@ -220,31 +238,50 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         ) : error ? (
+           <div className="h-full flex items-center justify-center flex-col gap-2">
+             <p className="text-red-500 font-bold font-grotesk">Failed to load chat</p>
+-            <p className="text-xs text-black/50">{error}</p>
++            <p className="text-xs text-muted">{error}</p>
+           </div>
+         ) : messages.length === 0 ? (
+-          <div className="h-full flex items-center justify-center flex-col gap-3 text-black/40">
+-            <div className="text-4xl opacity-50 drop-shadow-md">≡ƒæï</div>
++          <div className="h-full flex items-center justify-center flex-col gap-3 text-muted">
++            <div className="w-12 h-12 bg-cream border-2 border-ink rounded-full flex items-center justify-center">
++              <span className="font-grotesk font-bold text-xl text-ink">≡ƒæï</span>
++            </div>
+             <p className="font-inter text-sm">Send a message to start chatting</p>
+           </div>
+         ) : (
+           <div className="flex flex-col justify-end min-h-full pb-2">
+             {messages.map((msg, index) => {
+               const prevMsg = messages[index - 1]
+-              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId
++              const nextMsg = messages[index + 1]
+               
+-              // Only show "Seen" on the VERY LAST message if it's sent by me and is read
++              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId
++              const isLastInGroup = !nextMsg || nextMsg.senderId !== msg.senderId
+               const isLastMessage = index === messages.length - 1
+-              const showSeen = isLastMessage && msg.senderId === currentUserId && msg.readAt
+               
++              const showSeen = isLastMessage && msg.senderId === currentUserId && msg.readAt
++              const showTimestamp = isLastInGroup
++
++              // Date separator logic
++              const msgDate = new Date(msg.createdAt)
++              const prevMsgDate = prevMsg ? new Date(prevMsg.createdAt) : null
++              const showDateSeparator = !prevMsgDate || !isSameDay(msgDate, prevMsgDate)
++
+               return (
+-                <MessageBubble 
+-                  key={msg.id}
+-                  message={msg}
+-                  isMine={msg.senderId === currentUserId}
+-                  isFirstInGroup={isFirstInGroup}
+-                  showSeen={showSeen}
+-                />
++                <div key={msg.id}>
++                  {showDateSeparator && (
++                    <div className="flex justify-center my-6">
++                      <span className="bg-sky-50 border-2 border-ink/10 rounded-full px-3 py-1 font-inter font-bold text-[10px] text-muted uppercase tracking-wider">
++                        {getDateLabel(msgDate)}
++                      </span>
++                    </div>
++                  )}
++                  <MessageBubble
++                    message={msg}
++                    isMine={msg.senderId === currentUserId}
++                    isFirstInGroup={isFirstInGroup}
++                    showSeen={showSeen}
++                    showTimestamp={showTimestamp}
++                  />
++                </div>
+               )
+             })}
+             <div ref={messagesEndRef} />
+@@ -252,7 +289,7 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
+         )}
+       </div>
+ 
+-      {/* Input Area */}
++      {/* Input */}
+       {conversationId && !loading && !error && (
+         <MessageInput onSend={handleSendMessage} />
+       )}
+diff --git a/components/chat/MessageBubble.jsx b/components/chat/MessageBubble.jsx
+index 7071b75..c243d3a 100644
+--- a/components/chat/MessageBubble.jsx
++++ b/components/chat/MessageBubble.jsx
+@@ -1,32 +1,39 @@
+ 'use client'
+ 
+-export default function MessageBubble({ message, isMine, isFirstInGroup, showSeen }) {
++export default function MessageBubble({ message, isMine, isFirstInGroup, showSeen, showTimestamp }) {
+   const timeStr = new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+-  
++
++  // Ensure bottom corner is always squared for this design
++  const bubbleRadius = isMine 
++    ? 'rounded-2xl rounded-br-sm' 
++    : 'rounded-2xl rounded-bl-sm'
++
+   return (
+-    <div className={`flex flex-col w-full mb-1 ${isFirstInGroup ? 'mt-3' : 'mt-1'}`}>
++    <div className={`flex flex-col w-full mb-1 ${isFirstInGroup ? 'mt-3' : 'mt-0.5'}`}>
+       <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+-        <div 
++        <div
+           className={`
+-            relative max-w-[80%] md:max-w-[70%] px-3 py-2 border border-white/60 shadow-sm backdrop-blur-md
+-            ${isMine ? 'bg-blue-300/80 text-black' : 'bg-white/60 text-black'}
+-            ${isMine 
+-              ? (isFirstInGroup ? 'rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-sm' : 'rounded-l-xl rounded-r-sm') 
+-              : (isFirstInGroup ? 'rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-sm' : 'rounded-r-xl rounded-l-sm')}
++            relative max-w-[70%] px-3.5 py-2.5 border-2 border-ink
++            ${isMine
++              ? 'bg-accent text-ink shadow-brutal-sm'
++              : 'bg-cream text-ink shadow-brutal-sm'}
++            ${bubbleRadius}
+           `}
+           style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
+         >
+           <p className="font-inter text-sm leading-relaxed">{message.content}</p>
+-          
+-          <div className={`flex items-center gap-1 mt-1 text-[10px] opacity-60 justify-end ${isMine ? 'text-black' : 'text-black'}`}>
+-            <span>{timeStr}</span>
+-          </div>
+         </div>
+       </div>
+       
+-      {showSeen && (
+-        <div className="flex justify-end mt-1 pr-1">
+-          <span className="font-inter font-bold text-[10px] text-black/50 tracking-wider">SEEN</span>
++      {/* Show timestamp underneath if requested (last of group) */}
++      {(showTimestamp || showSeen) && (
++        <div className={`flex items-center gap-2 mt-1 ${isMine ? 'justify-end pr-1' : 'justify-start pl-1'}`}>
++          {showTimestamp && (
++            <span className="font-inter text-[10px] text-muted">{timeStr}</span>
++          )}
++          {showSeen && (
++            <span className="font-inter font-bold text-[10px] text-muted tracking-wider">Seen</span>
++          )}
+         </div>
+       )}
+     </div>
+diff --git a/components/chat/MessageInput.jsx b/components/chat/MessageInput.jsx
+index fcd2b1b..f611137 100644
+--- a/components/chat/MessageInput.jsx
++++ b/components/chat/MessageInput.jsx
+@@ -20,7 +20,7 @@ export default function MessageInput({ onSend }) {
+   const handleSend = async () => {
+     const trimmed = content.trim()
+     if (!trimmed || sending) return
+-    
++
+     if (trimmed.length > 2000) {
+       toast.error('Message is too long (max 2000 characters)')
+       return
+@@ -28,16 +28,15 @@ export default function MessageInput({ onSend }) {
+ 
+     setSending(true)
+     setContent('')
+-    // reset height manually immediately
+     if (textareaRef.current) {
+       textareaRef.current.style.height = 'auto'
+     }
+-    
++
+     try {
+       await onSend(trimmed)
+     } catch (err) {
+       toast.error('Failed to send message')
+-      setContent(trimmed) // rollback input
++      setContent(trimmed)
+     } finally {
+       setSending(false)
+     }
+@@ -50,23 +49,30 @@ export default function MessageInput({ onSend }) {
+     }
+   }
+ 
++  const isDisabled = !content.trim() || sending
++
+   return (
+-    <div className="p-3 border-t border-white/40 bg-white/20 backdrop-blur-md flex items-end gap-2">
++    <div className="p-3 border-t-2 border-ink bg-white flex items-end gap-3 shrink-0">
+       <textarea
+         ref={textareaRef}
+         value={content}
+         onChange={(e) => setContent(e.target.value)}
+         onKeyDown={handleKeyDown}
+-        placeholder="Type a message..."
+-        className="flex-1 bg-white/40 border border-white/60 p-2 px-3 text-sm font-inter rounded-md focus:outline-none focus:bg-white/60 resize-none custom-scrollbar max-h-[120px] text-black placeholder:text-black/50 shadow-sm transition-colors"
++        placeholder="Message..."
++        className="flex-1 bg-white border-2 border-ink rounded-xl p-2.5 px-3.5 text-sm font-inter focus:outline-none focus:shadow-brutal resize-none max-h-[120px] text-ink placeholder:text-muted transition-all duration-[120ms]"
+         rows={1}
+       />
+       <button
+         onClick={handleSend}
+-        disabled={!content.trim() || sending}
+-        className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-blue-400 text-white border border-white/60 rounded-full shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 hover:bg-blue-500 active:scale-95 transition-all"
++        disabled={isDisabled}
++        aria-label="Send message"
++        className={`w-11 h-11 flex-shrink-0 flex items-center justify-center bg-accent text-ink border-2 border-ink rounded-full transition-all duration-[120ms] ${
++          isDisabled 
++            ? 'opacity-40 cursor-not-allowed'
++            : 'shadow-brutal hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg active:translate-x-[2px] active:translate-y-[2px] active:shadow-brutal-none'
++        }`}
+       >
+-        <SendHorizontal size={18} />
++        <SendHorizontal size={18} strokeWidth={2.5} />
+       </button>
+     </div>
+   )
+diff --git a/components/feed/FeedClient.jsx b/components/feed/FeedClient.jsx
+index 02ca815..930026f 100644
+--- a/components/feed/FeedClient.jsx
++++ b/components/feed/FeedClient.jsx
+@@ -1,14 +1,19 @@
+ 'use client'
+ 
+ import { useState, useEffect, useRef, useCallback } from 'react'
++import Link from 'next/link'
+ import ProjectCard from './ProjectCard'
+ import ProjectModal from './ProjectModal'
+ import PostModal from './PostModal'
+ import Header from '@/components/layout/Header'
+ import MobileNav from '@/components/layout/MobileNav'
+ import EmptyState from '@/components/ui/EmptyState'
+-import LoadingSpinner from '@/components/ui/LoadingSpinner'
++import { ProjectCardSkeleton } from '@/components/ui/Skeletons'
+ import GlassLayout from '@/components/layout/GlassLayout'
++import { Rocket } from 'lucide-react'
++import Avatar from '@/components/ui/Avatar'
++import LoadingSpinner from '@/components/ui/LoadingSpinner'
++import ConnectionButton from '@/components/profile/ConnectionButton'
+ 
+ export default function FeedClient() {
+   const [projects, setProjects] = useState([])
+@@ -18,6 +23,7 @@ export default function FeedClient() {
+   const [hasMore, setHasMore] = useState(true)
+   const [selectedProject, setSelectedProject] = useState(null)
+   const [showPost, setShowPost] = useState(false)
++  const [recommendedTeammates, setRecommendedTeammates] = useState([])
+   const observerRef = useRef(null)
+   const sentinelRef = useRef(null)
+ 
+@@ -44,9 +50,24 @@ export default function FeedClient() {
+ 
+   useEffect(() => {
+     fetchFeed()
++
++    async function fetchRecommendedTeammates() {
++      try {
++        const res = await fetch('/api/teammates')
++        if (res.ok) {
++          const data = await res.json()
++          if (data && data.length > 0) {
++            const shuffled = data.sort(() => 0.5 - Math.random())
++            setRecommendedTeammates(shuffled.slice(0, 2))
++          }
++        }
++      } catch (err) {
++        console.error('Failed to fetch recommended teammates', err)
++      }
++    }
++    fetchRecommendedTeammates()
+   }, [fetchFeed])
+ 
+-  // Infinite scroll observer
+   useEffect(() => {
+     if (!sentinelRef.current || !hasMore || loadingMore) return
+ 
+@@ -92,79 +113,131 @@ export default function FeedClient() {
+     <GlassLayout>
+       <Header onPost={() => setShowPost(true)} />
+ 
+-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
+-        <div 
+-          className="relative w-full bg-white/70 rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 border border-white/50 flex flex-col min-h-[500px] z-0 overflow-hidden"
+-          style={{
+-            backdropFilter: 'blur(32px) saturate(140%)',
+-            WebkitBackdropFilter: 'blur(32px) saturate(140%)',
+-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6), 0 20px 60px rgba(30, 60, 120, 0.18)'
+-          }}
+-        >
+-          {/* Gradient overlay to neutralize dark spots */}
+-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/10 pointer-events-none -z-10" />
+-
+-          {/* Page Title */}
+-          <div className="mb-6 border-b border-black/20 pb-4 relative">
+-            <h1 className="font-grotesk font-extrabold text-2xl text-black">Feed</h1>
+-            <p className="font-inter text-sm text-gray-700 mt-1">Latest projects from the community</p>
++      <main className="max-w-6xl mx-auto px-4 w-full flex-1 flex gap-8 items-start py-8 pb-28 md:pb-10">
++        
++        {/* Main Column */}
++        <div className="flex-1 w-full max-w-2xl mx-auto lg:mx-0">
++          
++          {/* Page header */}
++          <div className="mb-6">
++            <h1 className="font-grotesk font-extrabold text-3xl text-ink tracking-tight">Feed</h1>
++            <p className="font-inter text-sm text-muted mt-1">Latest projects from the community</p>
+           </div>
+ 
+-        {loading ? (
+-          <div className="flex items-center justify-center py-32">
+-            <div className="flex flex-col items-center gap-3">
+-              <LoadingSpinner size="lg" />
+-              <p className="font-grotesk font-bold text-sm text-black/50 uppercase tracking-wider">
+-                Loading Feed...
+-              </p>
+-            </div>
++          {/* Tabs */}
++          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
++            {['Latest', 'Trending', 'Looking for team'].map((tab, i) => (
++              <button
++                key={tab}
++                className={`whitespace-nowrap px-4 py-1.5 rounded-full font-grotesk font-semibold text-sm transition-all duration-[120ms] ${
++                  i === 0
++                    ? 'bg-ink text-white shadow-brutal-sm'
++                    : 'bg-white border-2 border-ink text-ink hover:bg-sky-50'
++                }`}
++              >
++                {tab}
++              </button>
++            ))}
+           </div>
+-        ) : projects.length === 0 ? (
+-          <EmptyState
+-            icon="≡ƒÜÇ"
+-            title="No projects yet"
+-            description="Be the first to share something amazing!"
+-            action={{ label: 'Post Your First Project', onClick: () => setShowPost(true) }}
+-          />
+-        ) : (
+-          <>
+-            {/* Projects Grid */}
+-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
+-              {projects.map((project) => (
+-                <ProjectCard
+-                  key={project.id}
+-                  project={project}
+-                  onClick={setSelectedProject}
+-                  onLike={handleLike}
+-                />
+-              ))}
++
++          {loading ? (
++            <div className="flex flex-col gap-5">
++              {Array(4).fill(null).map((_, i) => <ProjectCardSkeleton key={i} />)}
+             </div>
++          ) : projects.length === 0 ? (
++            <EmptyState
++              icon={Rocket}
++              title="No projects yet"
++              description="Be the first to share something amazing!"
++              action={{ label: 'Post your first project', onClick: () => setShowPost(true) }}
++            />
++          ) : (
++            <>
++              {/* Projects List (1 col) */}
++              <div className="flex flex-col gap-6">
++                {projects.map((project) => (
++                  <ProjectCard
++                    key={project.id}
++                    project={project}
++                    onClick={setSelectedProject}
++                    onLike={handleLike}
++                  />
++                ))}
++              </div>
+ 
+-            {/* Infinite scroll sentinel */}
+-            <div ref={sentinelRef} className="py-4 flex justify-center">
+-              {loadingMore && (
+-                <div className="flex items-center gap-2">
+-                  <LoadingSpinner size="sm" />
+-                  <span className="font-grotesk font-bold text-xs text-black/50 uppercase tracking-wider">
+-                    Loading more...
+-                  </span>
+-                </div>
+-              )}
+-              {!hasMore && projects.length > 0 && (
+-                <div className="bg-white/40 border border-white/60 shadow-sm text-black rounded-md text-xs px-4 py-2 font-bold font-grotesk">
+-                  You've seen it all! ≡ƒÄë
++              {/* Infinite scroll sentinel & end state */}
++              <div ref={sentinelRef} className="py-8 flex justify-center">
++                {loadingMore && (
++                  <div className="flex items-center gap-2">
++                    <LoadingSpinner size="sm" />
++                    <span className="font-grotesk font-bold text-xs text-muted">
++                      Loading more...
++                    </span>
++                  </div>
++                )}
++                {!hasMore && projects.length > 0 && (
++                  <div className="w-full text-center py-6 border-t-2 border-ink/10 mt-4">
++                    <p className="font-inter text-sm text-muted">You're all caught up.</p>
++                  </div>
++                )}
++              </div>
++            </>
++          )}
++        </div>
++
++        {/* Right Rail (lg up) */}
++        <aside className="hidden lg:flex flex-col gap-6 w-80 flex-shrink-0 sticky top-24 h-fit">
++          {/* Looking for teammates card */}
++          <div className="bg-cream border-2 border-ink rounded-2xl p-5 shadow-brutal">
++            <h3 className="font-grotesk font-bold text-lg text-ink mb-4">Looking for teammates</h3>
++            <div className="flex flex-col gap-4">
++              
++              {recommendedTeammates.length > 0 ? (
++                recommendedTeammates.map((user) => (
++                  <div key={user.id} className="flex items-center gap-3">
++                    <Avatar src={user.avatar} name={user.name} size="sm" />
++                    <div className="flex-1 min-w-0">
++                      <Link href={`/profile/${user.username}`} className="font-grotesk font-bold text-sm text-ink hover:underline decoration-2 truncate block">
++                        {user.name}
++                      </Link>
++                      <div className="flex gap-1 mt-1">
++                        {user.skills?.slice(0, 2).map((skill) => (
++                          <span key={skill} className="skill-pill !text-[10px] !px-2 !py-0">{skill}</span>
++                        ))}
++                      </div>
++                    </div>
++                    <div className="w-fit flex-shrink-0">
++                      <ConnectionButton targetUserId={user.id} />
++                    </div>
++                  </div>
++                ))
++              ) : (
++                <div className="text-center py-2">
++                  <p className="font-inter text-xs text-muted">No one is currently looking for a team.</p>
+                 </div>
+               )}
++
+             </div>
+-          </>
+-        )}
+-        </div>
++          </div>
++
++          {/* Quick links card */}
++          <div className="bg-cream border-2 border-ink rounded-2xl p-5 shadow-brutal">
++            <h3 className="font-grotesk font-bold text-lg text-ink mb-3">Quick links</h3>
++            <div className="flex flex-col gap-2">
++              <button onClick={() => setShowPost(true)} className="text-left font-grotesk font-semibold text-sm text-ink hover:text-accent transition-colors w-fit">
++                Post a project ΓåÆ
++              </button>
++              <Link href="/teammates" className="text-left font-grotesk font-semibold text-sm text-ink hover:text-accent transition-colors w-fit">
++                Find teammates ΓåÆ
++              </Link>
++            </div>
++          </div>
++        </aside>
++
+       </main>
+ 
+-      {/* Mobile Nav */}
+       <MobileNav onPost={() => setShowPost(true)} />
+ 
+-      {/* Modals */}
+       {selectedProject && (
+         <ProjectModal
+           project={selectedProject}
+diff --git a/components/feed/PostModal.jsx b/components/feed/PostModal.jsx
+index bd3cebc..b9e72de 100644
+--- a/components/feed/PostModal.jsx
++++ b/components/feed/PostModal.jsx
+@@ -20,6 +20,9 @@ export default function PostModal({ onClose, onCreated }) {
+   const [coverPreview, setCoverPreview] = useState(null)
+   const [uploading, setUploading] = useState(false)
+   const [submitting, setSubmitting] = useState(false)
++  const [fetchingGithub, setFetchingGithub] = useState(false)
++  const [githubRepos, setGithubRepos] = useState([])
++  const [fetchingRepos, setFetchingRepos] = useState(true)
+   const fileInputRef = useRef(null)
+   const overlayRef = useRef(null)
+ 
+@@ -35,6 +38,23 @@ export default function PostModal({ onClose, onCreated }) {
+     }
+   }, [onClose])
+ 
++  useEffect(() => {
++    async function fetchRepos() {
++      try {
++        const res = await fetch('/api/user/me/github-repos')
++        if (res.ok) {
++          const data = await res.json()
++          if (Array.isArray(data)) setGithubRepos(data)
++        }
++      } catch (err) {
++        console.error(err)
++      } finally {
++        setFetchingRepos(false)
++      }
++    }
++    fetchRepos()
++  }, [])
++
+   const handleFileSelect = (file) => {
+     if (!file) return
+     if (!file.type.startsWith('image/')) {
+@@ -107,6 +127,38 @@ export default function PostModal({ onClose, onCreated }) {
+     setSubmitting(false)
+   }
+ 
++  const handleGithubImport = async () => {
++    if (!form.githubUrl) return
++    const match = form.githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/)
++    if (!match) {
++      toast.error('Invalid GitHub URL')
++      return
++    }
++    const owner = match[1]
++    const repo = match[2].replace('.git', '')
++    
++    setFetchingGithub(true)
++    try {
++      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`)
++      if (!res.ok) throw new Error('Repo not found')
++      const data = await res.json()
++      
++      const newTechStack = [...new Set([...form.techStack, data.language, ...(data.topics || [])])].filter(Boolean)
++      
++      setForm(prev => ({
++        ...prev,
++        title: prev.title || (data.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())),
++        description: prev.description || data.description || '',
++        projectUrl: prev.projectUrl || data.homepage || '',
++        techStack: newTechStack
++      }))
++      toast.success('Imported repository info!')
++    } catch (err) {
++      toast.error('Failed to fetch GitHub repo')
++    }
++    setFetchingGithub(false)
++  }
++
+   return (
+     <div
+       className="modal-overlay"
+@@ -127,7 +179,40 @@ export default function PostModal({ onClose, onCreated }) {
+           </button>
+         </div>
+ 
+-        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
++        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
++          {/* GitHub Repositories Dropdown */}
++          {githubRepos.length > 0 && (
++            <div className="bg-sky-50 p-4 border-2 border-ink rounded-xl shadow-brutal-sm mb-2">
++              <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
++                Import from your GitHub
++              </label>
++              <select 
++                className="input-brutal text-sm w-full bg-white cursor-pointer"
++                defaultValue=""
++                onChange={(e) => {
++                  const repo = githubRepos.find(r => r.html_url === e.target.value)
++                  if (repo) {
++                    const newTechStack = [...new Set([...form.techStack, repo.language, ...(repo.topics || [])])].filter(Boolean)
++                    setForm(prev => ({
++                      ...prev,
++                      title: prev.title || (repo.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())),
++                      description: prev.description || repo.description || '',
++                      projectUrl: prev.projectUrl || repo.homepage || '',
++                      githubUrl: repo.html_url,
++                      techStack: newTechStack
++                    }))
++                    toast.success('Imported repository info!')
++                  }
++                }}
++              >
++                <option value="" disabled>-- Select a repository --</option>
++                {githubRepos.map(repo => (
++                  <option key={repo.id} value={repo.html_url}>{repo.full_name}</option>
++                ))}
++              </select>
++            </div>
++          )}
++
+           {/* Cover Image Upload */}
+           <div>
+             <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+@@ -233,9 +318,21 @@ export default function PostModal({ onClose, onCreated }) {
+               />
+             </div>
+             <div>
+-              <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+-                GitHub URL
+-              </label>
++              <div className="flex justify-between items-center mb-2">
++                <label className="font-grotesk font-bold text-xs uppercase tracking-wider">
++                  GitHub URL
++                </label>
++                {form.githubUrl && (
++                   <button 
++                     type="button" 
++                     onClick={handleGithubImport} 
++                     disabled={fetchingGithub}
++                     className="text-[10px] font-bold bg-accent text-ink px-2 py-0.5 rounded border border-ink shadow-sm hover:bg-yellow-400 active:shadow-none transition-all disabled:opacity-50"
++                   >
++                     {fetchingGithub ? 'Importing...' : 'Auto-fill info ΓÜí'}
++                   </button>
++                )}
++              </div>
+               <input
+                 type="url"
+                 value={form.githubUrl}
+diff --git a/components/feed/ProjectCard.jsx b/components/feed/ProjectCard.jsx
+index d6ab6a7..180ba7a 100644
+--- a/components/feed/ProjectCard.jsx
++++ b/components/feed/ProjectCard.jsx
+@@ -1,15 +1,34 @@
+ 'use client'
+ 
+ import Image from 'next/image'
+-import { Heart, MessageCircle } from 'lucide-react'
++import { Heart, MessageCircle, Share2 } from 'lucide-react'
+ import Avatar from '@/components/ui/Avatar'
+ import { SkillPill } from '@/components/ui/SkillPill'
+ import { useState } from 'react'
+ 
++// Simple helper to format time
++function timeAgo(dateString) {
++  if (!dateString) return '2h ago'
++  const date = new Date(dateString)
++  const seconds = Math.floor((new Date() - date) / 1000)
++  let interval = seconds / 31536000
++  if (interval > 1) return Math.floor(interval) + 'y ago'
++  interval = seconds / 2592000
++  if (interval > 1) return Math.floor(interval) + 'mo ago'
++  interval = seconds / 86400
++  if (interval > 1) return Math.floor(interval) + 'd ago'
++  interval = seconds / 3600
++  if (interval > 1) return Math.floor(interval) + 'h ago'
++  interval = seconds / 60
++  if (interval > 1) return Math.floor(interval) + 'm ago'
++  return Math.floor(seconds) + 's ago'
++}
++
+ export default function ProjectCard({ project, onClick, onLike }) {
+   const [liked, setLiked] = useState(project.liked)
+   const [likeCount, setLikeCount] = useState(project._count?.likes || 0)
+   const [liking, setLiking] = useState(false)
++  const [isBouncing, setIsBouncing] = useState(false)
+ 
+   const visibleTech = project.techStack?.slice(0, 3) || []
+   const extraTech = (project.techStack?.length || 0) - 3
+@@ -18,15 +37,18 @@ export default function ProjectCard({ project, onClick, onLike }) {
+     e.stopPropagation()
+     if (liking) return
+     setLiking(true)
+-    // Optimistic update
+     const wasLiked = liked
+     setLiked(!wasLiked)
+     setLikeCount((c) => (wasLiked ? c - 1 : c + 1))
++    
++    if (!wasLiked) {
++      setIsBouncing(true)
++      setTimeout(() => setIsBouncing(false), 300)
++    }
+ 
+     try {
+       const res = await fetch(`/api/project/${project.id}/like`, { method: 'POST' })
+       if (!res.ok) {
+-        // Revert
+         setLiked(wasLiked)
+         setLikeCount((c) => (wasLiked ? c + 1 : c - 1))
+       } else {
+@@ -40,51 +62,72 @@ export default function ProjectCard({ project, onClick, onLike }) {
+     }
+   }
+ 
++  const handleShare = (e) => {
++    e.stopPropagation()
++    // Mock share
++    navigator.clipboard?.writeText(window.location.origin + `/project/${project.id}`)
++  }
++
+   return (
+     <article
+-      className="bg-white/30 backdrop-blur-md border border-white/40 shadow-sm rounded-xl cursor-pointer overflow-hidden flex flex-col animate-fade-in hover:bg-white/40 transition-colors"
++      className="bg-white border-2 border-ink rounded-2xl shadow-brutal cursor-pointer overflow-hidden flex flex-col w-full
++                 transition-all duration-[120ms]
++                 hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg"
+       onClick={() => onClick(project)}
+       role="button"
+       tabIndex={0}
+       onKeyDown={(e) => e.key === 'Enter' && onClick(project)}
+       aria-label={`View project: ${project.title}`}
+     >
+-      {/* Cover Image */}
+-      <div className="relative w-full aspect-video bg-white/20 border-b border-white/40">
+-        {project.coverImage ? (
+-          <Image
+-            src={project.coverImage}
+-            alt={project.title}
+-            fill
+-            className="object-cover"
+-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+-          />
+-        ) : (
+-          <div className="w-full h-full bg-primary flex items-center justify-center">
+-            <span className="font-grotesk font-bold text-black/50 text-lg">No Image</span>
+-          </div>
+-        )}
+-      </div>
+-
+-      {/* Card Body */}
+-      <div className="p-4 flex flex-col gap-3 flex-1">
+-        {/* Author */}
+-        <div className="flex items-center gap-2.5">
+-          <Avatar src={project.user?.avatar} name={project.user?.name} size="sm" />
+-          <div className="min-w-0">
+-            <p className="font-grotesk font-bold text-sm text-black truncate leading-tight">
++      <div className="p-5 flex flex-col gap-4">
++        {/* Author row */}
++        <div className="flex items-center gap-3">
++          <Avatar src={project.user?.avatar} name={project.user?.name} size="md" />
++          <div className="flex-1 min-w-0">
++            <p className="font-grotesk font-bold text-sm text-ink truncate leading-tight">
+               {project.user?.name}
+             </p>
+-            {project.user?.college && (
+-              <p className="font-inter text-xs text-black/50 truncate">{project.user.college}</p>
++            {(project.user?.college || project.user?.year) && (
++              <p className="font-inter text-xs text-muted truncate">
++                {project.user?.college}
++                {project.user?.college && project.user?.year && ' ┬╖ '}
++                {project.user?.year && `${project.user.year} Year`}
++              </p>
+             )}
+           </div>
++          <span className="font-inter text-xs text-muted whitespace-nowrap self-start">
++            {timeAgo(project.createdAt)}
++          </span>
+         </div>
+ 
+-        {/* Title */}
+-        <h2 className="font-grotesk font-bold text-base text-black leading-tight line-clamp-2">
+-          {project.title}
+-        </h2>
++        {/* Title & Description */}
++        <div>
++          <h2 className="font-grotesk font-bold text-xl text-ink leading-tight tracking-tight mb-1.5">
++            {project.title}
++          </h2>
++          {project.description && (
++            <p className="font-inter text-sm text-ink line-clamp-2 leading-relaxed">
++              {project.description}
++            </p>
++          )}
++        </div>
++
++        {/* Cover Image */}
++        <div className="relative w-full aspect-video rounded-xl border-2 border-ink overflow-hidden bg-sky-100">
++          {project.coverImage ? (
++            <Image
++              src={project.coverImage}
++              alt={project.title}
++              fill
++              className="object-cover"
++              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
++            />
++          ) : (
++            <div className="w-full h-full bg-sky-200 flex items-center justify-center">
++              <span className="font-grotesk font-bold text-muted text-sm">No image</span>
++            </div>
++          )}
++        </div>
+ 
+         {/* Tech Stack */}
+         {visibleTech.length > 0 && (
+@@ -93,25 +136,25 @@ export default function ProjectCard({ project, onClick, onLike }) {
+               <SkillPill key={tech} label={tech} />
+             ))}
+             {extraTech > 0 && (
+-              <span className="skill-pill text-ink/60">+{extraTech} more</span>
++              <span className="skill-pill">+{extraTech} more</span>
+             )}
+           </div>
+         )}
+ 
+-        {/* Actions */}
+-        <div className="flex items-center gap-4 pt-1 border-t border-black/10 mt-auto">
++        {/* Actions Footer */}
++        <div className="flex items-center gap-6 pt-1">
+           <button
+             onClick={handleLike}
+-            className={`flex items-center gap-1.5 font-grotesk font-bold text-xs uppercase tracking-wider transition-all duration-150 ${
+-              liked ? 'text-red-500' : 'text-black/50 hover:text-red-500'
++            className={`flex items-center gap-1.5 font-grotesk font-bold text-sm transition-colors duration-[120ms] ${
++              liked ? 'text-red-500' : 'text-ink hover:text-red-500'
+             }`}
+             aria-label={liked ? 'Unlike' : 'Like'}
+             disabled={liking}
+           >
+             <Heart
+-              size={16}
++              size={18}
+               strokeWidth={2.5}
+-              className={liked ? 'fill-red-500 stroke-red-500' : ''}
++              className={`transition-transform duration-300 ${liked ? 'fill-red-500 stroke-red-500' : ''} ${isBouncing ? 'scale-125' : 'scale-100'}`}
+             />
+             {likeCount}
+           </button>
+@@ -121,12 +164,20 @@ export default function ProjectCard({ project, onClick, onLike }) {
+               e.stopPropagation()
+               onClick(project)
+             }}
+-            className="flex items-center gap-1.5 font-grotesk font-bold text-xs uppercase tracking-wider text-black/50 hover:text-black transition-colors"
++            className="flex items-center gap-1.5 font-grotesk font-bold text-sm text-ink hover:text-accent transition-colors duration-[120ms]"
+             aria-label="Comments"
+           >
+-            <MessageCircle size={16} strokeWidth={2.5} />
++            <MessageCircle size={18} strokeWidth={2.5} />
+             {project._count?.comments || 0}
+           </button>
++
++          <button
++            onClick={handleShare}
++            className="flex items-center gap-1.5 font-grotesk font-bold text-sm text-ink hover:text-accent transition-colors duration-[120ms] ml-auto"
++            aria-label="Share"
++          >
++            <Share2 size={18} strokeWidth={2.5} />
++          </button>
+         </div>
+       </div>
+     </article>
+diff --git a/components/layout/GlassLayout.jsx b/components/layout/GlassLayout.jsx
+index 46bf4b7..8b495f9 100644
+--- a/components/layout/GlassLayout.jsx
++++ b/components/layout/GlassLayout.jsx
+@@ -1,28 +1,9 @@
+ 'use client'
+ 
+-import formPageImg from '@/public/form-page-2.png'
+-
+ export default function GlassLayout({ children }) {
+   return (
+-    <div className="min-h-screen relative font-sans overflow-hidden">
+-      {/* Background Image */}
+-      <div
+-        className="fixed inset-0 z-0"
+-        style={{
+-          backgroundImage: `url(${formPageImg.src})`,
+-          backgroundSize: 'cover',
+-          backgroundPosition: 'center',
+-          backgroundRepeat: 'no-repeat',
+-        }}
+-      />
+-
+-      {/* Vignette Overlay */}
+-      <div 
+-        className="fixed inset-0 z-0 pointer-events-none" 
+-        style={{ background: 'radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.35) 100%)' }} 
+-      />
+-
+-      {/* Main Content Area */}
++    <div className="min-h-screen relative font-sans flex flex-col">
++      {/* Main Content Area ΓÇö page bg comes from body in globals.css */}
+       <div className="relative z-10 w-full min-h-screen flex flex-col">
+         {children}
+       </div>
+diff --git a/components/layout/Header.jsx b/components/layout/Header.jsx
+index 5a7fead..42cbb79 100644
+--- a/components/layout/Header.jsx
++++ b/components/layout/Header.jsx
+@@ -3,16 +3,28 @@
+ import Link from 'next/link'
+ import { usePathname } from 'next/navigation'
+ import { useSession, signOut } from 'next-auth/react'
+-import { Bell, Search, Plus, Users, Home, LogOut, MessageSquare } from 'lucide-react'
+-import { useEffect, useState } from 'react'
++import { Bell, Plus, Users, Home, LogOut, MessageSquare, User, ChevronDown } from 'lucide-react'
++import { useEffect, useState, useRef } from 'react'
+ import Avatar from '@/components/ui/Avatar'
+ 
+-export default function Header({ onPost, onSearch }) {
++export default function Header({ onPost }) {
+   const pathname = usePathname()
+   const { data: session } = useSession()
+   const [unreadCount, setUnreadCount] = useState(0)
+-
+   const [unreadChatCount, setUnreadChatCount] = useState(0)
++  const [dropdownOpen, setDropdownOpen] = useState(false)
++  const dropdownRef = useRef(null)
++
++  // Close dropdown on outside click
++  useEffect(() => {
++    function handleClickOutside(e) {
++      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
++        setDropdownOpen(false)
++      }
++    }
++    document.addEventListener('mousedown', handleClickOutside)
++    return () => document.removeEventListener('mousedown', handleClickOutside)
++  }, [])
+ 
+   useEffect(() => {
+     async function fetchUnread() {
+@@ -24,7 +36,7 @@ export default function Header({ onPost, onSearch }) {
+         }
+       } catch {}
+     }
+-    
++
+     async function fetchUnreadChat() {
+       try {
+         const res = await fetch('/api/chat/unread-count')
+@@ -39,83 +51,70 @@ export default function Header({ onPost, onSearch }) {
+       fetchUnread()
+       fetchUnreadChat()
+     }
+-    // Refresh every 30s
+-    const interval = setInterval(() => { 
+-      if (session) {
+-        fetchUnread()
+-        fetchUnreadChat()
+-      }
++    const interval = setInterval(() => {
++      if (session) { fetchUnread(); fetchUnreadChat() }
+     }, 30000)
+-    // Refresh chat specifically every 15s
+     const chatInterval = setInterval(() => {
+       if (session) fetchUnreadChat()
+     }, 15000)
+-    
+-    return () => {
+-      clearInterval(interval)
+-      clearInterval(chatInterval)
+-    }
++
++    return () => { clearInterval(interval); clearInterval(chatInterval) }
+   }, [session, pathname])
+ 
+   const navLinks = [
+-    { href: '/feed', label: 'Feed', icon: Home },
+-    { href: '/teammates', label: 'Teammates', icon: Users },
+-    { href: '/messages', label: 'Messages', icon: MessageSquare, badge: unreadChatCount },
++    { href: '/feed',       label: 'Feed',       icon: Home },
++    { href: '/teammates',  label: 'Teammates',  icon: Users },
++    { href: '/messages',   label: 'Messages',   icon: MessageSquare, badge: unreadChatCount },
+   ]
+ 
+   return (
+-    <header className="sticky top-0 z-30 bg-white/20 backdrop-blur-md border-b border-white/40 shadow-sm">
+-      <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between gap-4">
+-        {/* Logo */}
+-        <Link href="/feed" className="flex items-center gap-1 flex-shrink-0 py-2">
++    <header className="sticky top-0 z-30 bg-white border-b-2 border-ink h-16">
++      <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-4">
++
++        {/* ΓöÇΓöÇ Left: Logo ΓöÇΓöÇ */}
++        <Link href="/feed" className="flex items-center flex-shrink-0">
+           <img
+             src="/logo.png"
+-            alt="ShowUp Logo"
+-            className="h-14 w-auto object-contain drop-shadow-md scale-[1.5] origin-left hover:scale-[1.6] transition-transform"
++            alt="ShowUp"
++            className="h-12 w-auto object-contain scale-[1.4] origin-left hover:scale-[1.5] transition-transform duration-[120ms]"
+           />
+         </Link>
+ 
+-        {/* Desktop Nav */}
+-        <nav className="hidden md:flex items-center gap-1">
+-          {navLinks.map((link) => (
+-            <Link
+-              key={link.href}
+-              href={link.href}
+-              className={`relative flex items-center gap-1.5 px-3 py-1.5 font-grotesk font-bold text-xs uppercase tracking-wider border transition-all duration-150 rounded-md ${
+-                pathname.startsWith(link.href)
+-                  ? 'bg-white/40 border-white/60 shadow-sm text-black'
+-                  : 'border-transparent text-black/70 hover:bg-white/20 hover:border-white/40 hover:text-black'
+-              }`}
+-            >
+-              <link.icon size={14} />
+-              {link.label}
+-              {link.badge > 0 && (
+-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-grotesk font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center border-2 border-ink px-0.5">
+-                  {link.badge > 9 ? '9+' : link.badge}
+-                </span>
+-              )}
+-            </Link>
+-          ))}
++        {/* ΓöÇΓöÇ Center: Nav pills ΓöÇΓöÇ */}
++        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
++          {navLinks.map((link) => {
++            const active = pathname.startsWith(link.href)
++            return (
++              <Link
++                key={link.href}
++                href={link.href}
++                className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold font-grotesk border-2 transition-all duration-[120ms] ${
++                  active
++                    ? 'bg-accent border-ink shadow-brutal text-ink'
++                    : 'border-transparent text-ink/70 hover:text-ink hover:bg-sky-100 hover:border-sky-100'
++                }`}
++              >
++                <link.icon size={14} strokeWidth={active ? 2.5 : 2} />
++                {link.label}
++                {/* Unread badge */}
++                {link.badge > 0 && (
++                  <span className="absolute -top-1.5 -right-1 w-4 h-4 bg-violet border-2 border-white rounded-full text-white text-[8px] font-bold flex items-center justify-center">
++                    {link.badge > 9 ? '9+' : link.badge}
++                  </span>
++                )}
++              </Link>
++            )
++          })}
+         </nav>
+ 
+-        {/* Right Actions */}
++        {/* ΓöÇΓöÇ Right: Post + Bell + Avatar dropdown ΓöÇΓöÇ */}
+         <div className="flex items-center gap-2">
+-          {/* Search */}
+-          {onSearch && (
+-            <button
+-              onClick={onSearch}
+-              className="bg-white/40 hover:bg-white/60 border border-white/60 text-black shadow-sm rounded-md p-2 flex items-center justify-center transition-colors"
+-              aria-label="Search"
+-            >
+-              <Search size={18} strokeWidth={2.5} />
+-            </button>
+-          )}
+ 
+-          {/* Post Button */}
++          {/* Post button ΓÇö only shown if onPost is passed */}
+           {onPost && (
+             <button
+               onClick={onPost}
+-              className="hidden md:flex bg-white/70 hover:bg-white text-black font-bold border border-white/40 rounded-md shadow-sm items-center gap-1.5 py-2 px-4 text-xs transition-colors"
++              className="hidden md:flex btn-primary px-3.5 py-1.5 text-sm gap-1"
+               aria-label="Post project"
+             >
+               <Plus size={14} strokeWidth={3} />
+@@ -123,35 +122,69 @@ export default function Header({ onPost, onSearch }) {
+             </button>
+           )}
+ 
+-          {/* Notifications */}
+-          <Link href="/notifications" className="relative bg-white/40 hover:bg-white/60 border border-white/60 text-black shadow-sm rounded-md p-2 flex items-center justify-center transition-colors" aria-label="Notifications">
+-            <Bell size={18} strokeWidth={2} />
++          {/* Bell */}
++          <Link
++            href="/notifications"
++            className="btn-icon relative"
++            aria-label="Notifications"
++          >
++            <Bell size={16} strokeWidth={2} />
+             {unreadCount > 0 && (
+-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-grotesk font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-ink px-0.5">
+-                {unreadCount > 9 ? '9+' : unreadCount}
+-              </span>
++              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-violet rounded-full border-2 border-white" />
+             )}
+           </Link>
+ 
+-          {/* Avatar */}
++          {/* Avatar dropdown */}
+           {session?.user && (
+-            <div className="flex items-center gap-3 ml-2 border-l border-white/40 pl-3">
+-              <Link href={session.user.username ? `/profile/${session.user.username}` : '/feed'}>
++            <div className="relative ml-1" ref={dropdownRef}>
++              <button
++                onClick={() => setDropdownOpen((o) => !o)}
++                className="flex items-center gap-1.5 pl-1 py-0.5 rounded-full border-2 border-transparent hover:border-ink transition-all duration-[120ms]"
++                aria-label="Account menu"
++                aria-expanded={dropdownOpen}
++              >
+                 <Avatar
+                   src={session.user.avatar || session.user.image}
+                   name={session.user.name}
+                   size="sm"
+-                  className="cursor-pointer hover:scale-105 shadow-sm transition-transform border border-white/40"
++                  className="cursor-pointer"
++                />
++                <ChevronDown
++                  size={13}
++                  strokeWidth={2.5}
++                  className={`text-muted transition-transform duration-[120ms] ${dropdownOpen ? 'rotate-180' : ''}`}
+                 />
+-              </Link>
+-              <button
+-                onClick={() => signOut({ callbackUrl: '/' })}
+-                className="bg-white/40 hover:bg-red-500 hover:text-white hover:border-red-600 text-red-600 border border-white/60 shadow-sm rounded-md p-2 flex items-center justify-center transition-colors"
+-                title="Log Out"
+-                aria-label="Log Out"
+-              >
+-                <LogOut size={18} strokeWidth={2.5} />
+               </button>
++
++              {/* Dropdown panel */}
++              {dropdownOpen && (
++                <div className="absolute right-0 top-full mt-2 w-52 bg-white border-2 border-ink rounded-2xl shadow-brutal overflow-hidden z-50 animate-fade-in">
++                  {/* User info */}
++                  <div className="px-4 py-3 border-b-2 border-ink/10">
++                    <p className="font-grotesk font-bold text-sm text-ink truncate">{session.user.name}</p>
++                    <p className="font-inter text-xs text-muted truncate">@{session.user.username || 'ΓÇö'}</p>
++                  </div>
++
++                  {/* Links */}
++                  <div className="py-1">
++                    <Link
++                      href={session.user.username ? `/profile/${session.user.username}` : '/feed'}
++                      onClick={() => setDropdownOpen(false)}
++                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold font-grotesk text-ink hover:bg-sky-50 transition-colors duration-[120ms]"
++                    >
++                      <User size={14} strokeWidth={2} />
++                      View profile
++                    </Link>
++                    <button
++                      onClick={() => { setDropdownOpen(false); signOut({ callbackUrl: '/' }) }}
++                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold font-grotesk text-red-500 hover:bg-red-50 transition-colors duration-[120ms]"
++                    >
++                      <LogOut size={14} strokeWidth={2} />
++                      Sign out
++                    </button>
++                  </div>
++                </div>
++              )}
+             </div>
+           )}
+         </div>
+diff --git a/components/layout/MobileNav.jsx b/components/layout/MobileNav.jsx
+index 3f6463c..0f97174 100644
+--- a/components/layout/MobileNav.jsx
++++ b/components/layout/MobileNav.jsx
+@@ -3,14 +3,13 @@
+ import Link from 'next/link'
+ import { usePathname } from 'next/navigation'
+ import { useSession } from 'next-auth/react'
+-import { Bell, Home, Users, Plus, User, MessageSquare } from 'lucide-react'
++import { Bell, Home, Users, MessageSquare, User } from 'lucide-react'
+ import { useEffect, useState } from 'react'
+ 
+ export default function MobileNav({ onPost }) {
+   const pathname = usePathname()
+   const { data: session } = useSession()
+   const [unreadCount, setUnreadCount] = useState(0)
+-
+   const [unreadChatCount, setUnreadChatCount] = useState(0)
+ 
+   useEffect(() => {
+@@ -36,73 +35,64 @@ export default function MobileNav({ onPost }) {
+       fetchUnread()
+       fetchUnreadChat()
+     }
+-    // Set up intervals
+     const interval = setInterval(() => {
+-      if (session) {
+-        fetchUnread()
+-        fetchUnreadChat()
+-      }
++      if (session) { fetchUnread(); fetchUnreadChat() }
+     }, 30000)
+     const chatInterval = setInterval(() => {
+       if (session) fetchUnreadChat()
+     }, 15000)
+-    
+-    return () => {
+-      clearInterval(interval)
+-      clearInterval(chatInterval)
+-    }
++
++    return () => { clearInterval(interval); clearInterval(chatInterval) }
+   }, [session, pathname])
+ 
+-  const navItems = [
+-    { href: '/feed', icon: Home, label: 'Feed' },
+-    { href: '/messages', icon: MessageSquare, label: 'Chat', badge: unreadChatCount },
+-    { action: onPost, icon: Plus, label: 'Post', special: true },
+-    { href: '/notifications', icon: Bell, label: 'Alerts', badge: unreadCount },
+-    { href: session?.user?.username ? `/profile/${session.user.username}` : '/feed', icon: User, label: 'Me' },
++  const tabs = [
++    { href: '/feed',      icon: Home,          label: 'Feed' },
++    { href: '/teammates', icon: Users,          label: 'Team' },
++    { href: '/messages',  icon: MessageSquare,  label: 'Chat',   badge: unreadChatCount },
++    { href: '/notifications', icon: Bell,       label: 'Alerts', badge: unreadCount },
++    {
++      href: session?.user?.username ? `/profile/${session.user.username}` : '/feed',
++      icon: User,
++      label: 'Me',
++    },
+   ]
+ 
+   return (
+-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t-3 border-ink z-40 flex">
+-      {navItems.map((item, i) => {
+-        const isActive = item.href && pathname.startsWith(item.href)
+-
+-        if (item.special) {
+-          return (
+-            <button
+-              key={i}
+-              onClick={item.action}
+-              className="flex-1 flex flex-col items-center justify-center py-2 gap-1 group"
+-              aria-label={item.label}
+-            >
+-              <div className="bg-primary border-3 border-ink p-2 shadow-brutal-sm group-active:shadow-brutal-none group-active:translate-x-0.5 group-active:translate-y-0.5 transition-all">
+-                <item.icon size={18} strokeWidth={2.5} className="text-ink" />
+-              </div>
+-            </button>
+-          )
+-        }
++    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-ink z-40 flex safe-area-pb">
++      {tabs.map((tab, i) => {
++        const isActive = pathname.startsWith(tab.href)
+ 
+         return (
+           <Link
+             key={i}
+-            href={item.href}
+-            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 relative transition-colors ${
+-              isActive ? 'text-ink' : 'text-ink/40'
+-            }`}
++            href={tab.href}
++            className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 relative transition-colors duration-[120ms]"
++            aria-label={tab.label}
+           >
+-            <div className="relative">
+-              <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+-              {item.badge > 0 && (
+-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-grotesk font-bold w-4 h-4 rounded-full flex items-center justify-center border border-ink">
+-                  {item.badge > 9 ? '9+' : item.badge}
+-                </span>
++            {/* Yellow pill behind icon when active */}
++            <div
++              className={`relative flex items-center justify-center w-10 h-7 rounded-full transition-all duration-[120ms] ${
++                isActive ? 'bg-accent border-2 border-ink shadow-brutal-sm' : ''
++              }`}
++            >
++              <tab.icon
++                size={18}
++                strokeWidth={isActive ? 2.5 : 2}
++                className={isActive ? 'text-ink' : 'text-muted'}
++              />
++              {/* Unread dot */}
++              {tab.badge > 0 && (
++                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-violet rounded-full border-2 border-white" />
+               )}
+             </div>
+-            <span className={`text-[9px] font-grotesk font-bold uppercase tracking-wider ${isActive ? 'text-ink' : 'text-ink/40'}`}>
+-              {item.label}
++
++            <span
++              className={`text-[9px] font-grotesk font-semibold ${
++                isActive ? 'text-ink' : 'text-muted'
++              }`}
++            >
++              {tab.label}
+             </span>
+-            {isActive && (
+-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary" />
+-            )}
+           </Link>
+         )
+       })}
+diff --git a/components/profile/ConnectionButton.jsx b/components/profile/ConnectionButton.jsx
+index e8f22b2..d2ea345 100644
+--- a/components/profile/ConnectionButton.jsx
++++ b/components/profile/ConnectionButton.jsx
+@@ -2,18 +2,22 @@
+ 
+ import { useState, useEffect } from 'react'
+ import { useSession } from 'next-auth/react'
+-import { UserPlus, Clock, CheckCircle, Check, X } from 'lucide-react'
++import { UserPlus, Clock, CheckCircle, Check, X, MessageCircle } from 'lucide-react'
+ import LoadingSpinner from '@/components/ui/LoadingSpinner'
+ import toast from 'react-hot-toast'
+ import Link from 'next/link'
+ 
+-export default function ConnectionButton({ targetUserId, initialStatus = null, initialConnectionId = null }) {
++export default function ConnectionButton({ targetUserId, initialStatus = null, initialConnectionId = null, fullWidth = false }) {
+   const { data: session } = useSession()
+   const [status, setStatus] = useState(initialStatus) // NONE, PENDING_SENT, PENDING_RECEIVED, ACCEPTED
+   const [connectionId, setConnectionId] = useState(initialConnectionId)
+   const [loading, setLoading] = useState(!initialStatus)
+   const [acting, setActing] = useState(false)
+ 
++  const widthClass = fullWidth ? 'w-full justify-center' : ''
++  const containerClass = fullWidth ? 'flex gap-2 w-full' : 'flex gap-2'
++  const halfWidthClass = fullWidth ? 'flex-1 justify-center' : ''
++
+   useEffect(() => {
+     if (initialStatus) {
+       setStatus(initialStatus)
+@@ -89,47 +93,42 @@ export default function ConnectionButton({ targetUserId, initialStatus = null, i
+   }
+ 
+   if (loading) {
+-    return <div className="btn-secondary opacity-50 flex items-center gap-2 text-xs"><LoadingSpinner size="sm" /> Loading...</div>
++    return <div className={`btn-secondary opacity-50 flex items-center gap-2 text-sm ${widthClass}`}><LoadingSpinner size="sm" /> Loading...</div>
+   }
+ 
+   if (status === 'ACCEPTED') {
+     return (
+-      <div className="flex gap-2">
+-        <Link href={`/messages?user=${targetUserId}`} className="btn-primary flex items-center gap-1.5 text-xs py-2 px-3">
+-          Message
+-        </Link>
+-        <div className="btn-secondary flex items-center gap-2 text-xs cursor-default opacity-80">
+-          <CheckCircle size={14} className="text-green-600" /> Connected Γ£ô
+-        </div>
+-      </div>
++      <Link href={`/messages?user=${targetUserId}`} className={`btn-primary flex items-center gap-2 text-sm ${widthClass}`}>
++        <MessageCircle size={16} strokeWidth={2.5} /> Message
++      </Link>
+     )
+   }
+ 
+   if (status === 'PENDING_SENT') {
+     return (
+-      <div className="btn-secondary flex items-center gap-2 text-xs cursor-not-allowed opacity-70">
+-        <Clock size={14} /> Pending
++      <div className={`btn-secondary flex items-center gap-2 text-sm cursor-not-allowed opacity-70 ${widthClass}`}>
++        <Clock size={16} strokeWidth={2.5} /> Pending
+       </div>
+     )
+   }
+ 
+   if (status === 'PENDING_RECEIVED') {
+     return (
+-      <div className="flex gap-2">
++      <div className={containerClass}>
+         <button
+           onClick={() => handleAction('accept')}
+           disabled={acting}
+-          className="btn-primary flex items-center gap-1.5 text-xs py-2 px-3"
++          className={`btn-primary flex items-center gap-1.5 text-sm ${halfWidthClass}`}
+         >
+-          {acting ? <LoadingSpinner size="sm" color="ink" /> : <Check size={13} strokeWidth={3} />}
++          {acting ? <LoadingSpinner size="sm" color="ink" /> : <Check size={16} strokeWidth={3} />}
+           Accept
+         </button>
+         <button
+           onClick={() => handleAction('decline')}
+           disabled={acting}
+-          className="btn-destructive flex items-center gap-1.5 text-xs py-2 px-3"
++          className={`btn-secondary flex items-center gap-1.5 text-sm ${halfWidthClass}`}
+         >
+-          <X size={13} strokeWidth={3} /> Decline
++          <X size={16} strokeWidth={3} /> Decline
+         </button>
+       </div>
+     )
+@@ -140,9 +139,9 @@ export default function ConnectionButton({ targetUserId, initialStatus = null, i
+     <button
+       onClick={handleConnect}
+       disabled={acting}
+-      className="btn-primary flex items-center gap-2 text-xs"
++      className={`btn-primary flex items-center gap-2 text-sm ${widthClass}`}
+     >
+-      {acting ? <LoadingSpinner size="sm" color="ink" /> : <UserPlus size={14} strokeWidth={2.5} />}
++      {acting ? <LoadingSpinner size="sm" color="ink" /> : <UserPlus size={16} strokeWidth={2.5} />}
+       Connect
+     </button>
+   )
+diff --git a/components/teammates/FilterBar.jsx b/components/teammates/FilterBar.jsx
+index 2dee69a..27b1527 100644
+--- a/components/teammates/FilterBar.jsx
++++ b/components/teammates/FilterBar.jsx
+@@ -1,17 +1,16 @@
+ 'use client'
+ 
+ import { useState } from 'react'
+-import { ChevronDown, X } from 'lucide-react'
++import { X } from 'lucide-react'
+ import { SkillPill } from '@/components/ui/SkillPill'
+ 
+ const BRANCHES = ['CSE', 'ECE', 'ME', 'Civil', 'MBA', 'Design', 'Other']
+ const YEARS = ['1', '2', '3', '4']
+-const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' }
++const YEAR_LABELS = { '1': '1st year', '2': '2nd year', '3': '3rd year', '4': '4th year' }
+ const INTEREST_OPTIONS = ['Web Dev', 'App Dev', 'AI-ML', 'Blockchain', 'Design', 'Other']
+ const COMMON_SKILLS = ['React', 'Python', 'Node.js', 'Flutter', 'ML', 'Figma', 'Java', 'C++']
+ 
+ export default function FilterBar({ filters, onChange }) {
+-  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false)
+   const [skillInput, setSkillInput] = useState('')
+ 
+   const handleBranch = (val) => onChange({ ...filters, branch: filters.branch === val ? '' : val })
+@@ -31,7 +30,6 @@ export default function FilterBar({ filters, onChange }) {
+       onChange({ ...filters, skills: [...current, skill] })
+     }
+     setSkillInput('')
+-    setShowSkillSuggestions(false)
+   }
+ 
+   const removeSkill = (skill) => {
+@@ -43,18 +41,18 @@ export default function FilterBar({ filters, onChange }) {
+   const hasFilters = filters.branch || filters.year || filters.skills?.length || filters.interests?.length
+ 
+   return (
+-    <div className="bg-surface border-3 border-ink shadow-brutal p-4 mb-6">
++    <div className="bg-white border-2 border-ink rounded-2xl shadow-brutal p-5 mb-6">
+       {/* Row 1: Branch + Year */}
+-      <div className="flex flex-wrap gap-3 mb-4">
+-        {/* Branch Filter */}
+-        <div className="flex flex-col gap-1">
+-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-ink/50">Branch</p>
++      <div className="flex flex-wrap gap-5 mb-5">
++        {/* Branch */}
++        <div className="flex flex-col gap-2">
++          <p className="font-grotesk font-bold text-xs text-muted">Branch</p>
+           <div className="flex flex-wrap gap-1.5">
+             {BRANCHES.map((b) => (
+               <button
+                 key={b}
+                 onClick={() => handleBranch(b)}
+-                className={filters.branch === b ? 'skill-pill-active' : 'skill-pill hover:bg-primary/20 transition-colors'}
++                className={filters.branch === b ? 'skill-pill-active' : 'skill-pill hover:bg-sky-200 transition-colors duration-[120ms]'}
+               >
+                 {b}
+               </button>
+@@ -62,15 +60,15 @@ export default function FilterBar({ filters, onChange }) {
+           </div>
+         </div>
+ 
+-        {/* Year Filter */}
+-        <div className="flex flex-col gap-1">
+-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-ink/50">Year</p>
++        {/* Year */}
++        <div className="flex flex-col gap-2">
++          <p className="font-grotesk font-bold text-xs text-muted">Year</p>
+           <div className="flex gap-1.5">
+             {YEARS.map((y) => (
+               <button
+                 key={y}
+                 onClick={() => handleYear(y)}
+-                className={filters.year === y ? 'skill-pill-active' : 'skill-pill hover:bg-primary/20 transition-colors'}
++                className={filters.year === y ? 'skill-pill-active' : 'skill-pill hover:bg-sky-200 transition-colors duration-[120ms]'}
+               >
+                 {YEAR_LABELS[y]}
+               </button>
+@@ -80,39 +78,37 @@ export default function FilterBar({ filters, onChange }) {
+       </div>
+ 
+       {/* Row 2: Skills */}
+-      <div className="mb-4">
+-        <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-ink/50 mb-2">Skills</p>
++      <div className="mb-5">
++        <p className="font-grotesk font-bold text-xs text-muted mb-2">Skills</p>
+         <div className="flex flex-wrap gap-1.5 mb-2">
+           {(filters.skills || []).map((skill) => (
+             <SkillPill key={skill} label={skill} active onRemove={() => removeSkill(skill)} />
+           ))}
+           {COMMON_SKILLS.filter((s) => !(filters.skills || []).includes(s)).map((s) => (
+-            <button key={s} onClick={() => addSkill(s)} className="skill-pill hover:bg-primary/20 transition-colors">
++            <button key={s} onClick={() => addSkill(s)} className="skill-pill hover:bg-sky-200 transition-colors duration-[120ms]">
+               + {s}
+             </button>
+           ))}
+         </div>
+-        <div className="relative inline-block">
+-          <input
+-            type="text"
+-            value={skillInput}
+-            onChange={(e) => { setSkillInput(e.target.value); setShowSkillSuggestions(true) }}
+-            onKeyDown={(e) => { if (e.key === 'Enter' && skillInput.trim()) addSkill(skillInput.trim()) }}
+-            placeholder="Add skill..."
+-            className="input-brutal py-1.5 text-xs w-36"
+-          />
+-        </div>
++        <input
++          type="text"
++          value={skillInput}
++          onChange={(e) => setSkillInput(e.target.value)}
++          onKeyDown={(e) => { if (e.key === 'Enter' && skillInput.trim()) addSkill(skillInput.trim()) }}
++          placeholder="Add a skill..."
++          className="input-brutal py-2 text-xs w-40"
++        />
+       </div>
+ 
+-      {/* Row 3: Hackathon Interests */}
++      {/* Row 3: Interests */}
+       <div className="mb-4">
+-        <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-ink/50 mb-2">Interests</p>
++        <p className="font-grotesk font-bold text-xs text-muted mb-2">Interests</p>
+         <div className="flex flex-wrap gap-1.5">
+           {INTEREST_OPTIONS.map((interest) => (
+             <button
+               key={interest}
+               onClick={() => toggleInterest(interest)}
+-              className={(filters.interests || []).includes(interest) ? 'skill-pill-active' : 'skill-pill hover:bg-primary/20 transition-colors'}
++              className={(filters.interests || []).includes(interest) ? 'skill-pill-active' : 'skill-pill hover:bg-sky-200 transition-colors duration-[120ms]'}
+             >
+               {interest}
+             </button>
+@@ -122,7 +118,7 @@ export default function FilterBar({ filters, onChange }) {
+ 
+       {/* Clear */}
+       {hasFilters && (
+-        <button onClick={clearAll} className="flex items-center gap-1.5 font-grotesk font-bold text-xs text-ink/50 hover:text-red-500 transition-colors">
++        <button onClick={clearAll} className="flex items-center gap-1.5 font-grotesk font-bold text-xs text-muted hover:text-red-500 transition-colors duration-[120ms]">
+           <X size={12} /> Clear all filters
+         </button>
+       )}
+diff --git a/components/teammates/TeammateCard.jsx b/components/teammates/TeammateCard.jsx
+index 17da5b3..c659465 100644
+--- a/components/teammates/TeammateCard.jsx
++++ b/components/teammates/TeammateCard.jsx
+@@ -4,74 +4,68 @@ import Avatar from '@/components/ui/Avatar'
+ import { SkillPill } from '@/components/ui/SkillPill'
+ import ConnectionButton from '@/components/profile/ConnectionButton'
+ import Link from 'next/link'
++import { Search } from 'lucide-react'
+ 
+-const YEAR_LABELS = { '1': '1st Year', '2': '2nd Year', '3': '3rd Year', '4': '4th Year' }
++const YEAR_LABELS = { '1': '1st year', '2': '2nd year', '3': '3rd year', '4': '4th year' }
+ 
+ export default function TeammateCard({ user }) {
+-  const topSkills = user.skills?.slice(0, 3) || []
+-  const topInterests = user.hackathonInterests?.slice(0, 3) || []
++  const topSkills = user.skills?.slice(0, 4) || []
++  const extraSkills = (user.skills?.length || 0) - 4
++  
++  // Fake bio if none provided, to show layout
++  const bio = user.bio || "Passionate about building cool things. Always learning new technologies and looking for challenging hackathons."
+ 
+   return (
+-    <article className="bg-white/30 backdrop-blur-md border border-white/40 shadow-sm rounded-xl p-5 flex flex-col gap-4 animate-fade-in hover:bg-white/40 transition-colors">
+-      {/* Header */}
+-      <div className="flex items-start gap-3">
+-        <Link href={`/profile/${user.username}`}>
+-          <Avatar src={user.avatar} name={user.name} size="md" className="cursor-pointer hover:scale-105 transition-all shadow-sm" />
++    <article className="relative bg-white border-2 border-ink rounded-2xl shadow-brutal p-5 flex flex-col gap-4 animate-fade-in
++                        transition-all duration-[120ms] w-full
++                        hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-brutal-lg">
++      
++      {/* "Open to team" badge in top-right corner */}
++      {user.openToTeaming !== false && (
++        <div className="absolute top-4 right-4 bg-accent text-ink border-2 border-ink rounded-full px-2 py-0.5 flex items-center gap-1 shadow-brutal-sm">
++          <Search size={10} strokeWidth={3} />
++          <span className="font-grotesk font-bold text-[10px] tracking-wide uppercase">Open</span>
++        </div>
++      )}
++
++      {/* Top: Avatar & Info */}
++      <div className="flex flex-col gap-3">
++        <Link href={`/profile/${user.username}`} className="w-fit">
++          <Avatar src={user.avatar} name={user.name} size="lg" className="cursor-pointer hover:scale-105 transition-all duration-[120ms]" />
+         </Link>
+-        <div className="flex-1 min-w-0">
+-          <Link href={`/profile/${user.username}`} className="font-grotesk font-bold text-base text-black hover:underline decoration-2 truncate block">
++        <div>
++          <Link href={`/profile/${user.username}`} className="font-grotesk font-bold text-xl text-ink hover:underline decoration-2 tracking-tight block">
+             {user.name}
+           </Link>
+-          {user.college && (
+-            <p className="font-inter text-xs text-black/60 truncate">{user.college}</p>
+-          )}
+-          <div className="flex items-center gap-2 mt-1">
+-            {user.branch && (
+-              <span className="font-grotesk font-bold text-xs text-black/70">{user.branch}</span>
+-            )}
+-            {user.year && (
+-              <>
+-                <span className="text-black/30">┬╖</span>
+-                <span className="font-grotesk font-bold text-xs text-black/70">{YEAR_LABELS[user.year] || user.year}</span>
+-              </>
+-            )}
++          <div className="flex flex-wrap items-center gap-1 mt-1 font-inter text-xs text-muted">
++            {user.college && <span>{user.college}</span>}
++            {user.college && (user.branch || user.year) && <span>┬╖</span>}
++            {user.branch && <span>{user.branch}</span>}
++            {user.branch && user.year && <span>┬╖</span>}
++            {user.year && <span>{YEAR_LABELS[user.year] || user.year}</span>}
+           </div>
+         </div>
+       </div>
+ 
+-      {/* Teaming Badge */}
+-      <div className="bg-white/50 border border-white/60 text-black rounded-md px-2 py-1 font-bold inline-flex items-center gap-1 self-start text-xs shadow-sm">
+-        ≡ƒöì Open to Teaming
+-      </div>
++      {/* Middle: Bio & Skills */}
++      <div className="flex-1 flex flex-col gap-3">
++        <p className="font-inter text-sm text-ink line-clamp-2 leading-relaxed">
++          {bio}
++        </p>
+ 
+-      {/* Skills */}
+-      {topSkills.length > 0 && (
+-        <div>
+-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-black/60 mb-2">Skills</p>
+-          <div className="flex flex-wrap gap-1.5">
++        {topSkills.length > 0 && (
++          <div className="flex flex-wrap gap-1.5 mt-auto">
+             {topSkills.map((skill) => <SkillPill key={skill} label={skill} />)}
+-            {(user.skills?.length || 0) > 3 && (
+-              <span className="bg-white/40 border border-white/60 text-black/80 text-xs px-2 py-1 rounded-full font-bold">+{user.skills.length - 3}</span>
++            {extraSkills > 0 && (
++              <span className="skill-pill !text-muted">+{extraSkills}</span>
+             )}
+           </div>
+-        </div>
+-      )}
+-
+-      {/* Hackathon Interests */}
+-      {topInterests.length > 0 && (
+-        <div>
+-          <p className="font-grotesk font-bold text-xs uppercase tracking-wider text-black/60 mb-2">Interests</p>
+-          <div className="flex flex-wrap gap-1.5">
+-            {topInterests.map((interest) => (
+-              <span key={interest} className="bg-white/60 border border-white/80 text-black text-xs px-2 py-1 rounded-full font-bold">{interest}</span>
+-            ))}
+-          </div>
+-        </div>
+-      )}
++        )}
++      </div>
+ 
+-      {/* Connect Button */}
+-      <div className="pt-2 border-t border-black/10">
+-        <ConnectionButton targetUserId={user.id} />
++      {/* Bottom: Connection Button */}
++      <div className="pt-3 border-t-2 border-ink/10 mt-1">
++        <ConnectionButton targetUserId={user.id} fullWidth={true} />
+       </div>
+     </article>
+   )
+diff --git a/components/ui/Avatar.jsx b/components/ui/Avatar.jsx
+index 202e336..d8ada52 100644
+--- a/components/ui/Avatar.jsx
++++ b/components/ui/Avatar.jsx
+@@ -4,7 +4,7 @@ import Image from 'next/image'
+ 
+ export default function Avatar({ src, name, size = 'md', className = '' }) {
+   const sizes = {
+-    xs: 'w-6 h-6 text-xs',
++    xs: 'w-6 h-6 text-[10px]',
+     sm: 'w-8 h-8 text-xs',
+     md: 'w-10 h-10 text-sm',
+     lg: 'w-16 h-16 text-lg',
+@@ -23,7 +23,7 @@ export default function Avatar({ src, name, size = 'md', className = '' }) {
+   if (src) {
+     return (
+       <div
+-        className={`${sizes[size]} relative border-3 border-ink overflow-hidden flex-shrink-0 ${className}`}
++        className={`${sizes[size]} relative border-2 border-ink rounded-full overflow-hidden flex-shrink-0 ${className}`}
+       >
+         <Image
+           src={src}
+@@ -36,10 +36,10 @@ export default function Avatar({ src, name, size = 'md', className = '' }) {
+     )
+   }
+ 
+-  // Fallback initials
++  // Fallback: initial letter on sky-200 background
+   return (
+     <div
+-      className={`${sizes[size]} bg-primary border-3 border-ink flex items-center justify-center flex-shrink-0 ${className}`}
++      className={`${sizes[size]} bg-sky-200 border-2 border-ink rounded-full flex items-center justify-center flex-shrink-0 ${className}`}
+     >
+       <span className="font-grotesk font-bold text-ink leading-none">{initials}</span>
+     </div>
+diff --git a/components/ui/EmptyState.jsx b/components/ui/EmptyState.jsx
+index 5c28ae4..7beaea6 100644
+--- a/components/ui/EmptyState.jsx
++++ b/components/ui/EmptyState.jsx
+@@ -1,21 +1,59 @@
+ 'use client'
+ 
+-export default function EmptyState({ icon, title, description, action }) {
++import { AlertCircle } from 'lucide-react'
++
++/**
++ * EmptyState ΓÇö lucide icon in a cream circle, bold title, muted description, primary CTA.
++ *
++ * Props:
++ *   icon      ΓÇô a lucide-react component (e.g. Users). Falls back to a box emoji string for legacy callers.
++ *   title     ΓÇô bold one-liner
++ *   description ΓÇô muted supporting text
++ *   action    ΓÇô { label, onClick } for primary CTA
++ *   error     ΓÇô if true, shows a red tint ring and changes CTA label to "Retry"
++ */
++export default function EmptyState({ icon: Icon, title, description, action, error = false }) {
++  // Support legacy callers passing an emoji string as `icon`
++  const isLegacyEmoji = typeof Icon === 'string'
++
+   return (
+     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+-      {icon && (
+-        <div className="text-5xl mb-4">{icon}</div>
+-      )}
+-      <h3 className="font-grotesk font-bold text-xl text-black mb-2 drop-shadow-sm">{title}</h3>
++      {/* Icon circle */}
++      <div
++        className={`w-16 h-16 rounded-full border-2 flex items-center justify-center mb-5 ${
++          error
++            ? 'bg-red-50 border-red-400'
++            : 'bg-cream border-ink'
++        }`}
++      >
++        {isLegacyEmoji ? (
++          <span className="text-2xl leading-none">{Icon}</span>
++        ) : Icon ? (
++          <Icon size={28} strokeWidth={1.75} className={error ? 'text-red-500' : 'text-ink'} />
++        ) : (
++          <AlertCircle size={28} strokeWidth={1.75} className="text-muted" />
++        )}
++      </div>
++
++      {/* Title */}
++      <h3 className="font-grotesk font-bold text-xl text-ink mb-1.5 tracking-tight">
++        {title}
++      </h3>
++
++      {/* Description */}
+       {description && (
+-        <p className="font-inter text-sm text-gray-700 mb-6 max-w-xs">{description}</p>
++        <p className="font-inter text-sm text-muted mb-6 max-w-xs leading-relaxed">
++          {description}
++        </p>
+       )}
++
++      {/* CTA */}
+       {action && (
+         <button
+           onClick={action.onClick}
+-          className="bg-blue-400 hover:bg-blue-500 text-white font-bold border border-white/60 rounded-md shadow-sm py-3 px-6 text-xs transition-all hover:scale-105 active:scale-95 uppercase tracking-widest"
++          className={error ? 'btn-destructive' : 'btn-primary'}
+         >
+-          {action.label}
++          {error ? (action.label ?? 'Retry') : action.label}
+         </button>
+       )}
+     </div>
+diff --git a/lib/auth.js b/lib/auth.js
+index 5cc4b96..1504951 100644
+--- a/lib/auth.js
++++ b/lib/auth.js
+@@ -1,5 +1,6 @@
+ import { PrismaAdapter } from '@auth/prisma-adapter'
+ import GoogleProvider from 'next-auth/providers/google'
++import GitHubProvider from 'next-auth/providers/github'
+ import prisma from './prisma'
+ 
+ export const authOptions = {
+@@ -10,6 +11,11 @@ export const authOptions = {
+       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+       allowDangerousEmailAccountLinking: true,
+     }),
++    GitHubProvider({
++      clientId: process.env.GITHUB_CLIENT_ID,
++      clientSecret: process.env.GITHUB_CLIENT_SECRET,
++      allowDangerousEmailAccountLinking: true,
++    }),
+   ],
+   callbacks: {
+     async jwt({ token, user, trigger, session }) {
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+index cd3c4cf..d0ff1e5 100644
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -24,6 +24,7 @@ model User {
+   lookingForTeam     Boolean        @default(false)
+   hackathonInterests String[]
+   onboarded          Boolean        @default(false)
++  isAdmin            Boolean        @default(false)
+   createdAt          DateTime       @default(now())
+   projects           Project[]
+   likes              Like[]
+@@ -39,6 +40,12 @@ model User {
+   conversationsA     Conversation[] @relation("ConvUserA")
+   conversationsB     Conversation[] @relation("ConvUserB")
+   messages           Message[]
++
++  // Block & Report
++  blocksMade         Block[]        @relation("BlocksMade")
++  blocksReceived     Block[]        @relation("BlocksReceived")
++  reportsMade        Report[]       @relation("ReportsMade")
++  reportsReceived    Report[]       @relation("ReportsReceived")
+ }
+ 
+ model Project {
+@@ -151,3 +158,37 @@ model Message {
+   sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+   @@index([conversationId, createdAt])
+ }
++
++model Block {
++  id        String   @id @default(cuid())
++  blockerId String
++  blockedId String
++  createdAt DateTime @default(now())
++  blocker   User     @relation("BlocksMade", fields: [blockerId], references: [id], onDelete: Cascade)
++  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
++  @@unique([blockerId, blockedId])
++  @@index([blockedId])
++}
++
++enum ReportReason { SPAM HARASSMENT FAKE_PROFILE INAPPROPRIATE_CONTENT IMPERSONATION SCAM OTHER }
++enum ReportTargetType { USER PROJECT COMMENT MESSAGE }
++enum ReportStatus { OPEN REVIEWING RESOLVED DISMISSED }
++
++model Report {
++  id             String           @id @default(cuid())
++  reporterId     String
++  targetType     ReportTargetType
++  targetId       String
++  reportedUserId String
++  reason         ReportReason
++  details        String?
++  status         ReportStatus     @default(OPEN)
++  adminNote      String?
++  createdAt      DateTime         @default(now())
++  resolvedAt     DateTime?
++  reporter       User             @relation("ReportsMade", fields: [reporterId], references: [id], onDelete: Cascade)
++  reportedUser   User             @relation("ReportsReceived", fields: [reportedUserId], references: [id], onDelete: Cascade)
++  @@index([status, createdAt])
++  @@index([reportedUserId])
++  @@unique([reporterId, targetType, targetId])
++}
+diff --git a/tailwind.config.js b/tailwind.config.js
+index ec03c62..36a4b28 100644
+--- a/tailwind.config.js
++++ b/tailwind.config.js
+@@ -1,4 +1,4 @@
+-  /** @type {import('tailwindcss').Config} */
++/** @type {import('tailwindcss').Config} */
+ module.exports = {
+   content: [
+     './pages/**/*.{js,jsx}',
+@@ -10,16 +10,29 @@ module.exports = {
+     extend: {
+       colors: {
+         primary: '#FFC629',
+-        cream: '#FFF8E7',
+-        canvas: '#F4F4F0',
+-        ink: '#1A1A1A',
++        cream: '#FBF6E9',
++        canvas: '#E8F1FB',
++        ink: '#0F1B2D',
+         surface: '#FFFFFF',
++        muted: '#4B5B73',
++        accent: '#FFC629',
++        'accent-hover': '#FFD24F',
++        violet: '#7C3AED',
++        // Sky palette
++        sky: {
++          50: '#F2F8FE',
++          100: '#E8F1FB',
++          200: '#C9DBF0',
++          400: '#6FA8DC',
++          600: '#3B7DC4',
++        },
++        // Legacy aliases kept
+         'surface-dim': '#dcd9d9',
+         'surface-low': '#f6f3f2',
+-        'on-surface': '#1c1b1b',
+-        'on-surface-variant': '#4f4633',
+-        outline: '#817660',
+-        'outline-variant': '#d3c5ac',
++        'on-surface': '#0F1B2D',
++        'on-surface-variant': '#4B5B73',
++        outline: '#0F1B2D',
++        'outline-variant': '#C9DBF0',
+         error: '#ba1a1a',
+         'error-container': '#ffdad6',
+       },
+@@ -29,35 +42,43 @@ module.exports = {
+         sans: ['Inter', 'sans-serif'],
+       },
+       boxShadow: {
+-        brutal: '4px 4px 0px #1A1A1A',
+-        'brutal-lg': '6px 6px 0px #1A1A1A',
+-        'brutal-xl': '8px 8px 0px #1A1A1A',
+-        'brutal-sm': '2px 2px 0px #1A1A1A',
+-        'brutal-none': '0px 0px 0px #1A1A1A',
++        // New design system shadows (ink = #0F1B2D)
++        brutal:    '3px 3px 0px 0px #0F1B2D',
++        'brutal-lg': '5px 5px 0px 0px #0F1B2D',
++        'brutal-xl': '8px 8px 0px 0px #0F1B2D',
++        'brutal-sm': '2px 2px 0px 0px #0F1B2D',
++        'brutal-none': '0px 0px 0px 0px #0F1B2D',
+       },
+       borderWidth: {
+         3: '3px',
+       },
++      borderRadius: {
++        card: '1rem',   // rounded-2xl
++        input: '0.75rem', // rounded-xl
++      },
+       animation: {
+-        'fade-in': 'fadeIn 0.2s ease-out',
++        'fade-in':  'fadeIn 0.2s ease-out',
+         'slide-up': 'slideUp 0.3s ease-out',
+         'spin-slow': 'spin 1s linear infinite',
+         marquee: 'marquee 20s linear infinite',
+       },
+       keyframes: {
+         fadeIn: {
+-          '0%': { opacity: '0' },
++          '0%':   { opacity: '0' },
+           '100%': { opacity: '1' },
+         },
+         slideUp: {
+-          '0%': { opacity: '0', transform: 'translateY(20px)' },
++          '0%':   { opacity: '0', transform: 'translateY(20px)' },
+           '100%': { opacity: '1', transform: 'translateY(0)' },
+         },
+         marquee: {
+-          '0%': { transform: 'translateX(0%)' },
++          '0%':   { transform: 'translateX(0%)' },
+           '100%': { transform: 'translateX(-50%)' },
+         },
+       },
++      transitionDuration: {
++        120: '120ms',
++      },
+     },
+   },
+   plugins: [],

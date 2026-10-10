@@ -1,0 +1,60 @@
+diff a/components/profile/ConnectionButton.jsx b/components/profile/ConnectionButton.jsx	(rejected hunks)
+@@ -89,47 +93,42 @@ export default function ConnectionButton({ targetUserId, initialStatus = null, i
+   }
+ 
+   if (loading) {
+-    return <div className="btn-secondary opacity-50 flex items-center gap-2 text-xs"><LoadingSpinner size="sm" /> Loading...</div>
++    return <div className={`btn-secondary opacity-50 flex items-center gap-2 text-sm ${widthClass}`}><LoadingSpinner size="sm" /> Loading...</div>
+   }
+ 
+   if (status === 'ACCEPTED') {
+     return (
+-      <div className="flex gap-2">
+-        <Link href={`/messages?user=${targetUserId}`} className="btn-primary flex items-center gap-1.5 text-xs py-2 px-3">
+-          Message
+-        </Link>
+-        <div className="btn-secondary flex items-center gap-2 text-xs cursor-default opacity-80">
+-          <CheckCircle size={14} className="text-green-600" /> Connected Γ£ô
+-        </div>
+-      </div>
++      <Link href={`/messages?user=${targetUserId}`} className={`btn-primary flex items-center gap-2 text-sm ${widthClass}`}>
++        <MessageCircle size={16} strokeWidth={2.5} /> Message
++      </Link>
+     )
+   }
+ 
+   if (status === 'PENDING_SENT') {
+     return (
+-      <div className="btn-secondary flex items-center gap-2 text-xs cursor-not-allowed opacity-70">
+-        <Clock size={14} /> Pending
++      <div className={`btn-secondary flex items-center gap-2 text-sm cursor-not-allowed opacity-70 ${widthClass}`}>
++        <Clock size={16} strokeWidth={2.5} /> Pending
+       </div>
+     )
+   }
+ 
+   if (status === 'PENDING_RECEIVED') {
+     return (
+-      <div className="flex gap-2">
++      <div className={containerClass}>
+         <button
+           onClick={() => handleAction('accept')}
+           disabled={acting}
+-          className="btn-primary flex items-center gap-1.5 text-xs py-2 px-3"
++          className={`btn-primary flex items-center gap-1.5 text-sm ${halfWidthClass}`}
+         >
+-          {acting ? <LoadingSpinner size="sm" color="ink" /> : <Check size={13} strokeWidth={3} />}
++          {acting ? <LoadingSpinner size="sm" color="ink" /> : <Check size={16} strokeWidth={3} />}
+           Accept
+         </button>
+         <button
+           onClick={() => handleAction('decline')}
+           disabled={acting}
+-          className="btn-destructive flex items-center gap-1.5 text-xs py-2 px-3"
++          className={`btn-secondary flex items-center gap-1.5 text-sm ${halfWidthClass}`}
+         >
+-          <X size={13} strokeWidth={3} /> Decline
++          <X size={16} strokeWidth={3} /> Decline
+         </button>
+       </div>
+     )

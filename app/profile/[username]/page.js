@@ -86,7 +86,7 @@ export default async function ProfilePage({ params }) {
                 </div>
                 <div className="flex items-center gap-3">
                   {isOwnProfile ? (
-                    <Link href="/onboarding" className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm text-xs px-4 py-2 rounded-md transition-colors">Edit Profile</Link>
+                    <Link href="/profile/edit" className="bg-white/40 hover:bg-white/60 text-black font-bold border border-white/60 shadow-sm text-xs px-4 py-2 rounded-md transition-colors">Edit Profile</Link>
                   ) : (
                     <ConnectionButton targetUserId={user.id} />
                   )}

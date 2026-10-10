@@ -20,6 +20,9 @@ export default function PostModal({ onClose, onCreated }) {
   const [coverPreview, setCoverPreview] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [fetchingGithub, setFetchingGithub] = useState(false)
+  const [githubRepos, setGithubRepos] = useState([])
+  const [fetchingRepos, setFetchingRepos] = useState(true)
   const fileInputRef = useRef(null)
   const overlayRef = useRef(null)
 
@@ -34,6 +37,25 @@ export default function PostModal({ onClose, onCreated }) {
       document.removeEventListener('keydown', handleKey)
     }
   }, [onClose])
+
+  useEffect(() => {
+    async function fetchRepos() {
+      try {
+        const res = await fetch('/api/github/repos')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.repos && Array.isArray(data.repos)) {
+            setGithubRepos(data.repos)
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setFetchingRepos(false)
+      }
+    }
+    fetchRepos()
+  }, [])
 
   const handleFileSelect = (file) => {
     if (!file) return
@@ -107,6 +129,38 @@ export default function PostModal({ onClose, onCreated }) {
     setSubmitting(false)
   }
 
+  const handleGithubImport = async () => {
+    if (!form.githubUrl) return
+    const match = form.githubUrl.match(/github\.com\/([^/]+)\/([^/]+)/)
+    if (!match) {
+      toast.error('Invalid GitHub URL')
+      return
+    }
+    const owner = match[1]
+    const repo = match[2].replace('.git', '')
+    
+    setFetchingGithub(true)
+    try {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`)
+      if (!res.ok) throw new Error('Repo not found')
+      const data = await res.json()
+      
+      const newTechStack = [...new Set([...form.techStack, data.language, ...(data.topics || [])])].filter(Boolean)
+      
+      setForm(prev => ({
+        ...prev,
+        title: prev.title || (data.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())),
+        description: prev.description || data.description || '',
+        projectUrl: prev.projectUrl || data.homepage || '',
+        techStack: newTechStack
+      }))
+      toast.success('Imported repository info!')
+    } catch (err) {
+      toast.error('Failed to fetch GitHub repo')
+    }
+    setFetchingGithub(false)
+  }
+
   return (
     <div
       className="modal-overlay"
@@ -127,7 +181,40 @@ export default function PostModal({ onClose, onCreated }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4 max-h-[80vh] overflow-y-auto">
+          {/* GitHub Repositories Dropdown */}
+          {githubRepos.length > 0 && (
+            <div className="bg-sky-50 p-4 border-2 border-ink rounded-xl shadow-brutal-sm mb-2">
+              <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
+                Import from your GitHub
+              </label>
+              <select 
+                className="input-brutal text-sm w-full bg-white cursor-pointer"
+                defaultValue=""
+                onChange={(e) => {
+                  const repo = githubRepos.find(r => r.html_url === e.target.value)
+                  if (repo) {
+                    const newTechStack = [...new Set([...form.techStack, repo.language, ...(repo.topics || [])])].filter(Boolean)
+                    setForm(prev => ({
+                      ...prev,
+                      title: prev.title || (repo.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())),
+                      description: prev.description || repo.description || '',
+                      projectUrl: prev.projectUrl || repo.homepage || '',
+                      githubUrl: repo.html_url,
+                      techStack: newTechStack
+                    }))
+                    toast.success('Imported repository info!')
+                  }
+                }}
+              >
+                <option value="" disabled>-- Select a repository --</option>
+                {githubRepos.map(repo => (
+                  <option key={repo.id} value={repo.html_url}>{repo.full_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Cover Image Upload */}
           <div>
             <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
@@ -233,9 +320,21 @@ export default function PostModal({ onClose, onCreated }) {
               />
             </div>
             <div>
-              <label className="block font-grotesk font-bold text-xs uppercase tracking-wider mb-2">
-                GitHub URL
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="font-grotesk font-bold text-xs uppercase tracking-wider">
+                  GitHub URL
+                </label>
+                {form.githubUrl && (
+                   <button 
+                     type="button" 
+                     onClick={handleGithubImport} 
+                     disabled={fetchingGithub}
+                     className="text-[10px] font-bold bg-accent text-ink px-2 py-0.5 rounded border border-ink shadow-sm hover:bg-yellow-400 active:shadow-none transition-all disabled:opacity-50"
+                   >
+                     {fetchingGithub ? 'Importing...' : 'Auto-fill info ΓÜí'}
+                   </button>
+                )}
+              </div>
               <input
                 type="url"
                 value={form.githubUrl}

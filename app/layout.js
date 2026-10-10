@@ -24,7 +24,7 @@ export default async function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="font-inter bg-canvas min-h-screen">
+      <body className="font-inter min-h-screen">
         <Providers session={session}>{children}</Providers>
       </body>
     </html>

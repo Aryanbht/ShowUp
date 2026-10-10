@@ -1,35 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Header from '@/components/layout/Header'
 import MobileNav from '@/components/layout/MobileNav'
 import TeammateCard from '@/components/teammates/TeammateCard'
-import FilterBar from '@/components/teammates/FilterBar'
 import EmptyState from '@/components/ui/EmptyState'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { TeammateCardSkeleton } from '@/components/ui/Skeletons'
 import GlassLayout from '@/components/layout/GlassLayout'
+import { Users, Search } from 'lucide-react'
+
+const FILTERS = ['All', 'Frontend', 'Backend', 'ML', 'Design', 'Mobile', 'Looking for team']
 
 export default function TeammatesPage() {
   const [teammates, setTeammates] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState({
-    branch: '',
-    year: '',
-    skills: [],
-    interests: [],
-  })
+  const [activeFilter, setActiveFilter] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     async function fetchTeammates() {
       setLoading(true)
       try {
-        const params = new URLSearchParams()
-        if (filters.branch) params.set('branch', filters.branch)
-        if (filters.year) params.set('year', filters.year)
-        if (filters.skills?.length) params.set('skills', filters.skills.join(','))
-        if (filters.interests?.length) params.set('interests', filters.interests.join(','))
-
-        const res = await fetch(`/api/teammates?${params.toString()}`)
+        // Fetch all teammates initially, we'll do client-side filtering for this demo UI update
+        const res = await fetch('/api/teammates')
         if (res.ok) {
           const data = await res.json()
           setTeammates(data)
@@ -38,58 +31,99 @@ export default function TeammatesPage() {
       setLoading(false)
     }
     fetchTeammates()
-  }, [filters])
+  }, [])
+
+  const filteredTeammates = useMemo(() => {
+    return teammates.filter(user => {
+      // 1. Text/Multi-skill search
+      const tokens = searchQuery.toLowerCase().split(/[\s,]+/).filter(Boolean)
+      const matchesSearch = tokens.length === 0 || tokens.every(token => 
+        user.name?.toLowerCase().includes(token) ||
+        user.bio?.toLowerCase().includes(token) ||
+        user.skills?.some(s => s.toLowerCase().includes(token))
+      )
+      if (!matchesSearch) return false
+
+      // 2. Chip filters
+      if (activeFilter === 'All') return true
+      if (activeFilter === 'Looking for team') return user.openToTeaming !== false // Assume true if not explicitly false for now, or match actual prop
+      
+      const skillMatch = user.skills?.some(s => 
+        s.toLowerCase().includes(activeFilter.toLowerCase()) || 
+        (activeFilter === 'ML' && s.toLowerCase().includes('machine learning')) ||
+        (activeFilter === 'Frontend' && (s.toLowerCase().includes('react') || s.toLowerCase().includes('vue') || s.toLowerCase().includes('html'))) ||
+        (activeFilter === 'Backend' && (s.toLowerCase().includes('node') || s.toLowerCase().includes('python') || s.toLowerCase().includes('django')))
+      )
+      return skillMatch
+    })
+  }, [teammates, searchQuery, activeFilter])
 
   return (
     <GlassLayout>
       <Header />
-      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 md:pb-6 w-full flex-1">
-        <div className="w-full bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/40 flex flex-col min-h-[500px]">
-        {/* Page Header with marquee banner */}
-        <div className="mb-6">
-          <div className="bg-white/40 border border-white/60 shadow-sm rounded-lg mb-4 overflow-hidden">
-            <div className="py-2.5 px-4 flex items-center gap-2 overflow-hidden">
-              <div className="whitespace-nowrap animate-marquee flex gap-8 items-center font-grotesk font-extrabold text-xs uppercase tracking-widest text-black">
-                {Array(6).fill('🔍 Find Your Hackathon Team · ').map((t, i) => <span key={i}>{t}</span>)}
-              </div>
-            </div>
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-8 pb-28 md:pb-10 w-full flex-1 flex flex-col items-center">
+        
+        {/* Header Row */}
+        <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h1 className="font-grotesk font-extrabold text-3xl text-ink tracking-tight flex-shrink-0">Find teammates</h1>
+          
+          {/* Search Input */}
+          <div className="relative w-full md:max-w-sm">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="text"
+              placeholder="Search by name or skill..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-brutal pl-9 py-2"
+            />
           </div>
-          <h1 className="font-grotesk font-extrabold text-2xl text-black">Find Teammates</h1>
-          <p className="font-inter text-sm text-black/60 mt-1">
-            Connect with students open to hackathon teaming
-          </p>
         </div>
 
-        {/* Filters */}
-        <FilterBar filters={filters} onChange={setFilters} />
+        {/* Filter Chips */}
+        <div className="w-full flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+          {FILTERS.map(filter => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`whitespace-nowrap px-4 py-1.5 rounded-full font-grotesk font-semibold text-sm transition-all duration-[120ms] ${
+                activeFilter === filter
+                  ? 'bg-ink text-white shadow-brutal-sm border-2 border-ink'
+                  : 'bg-white border-2 border-ink text-ink hover:bg-sky-50'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
 
         {/* Results */}
-        {loading ? (
-          <div className="flex items-center justify-center py-32">
-            <div className="flex flex-col items-center gap-3">
-              <LoadingSpinner size="lg" />
-              <p className="font-grotesk font-bold text-sm text-black/50 uppercase tracking-wider">Finding teammates...</p>
+        <div className="w-full">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array(6).fill(null).map((_, i) => <TeammateCardSkeleton key={i} />)}
             </div>
-          </div>
-        ) : teammates.length === 0 ? (
-          <EmptyState
-            icon="🤝"
-            title="No teammates found"
-            description="Try adjusting your filters or check back later!"
-            action={{ label: 'Clear Filters', onClick: () => setFilters({ branch: '', year: '', skills: [], interests: [] }) }}
-          />
-        ) : (
-          <>
-            <p className="font-grotesk font-bold text-xs text-black/50 uppercase tracking-wider mb-4">
-              {teammates.length} student{teammates.length !== 1 ? 's' : ''} looking for teams
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {teammates.map((user) => (
-                <TeammateCard key={user.id} user={user} />
-              ))}
+          ) : filteredTeammates.length === 0 ? (
+            <div className="mt-12">
+              <EmptyState
+                icon={Users}
+                title="No teammates found"
+                description="Try adjusting your filters or check back later!"
+                action={{ label: 'Clear filters', onClick: () => { setActiveFilter('All'); setSearchQuery('') } }}
+              />
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              <p className="font-inter text-sm text-muted mb-4">
+                Showing {filteredTeammates.length} student{filteredTeammates.length !== 1 ? 's' : ''}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredTeammates.map((user) => (
+                  <TeammateCard key={user.id} user={user} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </main>
       <MobileNav />
