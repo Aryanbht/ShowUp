@@ -170,9 +170,29 @@ model Block {
   @@index([blockedId])
 }
 
-enum ReportReason { SPAM HARASSMENT FAKE_PROFILE INAPPROPRIATE_CONTENT IMPERSONATION SCAM OTHER }
-enum ReportTargetType { USER PROJECT COMMENT MESSAGE }
-enum ReportStatus { OPEN REVIEWING RESOLVED DISMISSED }
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  FAKE_PROFILE
+  INAPPROPRIATE_CONTENT
+  IMPERSONATION
+  SCAM
+  OTHER
+}
+
+enum ReportTargetType {
+  USER
+  PROJECT
+  COMMENT
+  MESSAGE
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
 
 model Report {
   id             String           @id @default(cuid())
