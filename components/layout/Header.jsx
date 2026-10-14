@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Bell, Plus, Users, Home, LogOut, MessageSquare, User, ChevronDown } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
@@ -9,6 +9,7 @@ import Avatar from '@/components/ui/Avatar'
 
 export default function Header({ onPost }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
   const [unreadCount, setUnreadCount] = useState(0)
   const [unreadChatCount, setUnreadChatCount] = useState(0)
@@ -111,14 +112,14 @@ export default function Header({ onPost }) {
         <div className="flex items-center gap-2">
 
           {/* Post button ΓÇö only shown if onPost is passed */}
-          {onPost && (
+          {session?.user && (
             <button
-              onClick={onPost}
-              className="hidden md:flex btn-primary px-3.5 py-1.5 text-sm gap-1"
-              aria-label="Post project"
+              onClick={onPost ? onPost : () => router.push('/feed?post=true')}
+              className="flex items-center btn-primary px-2.5 py-1.5 md:px-3.5 md:py-1.5 text-xs md:text-sm gap-1"
+              aria-label="Upload project"
             >
               <Plus size={14} strokeWidth={3} />
-              Post
+              <span>Upload</span>
             </button>
           )}
 

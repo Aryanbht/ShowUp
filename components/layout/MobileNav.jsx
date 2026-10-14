@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 import { Bell, Home, Users, MessageSquare, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export default function MobileNav({ onPost }) {
+export default function MobileNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [unreadCount, setUnreadCount] = useState(0)
@@ -47,9 +47,9 @@ export default function MobileNav({ onPost }) {
 
   const tabs = [
     { href: '/feed',      icon: Home,          label: 'Feed' },
-    { href: '/teammates', icon: Users,          label: 'Team' },
-    { href: '/messages',  icon: MessageSquare,  label: 'Chat',   badge: unreadChatCount },
-    { href: '/notifications', icon: Bell,       label: 'Alerts', badge: unreadCount },
+    { href: '/teammates', icon: Users,         label: 'Team' },
+    { href: '/messages',  icon: MessageSquare, label: 'Chat',   badge: unreadChatCount },
+    { href: '/notifications', icon: Bell,      label: 'Alerts', badge: unreadCount },
     {
       href: session?.user?.username ? `/profile/${session.user.username}` : '/feed',
       icon: User,
@@ -58,7 +58,7 @@ export default function MobileNav({ onPost }) {
   ]
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-ink z-40 flex safe-area-pb">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-ink z-40 flex safe-area-pb items-center">
       {tabs.map((tab, i) => {
         const isActive = pathname.startsWith(tab.href)
 
@@ -99,3 +99,4 @@ export default function MobileNav({ onPost }) {
     </nav>
   )
 }
+

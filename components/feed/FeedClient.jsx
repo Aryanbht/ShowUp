@@ -27,6 +27,16 @@ export default function FeedClient() {
   const observerRef = useRef(null)
   const sentinelRef = useRef(null)
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('post') === 'true') {
+        setShowPost(true)
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+  }, [])
+
   const fetchFeed = useCallback(async (cursor = null) => {
     if (cursor) setLoadingMore(true)
     else setLoading(true)
@@ -237,7 +247,7 @@ export default function FeedClient() {
       </main>
 
       {/* Mobile Nav */}
-      <MobileNav onPost={() => setShowPost(true)} />
+      <MobileNav />
 
       {/* Modals */}
       {selectedProject && (
