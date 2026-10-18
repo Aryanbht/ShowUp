@@ -29,11 +29,15 @@ const CSS = `
     position: sticky; top: 0;
     width: 100vw; height: 100vh; overflow: hidden;
     background: #000;
+    transform: translateZ(0);
   }
-  .video-layer { position: absolute; inset: 0; background: #000; }
+  .video-layer { position: absolute; inset: 0; background: #000; transform: translateZ(0); }
   .video-layer video {
     width: 100%; height: 100%; object-fit: cover; display: block;
     opacity: 1;
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
   }
   
   /* ── Vignette: Darkened significantly to make the scene richer and darker ── */
@@ -44,11 +48,15 @@ const CSS = `
       linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 25%,
         rgba(0,0,0,0.3) 75%, rgba(0,0,0,0.8) 100%);
     pointer-events: none;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   .scene {
     position: absolute; inset: 0;
     display: flex; align-items: center;
     padding: 0 8vw; pointer-events: none;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   .scene.center { justify-content: center; }
   .scene.left   { justify-content: flex-start; }
@@ -449,7 +457,11 @@ export default function LandingClient() {
   /* scroll-driver + video refs — layout unchanged */
   const driverRef = useRef(null)
   const videoRef = useRef(null)
-  const rafRef = useRef(null)
+  const targetProgressRef = useRef(0)
+  const currentProgressRef = useRef(0)
+  const lastStateProgressRef = useRef(0)
+  const isSeekingRef = useRef(false)
+  const animFrameRef = useRef(null)
 
   /* ── Check Mobile for Animation Tuning ── */
   useEffect(() => {
@@ -465,32 +477,99 @@ export default function LandingClient() {
     return () => clearTimeout(t)
   }, [])
 
-  /* ── Scroll → progress → video.currentTime ── */
+  /* ── Butter-Smooth Video Scrubbing: Lerp Physics + Seek-Lock ── */
   useEffect(() => {
     const video = videoRef.current
+    if (!video) return
 
+    // 1. Prime video hardware decoder upfront so it doesn't stutter on first scroll
+    const primeDecoder = () => {
+      const playPromise = video.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            video.pause()
+            video.currentTime = 0
+          })
+          .catch(() => {})
+      }
+    }
+
+    if (video.readyState >= 1) {
+      primeDecoder()
+    } else {
+      video.addEventListener('loadedmetadata', primeDecoder, { once: true })
+    }
+
+    // 2. Perform a seek safely without interrupting the hardware decoder
+    const attemptSeek = (time) => {
+      if (!video || video.readyState < 2 || isSeekingRef.current) return
+      if (Math.abs(video.currentTime - time) < 0.02) return
+
+      isSeekingRef.current = true
+      if ('fastSeek' in video) {
+        video.fastSeek(time)
+      } else {
+        video.currentTime = time
+      }
+    }
+
+    const onSeeked = () => {
+      isSeekingRef.current = false
+      if (!video || !video.duration) return
+      const targetTime = currentProgressRef.current * video.duration
+      if (Math.abs(video.currentTime - targetTime) > 0.03) {
+        attemptSeek(targetTime)
+      }
+    }
+    video.addEventListener('seeked', onSeeked)
+
+    // 3. High-precision scroll listener (zero React re-renders on scroll!)
     const onScroll = () => {
       const driver = driverRef.current
-      if (!driver || !video) return
-
+      if (!driver) return
       const rect = driver.getBoundingClientRect()
       const total = driver.offsetHeight - window.innerHeight
+      if (total <= 0) return
       const scrolled = Math.max(0, -rect.top)
-      const p = Math.min(1, scrolled / total)
+      targetProgressRef.current = Math.min(1, Math.max(0, scrolled / total))
+    }
 
-      setProgress(p)
+    // 4. Smooth 60fps physics loop running in requestAnimationFrame
+    const updateLoop = () => {
+      // Smooth linear interpolation (0.15 damping for responsive fluidity)
+      const diff = targetProgressRef.current - currentProgressRef.current
+      if (Math.abs(diff) < 0.0001) {
+        currentProgressRef.current = targetProgressRef.current
+      } else {
+        currentProgressRef.current += diff * 0.15
+      }
 
-      const target = p * (video.duration || 0)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-      rafRef.current = requestAnimationFrame(() => {
-        if (video.readyState >= 2) video.currentTime = target
-      })
+      // Update video playback time safely
+      if (video.duration) {
+        const targetTime = currentProgressRef.current * video.duration
+        attemptSeek(targetTime)
+      }
+
+      // Throttled React state update for text opacity (at most once every 60fps, and only if changed)
+      if (Math.abs(currentProgressRef.current - lastStateProgressRef.current) > 0.002) {
+        lastStateProgressRef.current = currentProgressRef.current
+        setProgress(currentProgressRef.current)
+      }
+
+      animFrameRef.current = requestAnimationFrame(updateLoop)
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
+    animFrameRef.current = requestAnimationFrame(updateLoop)
+
+    // Initial sync
+    onScroll()
+
     return () => {
       window.removeEventListener('scroll', onScroll)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      video.removeEventListener('seeked', onSeeked)
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
   }, [])
 
