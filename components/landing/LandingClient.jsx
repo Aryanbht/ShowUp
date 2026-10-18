@@ -2,6 +2,7 @@
 
 import { signIn } from 'next-auth/react'
 import { useState, useEffect, useRef } from 'react'
+import ScrollSequence from './ScrollSequence'
 
 /* ═══════════════════════════════════════════════════════════════════
    SCROLL-DRIVEN VIDEO LANDING
@@ -450,179 +451,18 @@ function translate(side, op) {
 /* ════════════════════════════════════════════════════════════════ */
 export default function LandingClient() {
   const [loading, setLoading] = useState(false)
-  const [videoReady, setVideoReady] = useState(false)
   const [progress, setProgress] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
 
-  /* scroll-driver + video refs — layout unchanged */
+  /* scroll-driver ref */
   const driverRef = useRef(null)
-  const videoRef = useRef(null)
-  const targetProgressRef = useRef(0)
-  const currentProgressRef = useRef(0)
-  const lastStateProgressRef = useRef(0)
-  const isSeekingRef = useRef(false)
-  const animFrameRef = useRef(null)
 
-  /* ── Check Mobile for Animation Tuning ── */
+  /* ── Check Mobile for Layout & Text Alignment ── */
   useEffect(() => {
     setIsMobile(window.innerWidth <= 768)
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  /* ── 400ms loading dismiss ── */
-  useEffect(() => {
-    const t = setTimeout(() => setVideoReady(true), 400)
-    return () => clearTimeout(t)
-  }, [])
-
-  /* ── Butter-Smooth Video Scrubbing: Mobile-Tuned Lerp Physics + Non-Blocking Seek ── */
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    const isMobileDevice =
-      typeof window !== 'undefined' &&
-      (window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
-
-    // Set DOM properties explicitly for iOS Safari / Android
-    video.muted = true
-    video.defaultMuted = true
-    video.playsInline = true
-    video.setAttribute('playsinline', '')
-    video.setAttribute('webkit-playsinline', '')
-
-    // 1. Prime video hardware decoder upfront so it doesn't stutter on first scroll
-    const primeDecoder = () => {
-      const playPromise = video.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            video.pause()
-            video.currentTime = 0
-          })
-          .catch(() => {})
-      }
-    }
-
-    if (video.readyState >= 1) {
-      primeDecoder()
-    } else {
-      video.addEventListener('loadedmetadata', primeDecoder, { once: true })
-    }
-
-    // 2. High-performance Video Sync: Sequential hardware playback for forward scroll, throttled seek for reverse
-    let isSeeking = false
-    let lastSeekTime = 0
-    let seekUnlockTimer = null
-
-    const unlockSeeking = () => {
-      isSeeking = false
-      if (seekUnlockTimer) {
-        clearTimeout(seekUnlockTimer)
-        seekUnlockTimer = null
-      }
-    }
-
-    video.addEventListener('seeked', unlockSeeking)
-
-    // 3. High-precision scroll listener (zero React re-renders on scroll!)
-    const onScroll = () => {
-      const driver = driverRef.current
-      if (!driver) return
-      const rect = driver.getBoundingClientRect()
-      const total = driver.offsetHeight - window.innerHeight
-      if (total <= 0) return
-      const scrolled = Math.max(0, -rect.top)
-      targetProgressRef.current = Math.min(1, Math.max(0, scrolled / total))
-    }
-
-    // 4. Smooth 60fps physics loop running in requestAnimationFrame
-    const damping = isMobileDevice ? 0.12 : 0.16
-
-    const updateLoop = () => {
-      const diff = targetProgressRef.current - currentProgressRef.current
-      if (Math.abs(diff) < 0.0001) {
-        currentProgressRef.current = targetProgressRef.current
-      } else {
-        currentProgressRef.current += diff * damping
-      }
-
-      // Sync video smoothly without choking low-end i3 integrated graphics or mobile GPUs
-      if (video.duration) {
-        const targetTime = currentProgressRef.current * video.duration
-        const timeDelta = targetTime - video.currentTime
-
-        // Forward scroll: Play sequentially at dynamic playback rate!
-        // Sequential hardware playback takes <1% CPU on an i3 or phone (vs 100% CPU when seeking).
-        if (timeDelta > 0.06) {
-          if (timeDelta > 2.5) {
-            // Large jump: clean single seek
-            const now = performance.now()
-            if (!isSeeking && now - lastSeekTime > 80) {
-              isSeeking = true
-              lastSeekTime = now
-              seekUnlockTimer = setTimeout(unlockSeeking, 100)
-              video.currentTime = targetTime
-            }
-          } else {
-            // Smooth hardware playback
-            const rate = Math.min(3.0, Math.max(0.75, 1.0 + timeDelta * 1.3))
-            video.playbackRate = rate
-            if (video.paused && !video.ended) {
-              video.play().catch(() => {
-                if (!isSeeking) {
-                  isSeeking = true
-                  video.currentTime = targetTime
-                }
-              })
-            }
-          }
-        }
-        // Near target: pause cleanly on the frame
-        else if (Math.abs(timeDelta) <= 0.06) {
-          if (!video.paused) {
-            video.pause()
-          }
-        }
-        // Reverse scroll: throttled reverse seek
-        else if (timeDelta < -0.06) {
-          if (!video.paused) {
-            video.pause()
-          }
-          const now = performance.now()
-          if (!isSeeking && now - lastSeekTime > (isMobileDevice ? 50 : 30)) {
-            isSeeking = true
-            lastSeekTime = now
-            seekUnlockTimer = setTimeout(unlockSeeking, 80)
-            video.currentTime = Math.max(0, targetTime)
-          }
-        }
-      }
-
-      // Throttled React state update for text opacity
-      const stateDiff = Math.abs(currentProgressRef.current - lastStateProgressRef.current)
-      if (stateDiff > (isMobileDevice ? 0.004 : 0.002)) {
-        lastStateProgressRef.current = currentProgressRef.current
-        setProgress(currentProgressRef.current)
-      }
-
-      animFrameRef.current = requestAnimationFrame(updateLoop)
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-    animFrameRef.current = requestAnimationFrame(updateLoop)
-
-    // Initial sync
-    onScroll()
-
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      video.removeEventListener('seeked', unlockSeeking)
-      if (seekUnlockTimer) clearTimeout(seekUnlockTimer)
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
-    }
   }, [])
 
   const handleSignIn = async () => {
@@ -648,18 +488,12 @@ export default function LandingClient() {
       <div ref={driverRef} className="scroll-driver">
         <div className="stage">
 
-          {/* ── Video layer — UNCHANGED ── */}
+          {/* ── Scroll Canvas Sequence (Ultra-smooth 60fps across low/mid/high devices) ── */}
           <div className="video-layer">
-            <video
-              ref={videoRef}
-              src="/showup-demo.mp4"
-              muted
-              playsInline
-              webkit-playsinline="true"
-              disablePictureInPicture
-              disableRemotePlayback
-              preload="auto"
-              fetchPriority="high"
+            <ScrollSequence
+              driverRef={driverRef}
+              onProgressChange={setProgress}
+              posterSrc="/frames/poster.webp"
             />
           </div>
 

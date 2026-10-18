@@ -28,6 +28,12 @@ const nextConfig = {
           { key: 'Content-Type', value: 'video/mp4' },
         ],
       },
+      {
+        source: '/frames/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
     ]
   },
 }

@@ -131,3 +131,27 @@ Based on **neobrutalist** principles from DESIGN.md:
 - Hard `4px 4px 0px #1A1A1A` box shadows
 - `3px solid #1A1A1A` borders
 - Space Grotesk (headings) + Inter (body)
+
+---
+
+## Landing Page Scroll Animation (Canvas Image Sequence)
+
+The landing page uses a high-performance `<ScrollSequence />` canvas renderer instead of video seeking, enabling 60fps scroll scrubbing across all devices (including low-end mobile phones and integrated graphics).
+
+### Re-extracting Frames:
+If `public/showup-demo.mp4` is replaced or updated, regenerate the multi-tier WebP frame sequences:
+
+```bash
+# Using Node script (cross-platform with ffmpeg-static):
+node scripts/extract-frames.js
+
+# Or using Bash script:
+chmod +x scripts/extract-frames.sh
+./scripts/extract-frames.sh
+```
+
+Tiers generated:
+- `public/frames/low/`: 640px width, 6 fps (~60 frames, ~0.9 MB total) — for low-end mobile, data-saver, 2G/3G connections.
+- `public/frames/medium/`: 960px width, 9 fps (~90 frames, ~2.3 MB total) — for tablets, mid-range mobile, standard laptops.
+- `public/frames/high/`: 1280px width, 13 fps (~130 frames, ~4.4 MB total) — for high-DPI desktop screens.
+
