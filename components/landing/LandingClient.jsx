@@ -512,49 +512,20 @@ export default function LandingClient() {
       video.addEventListener('loadedmetadata', primeDecoder, { once: true })
     }
 
-    // 2. Perform a seek safely without interrupting the hardware decoder
-    // On mobile: throttle to max ~25-30 seeks/sec (40ms) and min delta of 0.05s to prevent mobile GPU pipeline stall
-    const minSeekDelta = isMobileDevice ? 0.05 : 0.02
-    const minSeekInterval = isMobileDevice ? 40 : 16
+    // 2. High-performance Video Sync: Sequential hardware playback for forward scroll, throttled seek for reverse
+    let isSeeking = false
     let lastSeekTime = 0
     let seekUnlockTimer = null
 
     const unlockSeeking = () => {
-      isSeekingRef.current = false
+      isSeeking = false
       if (seekUnlockTimer) {
         clearTimeout(seekUnlockTimer)
         seekUnlockTimer = null
       }
     }
 
-    const attemptSeek = (time) => {
-      if (!video || video.readyState < 2 || isSeekingRef.current) return
-
-      const now = performance.now()
-      if (now - lastSeekTime < minSeekInterval) return
-
-      if (Math.abs(video.currentTime - time) < minSeekDelta) return
-
-      isSeekingRef.current = true
-      lastSeekTime = now
-
-      // Fallback safeguard: on mobile WebKit, 'seeked' event can sometimes be dropped or delayed.
-      // Automatically unlock after 70ms so the video never freezes.
-      seekUnlockTimer = setTimeout(unlockSeeking, isMobileDevice ? 70 : 45)
-
-      // Always set currentTime directly (fastSeek has severe WebKit bugs on mobile touch)
-      video.currentTime = time
-    }
-
-    const onSeeked = () => {
-      unlockSeeking()
-      if (!video || !video.duration) return
-      const targetTime = currentProgressRef.current * video.duration
-      if (Math.abs(video.currentTime - targetTime) > minSeekDelta) {
-        attemptSeek(targetTime)
-      }
-    }
-    video.addEventListener('seeked', onSeeked)
+    video.addEventListener('seeked', unlockSeeking)
 
     // 3. High-precision scroll listener (zero React re-renders on scroll!)
     const onScroll = () => {
@@ -567,9 +538,8 @@ export default function LandingClient() {
       targetProgressRef.current = Math.min(1, Math.max(0, scrolled / total))
     }
 
-    // 4. Smooth physics loop running in requestAnimationFrame
-    // On mobile, use gentler damping (0.1) so touch flings glide organically
-    const damping = isMobileDevice ? 0.1 : 0.15
+    // 4. Smooth 60fps physics loop running in requestAnimationFrame
+    const damping = isMobileDevice ? 0.12 : 0.16
 
     const updateLoop = () => {
       const diff = targetProgressRef.current - currentProgressRef.current
@@ -579,10 +549,56 @@ export default function LandingClient() {
         currentProgressRef.current += diff * damping
       }
 
-      // Update video playback time safely
+      // Sync video smoothly without choking low-end i3 integrated graphics or mobile GPUs
       if (video.duration) {
         const targetTime = currentProgressRef.current * video.duration
-        attemptSeek(targetTime)
+        const timeDelta = targetTime - video.currentTime
+
+        // Forward scroll: Play sequentially at dynamic playback rate!
+        // Sequential hardware playback takes <1% CPU on an i3 or phone (vs 100% CPU when seeking).
+        if (timeDelta > 0.06) {
+          if (timeDelta > 2.5) {
+            // Large jump: clean single seek
+            const now = performance.now()
+            if (!isSeeking && now - lastSeekTime > 80) {
+              isSeeking = true
+              lastSeekTime = now
+              seekUnlockTimer = setTimeout(unlockSeeking, 100)
+              video.currentTime = targetTime
+            }
+          } else {
+            // Smooth hardware playback
+            const rate = Math.min(3.0, Math.max(0.75, 1.0 + timeDelta * 1.3))
+            video.playbackRate = rate
+            if (video.paused && !video.ended) {
+              video.play().catch(() => {
+                if (!isSeeking) {
+                  isSeeking = true
+                  video.currentTime = targetTime
+                }
+              })
+            }
+          }
+        }
+        // Near target: pause cleanly on the frame
+        else if (Math.abs(timeDelta) <= 0.06) {
+          if (!video.paused) {
+            video.pause()
+          }
+        }
+        // Reverse scroll: throttled reverse seek
+        else if (timeDelta < -0.06) {
+          if (!video.paused) {
+            video.pause()
+          }
+          const now = performance.now()
+          if (!isSeeking && now - lastSeekTime > (isMobileDevice ? 50 : 30)) {
+            isSeeking = true
+            lastSeekTime = now
+            seekUnlockTimer = setTimeout(unlockSeeking, 80)
+            video.currentTime = Math.max(0, targetTime)
+          }
+        }
       }
 
       // Throttled React state update for text opacity
@@ -603,7 +619,7 @@ export default function LandingClient() {
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('seeked', unlockSeeking)
       if (seekUnlockTimer) clearTimeout(seekUnlockTimer)
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
