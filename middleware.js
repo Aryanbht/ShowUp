@@ -19,16 +19,18 @@ export default withAuth(
     return NextResponse.next()
   },
   {
+    secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       authorized: ({ token, req }) => {
         const pathname = req.nextUrl.pathname
         // Allow public routes
         if (pathname === '/') return true
         if (pathname === '/about') return true
-        if (pathname.startsWith('/api/auth')) return true
+        // Allow API routes to handle authentication internally and return 401 JSON instead of redirecting
+        if (pathname.startsWith('/api/')) return true
         // Allow static media files
         if (/\.(mp4|webm|ogg|mp3|wav|png|jpg|jpeg|svg|ico|gif|webp)$/i.test(pathname)) return true
-        // All other routes need auth
+        // All other pages need auth
         return !!token
       },
     },

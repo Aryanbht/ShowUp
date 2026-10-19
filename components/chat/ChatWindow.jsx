@@ -47,7 +47,10 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: connection.id })
         })
-        if (!res.ok) throw new Error('Failed to get conversation')
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}))
+          throw new Error(errData.error || 'Failed to get conversation')
+        }
         const data = await res.json()
         if (isMounted) {
           setConversationId(data.id)
@@ -174,7 +177,10 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
         body: JSON.stringify({ content })
       })
 
-      if (!res.ok) throw new Error('Failed to send')
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to send (${res.status})`)
+      }
       const savedMessage = await res.json()
 
       setMessages(prev => prev.map(m => m.id === tempId ? savedMessage : m))
@@ -236,9 +242,16 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
             <LoadingSpinner size="md" />
           </div>
         ) : error ? (
-          <div className="h-full flex items-center justify-center flex-col gap-2">
-            <p className="text-red-500 font-bold font-grotesk">Failed to load chat</p>
-            <p className="text-xs text-muted">{error}</p>
+          <div className="h-full flex items-center justify-center flex-col gap-2 p-6 text-center">
+            <div className="w-12 h-12 bg-sky-100 border-2 border-ink rounded-full flex items-center justify-center mb-1">
+              <span className="text-ink font-bold text-lg">💬</span>
+            </div>
+            <p className="text-ink font-bold font-grotesk text-base">{error}</p>
+            <p className="text-xs text-muted max-w-xs">
+              {error.toLowerCase().includes('connect')
+                ? 'You can only message teammates once a connection request is accepted.'
+                : 'Please try refreshing the page.'}
+            </p>
           </div>
         ) : messages.length === 0 ? (
           <div className="h-full flex items-center justify-center flex-col gap-3 text-muted">

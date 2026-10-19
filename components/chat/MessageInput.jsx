@@ -35,7 +35,7 @@ export default function MessageInput({ onSend }) {
     try {
       await onSend(trimmed)
     } catch (err) {
-      toast.error('Failed to send message')
+      toast.error(err.message || 'Failed to send message')
       setContent(trimmed)
     } finally {
       setSending(false)

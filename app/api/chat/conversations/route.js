@@ -25,7 +25,7 @@ export async function POST(req) {
     // Verify ACCEPTED connection
     const connection = await prisma.connection.findFirst({
       where: {
-        status: 'ACCEPTED',
+        status: { in: ['ACCEPTED', 'accepted'] },
         OR: [
           { fromUserId: myId, toUserId: userId },
           { fromUserId: userId, toUserId: myId }
@@ -34,7 +34,7 @@ export async function POST(req) {
     })
 
     if (!connection) {
-      return NextResponse.json({ error: 'Not connected' }, { status: 403 })
+      return NextResponse.json({ error: 'You can only message accepted connections. Connection request is pending or not yet accepted.' }, { status: 403 })
     }
 
     const userAId = myId < userId ? myId : userId

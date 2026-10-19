@@ -10,7 +10,12 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const myId = session.user.id
-    const conversationId = params.id
+    const resolvedParams = await Promise.resolve(params)
+    const conversationId = resolvedParams?.id
+
+    if (!conversationId) {
+      return NextResponse.json({ error: 'Missing conversationId' }, { status: 400 })
+    }
 
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId }

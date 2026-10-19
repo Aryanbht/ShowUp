@@ -10,7 +10,12 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const myId = session.user.id
-    const conversationId = params.id
+    const resolvedParams = await Promise.resolve(params)
+    const conversationId = resolvedParams?.id
+
+    if (!conversationId) {
+      return NextResponse.json({ error: 'Missing conversationId' }, { status: 400 })
+    }
 
     const url = new URL(req.url)
     const after = url.searchParams.get('after')
@@ -41,7 +46,7 @@ export async function GET(req, { params }) {
     return NextResponse.json(messages)
   } catch (error) {
     console.error('GET /api/chat/conversations/[id]/messages error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
   }
 }
 
@@ -52,7 +57,12 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const myId = session.user.id
-    const conversationId = params.id
+    const resolvedParams = await Promise.resolve(params)
+    const conversationId = resolvedParams?.id
+
+    if (!conversationId) {
+      return NextResponse.json({ error: 'Missing conversationId' }, { status: 400 })
+    }
 
     const body = await req.json()
     const { content } = body
@@ -80,10 +90,10 @@ export async function POST(req, { params }) {
 
     const otherUserId = conversation.userAId === myId ? conversation.userBId : conversation.userAId
 
-    // Verify still connected
+    // Verify still connected (case-insensitive)
     const connection = await prisma.connection.findFirst({
       where: {
-        status: 'ACCEPTED',
+        status: { in: ['ACCEPTED', 'accepted'] },
         OR: [
           { fromUserId: myId, toUserId: otherUserId },
           { fromUserId: otherUserId, toUserId: myId }
@@ -92,7 +102,7 @@ export async function POST(req, { params }) {
     })
 
     if (!connection) {
-      return NextResponse.json({ error: 'Not connected' }, { status: 403 })
+      return NextResponse.json({ error: 'You can only message accepted connections.' }, { status: 403 })
     }
 
     const message = await prisma.message.create({
@@ -103,25 +113,30 @@ export async function POST(req, { params }) {
       }
     })
 
-    // Update conversation updatedAt
+    // Update conversation updatedAt (non-blocking failure)
     await prisma.conversation.update({
       where: { id: conversationId },
       data: { updatedAt: new Date() }
+    }).catch(err => {
+      console.warn('Failed to update conversation updatedAt:', err)
     })
 
-    // Create Notification
-    await prisma.notification.create({
+    // Create Notification non-blocking so it never breaks message sending
+    const senderName = session.user?.name || session.user?.username || 'A teammate'
+    prisma.notification.create({
       data: {
         userId: otherUserId,
         type: 'NEW_MESSAGE',
-        message: `${session.user.name} sent you a message`,
+        message: `${senderName} sent you a message`,
         link: `/messages?user=${myId}`
       }
+    }).catch(notifErr => {
+      console.warn('Failed to create new message notification:', notifErr)
     })
 
     return NextResponse.json(message)
   } catch (error) {
     console.error('POST /api/chat/conversations/[id]/messages error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
   }
 }
