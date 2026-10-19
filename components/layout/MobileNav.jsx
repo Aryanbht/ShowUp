@@ -4,46 +4,28 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Bell, Home, Users, MessageSquare, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import useSWR from 'swr'
+
+const badgeFetcher = (url) => fetch(url).then(r => r.ok ? r.json() : null)
 
 export default function MobileNav() {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [unreadChatCount, setUnreadChatCount] = useState(0)
 
-  useEffect(() => {
-    async function fetchUnread() {
-      try {
-        const res = await fetch('/api/notifications')
-        if (res.ok) {
-          const data = await res.json()
-          setUnreadCount(data.filter((n) => !n.read).length)
-        }
-      } catch {}
-    }
-    async function fetchUnreadChat() {
-      try {
-        const res = await fetch('/api/chat/unread-count')
-        if (res.ok) {
-          const data = await res.json()
-          setUnreadChatCount(data.count)
-        }
-      } catch {}
-    }
-    if (session) {
-      fetchUnread()
-      fetchUnreadChat()
-    }
-    const interval = setInterval(() => {
-      if (session) { fetchUnread(); fetchUnreadChat() }
-    }, 30000)
-    const chatInterval = setInterval(() => {
-      if (session) fetchUnreadChat()
-    }, 15000)
+  // SWR automatically deduplicates in-flight requests and shares cache with Header
+  const { data: notifications } = useSWR(
+    session ? '/api/notifications' : null,
+    badgeFetcher,
+    { refreshInterval: 30000, dedupingInterval: 10000 }
+  )
+  const { data: chatUnread } = useSWR(
+    session ? '/api/chat/unread-count' : null,
+    badgeFetcher,
+    { refreshInterval: 15000, dedupingInterval: 10000 }
+  )
 
-    return () => { clearInterval(interval); clearInterval(chatInterval) }
-  }, [session, pathname])
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n) => !n.read).length : 0
+  const unreadChatCount = chatUnread?.count || 0
 
   const tabs = [
     { href: '/feed',      icon: Home,          label: 'Feed' },

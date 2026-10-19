@@ -79,6 +79,8 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
     let lastMessageDate = null
 
     const fetchMessages = async () => {
+      if (typeof document !== 'undefined' && document.hidden) return
+
       try {
         const url = `/api/chat/conversations/${conversationId}/messages${lastMessageDate ? `?after=${lastMessageDate.toISOString()}` : ''}`
         const res = await fetch(url)
@@ -96,9 +98,10 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
             return [...prev, ...filtered]
           })
         }
-        setLoading(false)
       } catch (err) {
-        console.error(err)
+        console.error('Error fetching messages:', err)
+      } finally {
+        if (isMounted) setLoading(false)
       }
     }
 

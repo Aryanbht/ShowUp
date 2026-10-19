@@ -65,7 +65,12 @@ export default function TeammateCard({ user }) {
 
       {/* Bottom: Connection Button */}
       <div className="pt-3 border-t-2 border-ink/10 mt-1">
-        <ConnectionButton targetUserId={user.id} fullWidth={true} />
+        <ConnectionButton
+          targetUserId={user.id}
+          initialStatus={user.connectionStatus}
+          initialConnectionId={user.connectionId}
+          fullWidth={true}
+        />
       </div>
     </article>
   )

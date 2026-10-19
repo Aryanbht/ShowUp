@@ -5,16 +5,32 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Bell, Plus, Users, Home, LogOut, MessageSquare, User, ChevronDown } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
+import useSWR from 'swr'
 import Avatar from '@/components/ui/Avatar'
+
+const badgeFetcher = (url) => fetch(url).then(r => r.ok ? r.json() : null)
 
 export default function Header({ onPost }) {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [unreadChatCount, setUnreadChatCount] = useState(0)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  // Use SWR with 15s-30s intervals and automatic cross-component deduplication
+  const { data: notifications } = useSWR(
+    session ? '/api/notifications' : null,
+    badgeFetcher,
+    { refreshInterval: 30000, dedupingInterval: 10000 }
+  )
+  const { data: chatUnread } = useSWR(
+    session ? '/api/chat/unread-count' : null,
+    badgeFetcher,
+    { refreshInterval: 15000, dedupingInterval: 10000 }
+  )
+
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n) => !n.read).length : 0
+  const unreadChatCount = chatUnread?.count || 0
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -26,41 +42,6 @@ export default function Header({ onPost }) {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  useEffect(() => {
-    async function fetchUnread() {
-      try {
-        const res = await fetch('/api/notifications')
-        if (res.ok) {
-          const data = await res.json()
-          setUnreadCount(data.filter((n) => !n.read).length)
-        }
-      } catch {}
-    }
-
-    async function fetchUnreadChat() {
-      try {
-        const res = await fetch('/api/chat/unread-count')
-        if (res.ok) {
-          const data = await res.json()
-          setUnreadChatCount(data.count)
-        }
-      } catch {}
-    }
-
-    if (session) {
-      fetchUnread()
-      fetchUnreadChat()
-    }
-    const interval = setInterval(() => {
-      if (session) { fetchUnread(); fetchUnreadChat() }
-    }, 30000)
-    const chatInterval = setInterval(() => {
-      if (session) fetchUnreadChat()
-    }, 15000)
-
-    return () => { clearInterval(interval); clearInterval(chatInterval) }
-  }, [session, pathname])
 
   const navLinks = [
     { href: '/feed',       label: 'Feed',       icon: Home },

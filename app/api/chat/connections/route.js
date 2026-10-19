@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions)
@@ -11,10 +13,10 @@ export async function GET(req) {
     }
     const userId = session.user.id
 
-    // Find all accepted connections where user is either from or to
+    // 1. Single query for all accepted connections
     const connections = await prisma.connection.findMany({
       where: {
-        status: 'ACCEPTED',
+        status: { in: ['ACCEPTED', 'accepted'] },
         OR: [
           { fromUserId: userId },
           { toUserId: userId }
@@ -26,54 +28,57 @@ export async function GET(req) {
       }
     })
 
-    // Extract the other user details
-    let chatUsers = connections.map(c => {
-      const otherUser = c.fromUserId === userId ? c.to : c.from
-      return otherUser
-    })
+    const chatUsers = connections.map(c => (c.fromUserId === userId ? c.to : c.from))
 
-    // Fetch conversation data for each connection
-    const conversations = await Promise.all(
-      chatUsers.map(async (user) => {
-        const userAId = userId < user.id ? userId : user.id
-        const userBId = userId < user.id ? user.id : userId
+    if (chatUsers.length === 0) {
+      return NextResponse.json([])
+    }
 
-        const conversation = await prisma.conversation.findUnique({
-          where: {
-            userAId_userBId: { userAId, userBId }
-          },
-          include: {
+    // 2. Single query for all conversations of this user (NOT N parallel queries)
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        OR: [
+          { userAId: userId },
+          { userBId: userId }
+        ]
+      },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        },
+        _count: {
+          select: {
             messages: {
-              orderBy: { createdAt: 'desc' },
-              take: 1
-            },
-            _count: {
-              select: {
-                messages: {
-                  where: {
-                    senderId: user.id,
-                    readAt: null
-                  }
-                }
+              where: {
+                senderId: { not: userId },
+                readAt: null
               }
             }
           }
-        })
-
-        const lastMessage = conversation?.messages[0] || null
-        const unreadCount = conversation?._count?.messages || 0
-
-        return {
-          ...user,
-          lastMessage,
-          unreadCount,
-          updatedAt: conversation?.updatedAt || null
         }
-      })
-    )
+      }
+    })
+
+    // Map conversation by other user ID
+    const convMap = new Map()
+    for (const conv of conversations) {
+      const otherId = conv.userAId === userId ? conv.userBId : conv.userAId
+      convMap.set(otherId, conv)
+    }
+
+    const result = chatUsers.map(user => {
+      const conv = convMap.get(user.id)
+      return {
+        ...user,
+        lastMessage: conv?.messages?.[0] || null,
+        unreadCount: conv?._count?.messages || 0,
+        updatedAt: conv?.updatedAt || null
+      }
+    })
 
     // Sort by most recent message (or updatedAt), then by name
-    conversations.sort((a, b) => {
+    result.sort((a, b) => {
       const aTime = a.lastMessage?.createdAt || a.updatedAt
       const bTime = b.lastMessage?.createdAt || b.updatedAt
 
@@ -82,13 +87,13 @@ export async function GET(req) {
       }
       if (aTime) return -1
       if (bTime) return 1
-      
-      return a.name.localeCompare(b.name)
+
+      return (a.name || '').localeCompare(b.name || '')
     })
 
-    return NextResponse.json(conversations)
+    return NextResponse.json(result)
   } catch (error) {
     console.error('GET /api/chat/connections error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
   }
 }

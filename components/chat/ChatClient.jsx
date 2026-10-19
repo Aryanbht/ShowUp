@@ -27,7 +27,8 @@ export default function ChatClient({ initialUser, currentUserId }) {
   }, [activeUserId])
 
   const { data: connections, error, isLoading } = useSWR('/api/chat/connections', fetcher, {
-    refreshInterval: 5000,
+    refreshInterval: 10000,
+    revalidateOnFocus: true,
   })
 
   const [isMobile, setIsMobile] = useState(false)
@@ -62,11 +63,11 @@ export default function ChatClient({ initialUser, currentUserId }) {
                 <div className="flex flex-col mt-4">
                   {Array(5).fill(null).map((_, i) => <ChatItemSkeleton key={i} />)}
                 </div>
-              ) : error ? (
+              ) : error && !connections ? (
                 <div className="p-4 text-center text-red-500 font-inter text-sm">Failed to load connections.</div>
               ) : (
                 <ChatSidebar
-                  connections={connections}
+                  connections={connections || []}
                   activeUserId={activeUserId}
                   onSelectUser={setActiveUserId}
                 />
