@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Bell, Plus, Users, Home, LogOut, MessageSquare, User, ChevronDown } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
-import useSWR from 'swr'
+import useSWR, { preload } from 'swr'
 import Avatar from '@/components/ui/Avatar'
 
 const badgeFetcher = (url) => fetch(url).then(r => r.ok ? r.json() : null)
@@ -32,6 +32,16 @@ export default function Header({ onPost }) {
   const unreadCount = Array.isArray(notifications) ? notifications.filter((n) => !n.read).length : 0
   const unreadChatCount = chatUnread?.count || 0
 
+  // Prefetch route code and SWR API data on hover/focus/touch
+  const handlePrefetch = (link) => {
+    if (link?.href) {
+      try { router.prefetch(link.href) } catch {}
+    }
+    if (link?.api) {
+      try { preload(link.api, badgeFetcher) } catch {}
+    }
+  }
+
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
@@ -44,8 +54,8 @@ export default function Header({ onPost }) {
   }, [])
 
   const navLinks = [
-    { href: '/feed',       label: 'Feed',       icon: Home },
-    { href: '/teammates',  label: 'Teammates',  icon: Users },
+    { href: '/feed',       label: 'Feed',       icon: Home,          api: '/api/project/feed?limit=10' },
+    { href: '/teammates',  label: 'Teammates',  icon: Users,         api: '/api/teammates?limit=20&paginate=true' },
     { href: '/messages',   label: 'Messages',   icon: MessageSquare, badge: unreadChatCount },
   ]
 
@@ -54,7 +64,13 @@ export default function Header({ onPost }) {
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between gap-4">
 
         {/* ΓöÇΓöÇ Left: Logo ΓöÇΓöÇ */}
-        <Link href="/feed" className="flex items-center flex-shrink-0">
+        <Link
+          href="/feed"
+          className="flex items-center flex-shrink-0"
+          onMouseEnter={() => handlePrefetch({ href: '/feed', api: '/api/project/feed?limit=10' })}
+          onFocus={() => handlePrefetch({ href: '/feed', api: '/api/project/feed?limit=10' })}
+          onTouchStart={() => handlePrefetch({ href: '/feed', api: '/api/project/feed?limit=10' })}
+        >
           <img
             src="/logo.png"
             alt="ShowUp"
@@ -62,7 +78,7 @@ export default function Header({ onPost }) {
           />
         </Link>
 
-        {/* ΓöÇΓöÇ Center: Nav pills ΓöÇΓöÇ */}
+        {/* Center: Nav pills */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
           {navLinks.map((link) => {
             const active = pathname.startsWith(link.href)
@@ -70,6 +86,9 @@ export default function Header({ onPost }) {
               <Link
                 key={link.href}
                 href={link.href}
+                onMouseEnter={() => handlePrefetch(link)}
+                onFocus={() => handlePrefetch(link)}
+                onTouchStart={() => handlePrefetch(link)}
                 className={`relative flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold font-grotesk border-2 transition-all duration-[120ms] ${
                   active
                     ? 'bg-accent border-ink shadow-brutal text-ink'

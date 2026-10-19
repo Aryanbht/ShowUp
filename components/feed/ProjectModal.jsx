@@ -8,7 +8,7 @@ import { X, Heart, ExternalLink, Send } from 'lucide-react'
 import Avatar from '@/components/ui/Avatar'
 import { SkillPill } from '@/components/ui/SkillPill'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
-import toast from 'react-hot-toast'
+import { getOptimizedImageUrl } from '@/lib/images'
 
 export default function ProjectModal({ project, onClose, onLike }) {
   const { data: session } = useSession()
@@ -139,7 +139,7 @@ export default function ProjectModal({ project, onClose, onLike }) {
         {/* Cover Image */}
         <div className="relative w-full aspect-video bg-canvas border-b-3 border-ink">
           {p.coverImage ? (
-            <Image src={p.coverImage} alt={p.title} fill className="object-cover" sizes="672px" />
+            <Image src={getOptimizedImageUrl(p.coverImage, 1000)} alt={p.title} fill className="object-cover" sizes="672px" />
           ) : (
             <div className="w-full h-full bg-primary flex items-center justify-center">
               <span className="font-grotesk font-bold text-ink">No Image</span>

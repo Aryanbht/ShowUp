@@ -4,7 +4,8 @@ import Image from 'next/image'
 import { Heart, MessageCircle, Share2 } from 'lucide-react'
 import Avatar from '@/components/ui/Avatar'
 import { SkillPill } from '@/components/ui/SkillPill'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getOptimizedImageUrl } from '@/lib/images'
 
 // Simple helper to format time
 function timeAgo(dateString) {
@@ -24,11 +25,17 @@ function timeAgo(dateString) {
   return Math.floor(seconds) + 's ago'
 }
 
-export default function ProjectCard({ project, onClick, onLike }) {
+export default function ProjectCard({ project, onClick, onLike, priority = false }) {
   const [liked, setLiked] = useState(project.liked)
   const [likeCount, setLikeCount] = useState(project._count?.likes || 0)
   const [liking, setLiking] = useState(false)
   const [isBouncing, setIsBouncing] = useState(false)
+
+  // Keep internal state in sync with updated props from SWR cache
+  useEffect(() => {
+    setLiked(project.liked)
+    setLikeCount(project._count?.likes || 0)
+  }, [project.liked, project._count?.likes])
 
   const visibleTech = project.techStack?.slice(0, 3) || []
   const extraTech = (project.techStack?.length || 0) - 3
@@ -116,11 +123,13 @@ export default function ProjectCard({ project, onClick, onLike }) {
         <div className="relative w-full aspect-video rounded-xl border-2 border-ink overflow-hidden bg-sky-100">
           {project.coverImage ? (
             <Image
-              src={project.coverImage}
+              src={getOptimizedImageUrl(project.coverImage, 800)}
               alt={project.title}
               fill
+              priority={priority}
+              loading={priority ? undefined : 'lazy'}
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 672px, 672px"
             />
           ) : (
             <div className="w-full h-full bg-sky-200 flex items-center justify-center">

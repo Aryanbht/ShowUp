@@ -21,6 +21,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const branch = searchParams.get('branch')
     const year = searchParams.get('year')
+    const search = searchParams.get('search')?.trim()
     const skills = searchParams.get('skills')
     const interests = searchParams.get('interests')
     const cursor = searchParams.get('cursor')
@@ -31,6 +32,14 @@ export async function GET(req) {
       lookingForTeam: true,
       id: { not: currentUserId },
       onboarded: true,
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { bio: { contains: search, mode: 'insensitive' } },
+        { skills: { hasSome: [search] } },
+      ]
     }
 
     if (branch) where.branch = branch

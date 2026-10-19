@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import useSWR from 'swr'
+import useSWRInfinite from 'swr/infinite'
 import ProjectCard from './ProjectCard'
 import ProjectModal from './ProjectModal'
 import PostModal from './PostModal'
@@ -15,16 +17,14 @@ import Avatar from '@/components/ui/Avatar'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import ConnectionButton from '@/components/profile/ConnectionButton'
 
+const fetcher = (url) => fetch(url).then((res) => {
+  if (!res.ok) throw new Error('Network response was not ok')
+  return res.json()
+})
+
 export default function FeedClient() {
-  const [projects, setProjects] = useState([])
-  const [nextCursor, setNextCursor] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
   const [showPost, setShowPost] = useState(false)
-  const [recommendedTeammates, setRecommendedTeammates] = useState([])
-  const observerRef = useRef(null)
   const sentinelRef = useRef(null)
 
   useEffect(() => {
@@ -37,84 +37,132 @@ export default function FeedClient() {
     }
   }, [])
 
-  const fetchFeed = useCallback(async (cursor = null) => {
-    if (cursor) setLoadingMore(true)
-    else setLoading(true)
+  // 1. SWR Infinite Feed Key Generator
+  const getKey = (pageIndex, previousPageData) => {
+    if (previousPageData && !previousPageData.nextCursor) return null
+    if (pageIndex === 0) return '/api/project/feed?limit=10'
+    return `/api/project/feed?limit=10&cursor=${previousPageData.nextCursor}`
+  }
 
-    try {
-      const url = `/api/project/feed?limit=10${cursor ? `&cursor=${cursor}` : ''}`
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('Failed to fetch feed')
-      const data = await res.json()
+  // 2. SWR Infinite Hook with caching and background revalidation
+  const {
+    data,
+    size,
+    setSize,
+    isValidating,
+    isLoading,
+    mutate,
+  } = useSWRInfinite(getKey, fetcher, {
+    revalidateOnFocus: false,
+    revalidateFirstPage: false,
+    revalidateIfStale: true,
+    keepPreviousData: true,
+    dedupingInterval: 20000,
+  })
 
-      setProjects((prev) => (cursor ? [...prev, ...data.projects] : data.projects))
-      setNextCursor(data.nextCursor)
-      setHasMore(!!data.nextCursor)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
+  // 3. Dedicated lightweight SWR for recommended teammates
+  const { data: recommendedTeammates } = useSWR(
+    '/api/teammates/suggested?limit=2',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      dedupingInterval: 60000,
     }
-  }, [])
+  )
 
+  // Flatten paginated projects
+  const projects = data ? data.flatMap((page) => page?.projects || []) : []
+  const isEmpty = data?.[0]?.projects?.length === 0
+  const isReachingEnd = isEmpty || (data && !data[data.length - 1]?.nextCursor)
+  const isLoadingMore =
+    isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
+
+  // Infinite scroll intersection observer
   useEffect(() => {
-    fetchFeed()
+    if (!sentinelRef.current || isReachingEnd || isLoadingMore || isValidating) return
 
-    async function fetchRecommendedTeammates() {
-      try {
-        const res = await fetch('/api/teammates/suggested?limit=2')
-        if (res.ok) {
-          const data = await res.json()
-          if (Array.isArray(data)) {
-            setRecommendedTeammates(data)
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch recommended teammates', err)
-      }
-    }
-    fetchRecommendedTeammates()
-  }, [fetchFeed])
-
-  useEffect(() => {
-    if (!sentinelRef.current || !hasMore || loadingMore) return
-
-    observerRef.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && hasMore && !loadingMore && nextCursor) {
-          fetchFeed(nextCursor)
+        if (entry.isIntersecting && !isReachingEnd && !isValidating) {
+          setSize((prev) => prev + 1)
         }
       },
       { threshold: 0.1 }
     )
 
-    observerRef.current.observe(sentinelRef.current)
-    return () => observerRef.current?.disconnect()
-  }, [hasMore, loadingMore, nextCursor, fetchFeed])
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [isReachingEnd, isLoadingMore, isValidating, setSize])
 
+  // Handle new project creation: prepend to SWR cache optimistically
   const handleProjectCreated = (newProject) => {
-    setProjects((prev) => [newProject, ...prev])
+    mutate(
+      (currentPages) => {
+        if (!currentPages || currentPages.length === 0) {
+          return [{ projects: [newProject], nextCursor: null }]
+        }
+        return [
+          {
+            ...currentPages[0],
+            projects: [newProject, ...(currentPages[0]?.projects || [])],
+          },
+          ...currentPages.slice(1),
+        ]
+      },
+      { revalidate: false }
+    )
   }
 
-  const handleLike = (projectId, liked) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === projectId
-          ? {
-              ...p,
-              liked,
-              _count: { ...p._count, likes: liked ? p._count.likes + 1 : p._count.likes - 1 },
-            }
-          : p
-      )
+  // Optimistic like handling with rollback on error
+  const handleLike = async (projectId, liked) => {
+    // Optimistically update SWR cache
+    await mutate(
+      (currentPages) => {
+        if (!currentPages) return currentPages
+        return currentPages.map((page) => ({
+          ...page,
+          projects: (page.projects || []).map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  liked,
+                  _count: {
+                    ...p._count,
+                    likes: liked
+                      ? (p._count?.likes || 0) + 1
+                      : Math.max(0, (p._count?.likes || 0) - 1),
+                  },
+                }
+              : p
+          ),
+        }))
+      },
+      { revalidate: false }
     )
+
     if (selectedProject?.id === projectId) {
       setSelectedProject((prev) => ({
         ...prev,
         liked,
-        _count: { ...prev._count, likes: liked ? prev._count.likes + 1 : prev._count.likes - 1 },
+        _count: {
+          ...prev._count,
+          likes: liked
+            ? (prev._count?.likes || 0) + 1
+            : Math.max(0, (prev._count?.likes || 0) - 1),
+        },
       }))
+    }
+
+    try {
+      const res = await fetch(`/api/project/${projectId}/like`, { method: 'POST' })
+      if (!res.ok) {
+        // Rollback on non-200 response
+        mutate()
+      }
+    } catch (err) {
+      // Rollback on network error
+      mutate()
     }
   }
 
@@ -149,9 +197,14 @@ export default function FeedClient() {
             ))}
           </div>
 
-          {loading ? (
+          {/* Skeletons on initial load */}
+          {isLoading ? (
             <div className="flex flex-col gap-5">
-              {Array(4).fill(null).map((_, i) => <ProjectCardSkeleton key={i} />)}
+              {Array(4)
+                .fill(null)
+                .map((_, i) => (
+                  <ProjectCardSkeleton key={i} />
+                ))}
             </div>
           ) : projects.length === 0 ? (
             <EmptyState
@@ -164,10 +217,11 @@ export default function FeedClient() {
             <>
               {/* Projects List (1 col) */}
               <div className="flex flex-col gap-6">
-                {projects.map((project) => (
+                {projects.map((project, idx) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
+                    priority={idx === 0}
                     onClick={setSelectedProject}
                     onLike={handleLike}
                   />
@@ -176,7 +230,7 @@ export default function FeedClient() {
 
               {/* Infinite scroll sentinel & end state */}
               <div ref={sentinelRef} className="py-8 flex justify-center">
-                {loadingMore && (
+                {isValidating && !isReachingEnd && (
                   <div className="flex items-center gap-2">
                     <LoadingSpinner size="sm" />
                     <span className="font-grotesk font-bold text-xs text-muted">
@@ -184,9 +238,9 @@ export default function FeedClient() {
                     </span>
                   </div>
                 )}
-                {!hasMore && projects.length > 0 && (
+                {isReachingEnd && projects.length > 0 && (
                   <div className="w-full text-center py-6 border-t-2 border-ink/10 mt-4">
-                    <p className="font-inter text-sm text-muted">You're all caught up.</p>
+                    <p className="font-inter text-sm text-muted">You&apos;re all caught up.</p>
                   </div>
                 )}
               </div>
@@ -201,7 +255,7 @@ export default function FeedClient() {
             <h3 className="font-grotesk font-bold text-lg text-ink mb-4">Looking for teammates</h3>
             <div className="flex flex-col gap-4">
               
-              {recommendedTeammates.length > 0 ? (
+              {Array.isArray(recommendedTeammates) && recommendedTeammates.length > 0 ? (
                 recommendedTeammates.map((user) => (
                   <div key={user.id} className="flex items-center gap-3">
                     <Avatar src={user.avatar} name={user.name} size="sm" />

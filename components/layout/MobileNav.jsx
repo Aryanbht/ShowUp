@@ -1,15 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Bell, Home, Users, MessageSquare, User } from 'lucide-react'
-import useSWR from 'swr'
+import useSWR, { preload } from 'swr'
 
 const badgeFetcher = (url) => fetch(url).then(r => r.ok ? r.json() : null)
 
 export default function MobileNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
 
   // SWR automatically deduplicates in-flight requests and shares cache with Header
@@ -27,9 +28,18 @@ export default function MobileNav() {
   const unreadCount = Array.isArray(notifications) ? notifications.filter((n) => !n.read).length : 0
   const unreadChatCount = chatUnread?.count || 0
 
+  const handlePrefetch = (tab) => {
+    if (tab?.href) {
+      try { router.prefetch(tab.href) } catch {}
+    }
+    if (tab?.api) {
+      try { preload(tab.api, badgeFetcher) } catch {}
+    }
+  }
+
   const tabs = [
-    { href: '/feed',      icon: Home,          label: 'Feed' },
-    { href: '/teammates', icon: Users,         label: 'Team' },
+    { href: '/feed',      icon: Home,          label: 'Feed',   api: '/api/project/feed?limit=10' },
+    { href: '/teammates', icon: Users,         label: 'Team',   api: '/api/teammates?limit=20&paginate=true' },
     { href: '/messages',  icon: MessageSquare, label: 'Chat',   badge: unreadChatCount },
     { href: '/notifications', icon: Bell,      label: 'Alerts', badge: unreadCount },
     {
@@ -48,6 +58,9 @@ export default function MobileNav() {
           <Link
             key={i}
             href={tab.href}
+            onTouchStart={() => handlePrefetch(tab)}
+            onMouseEnter={() => handlePrefetch(tab)}
+            onFocus={() => handlePrefetch(tab)}
             className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 relative transition-colors duration-[120ms]"
             aria-label={tab.label}
           >
