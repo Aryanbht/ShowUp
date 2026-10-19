@@ -82,20 +82,32 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
       if (typeof document !== 'undefined' && document.hidden) return
 
       try {
-        const url = `/api/chat/conversations/${conversationId}/messages${lastMessageDate ? `?after=${lastMessageDate.toISOString()}` : ''}`
+        const url = `/api/chat/conversations/${conversationId}/messages`
         const res = await fetch(url)
         if (!res.ok) throw new Error('Failed to fetch messages')
         const newMessages = await res.json()
 
         if (!isMounted) return
 
-        if (newMessages.length > 0) {
-          lastMessageDate = new Date(newMessages[newMessages.length - 1].createdAt)
-
+        if (Array.isArray(newMessages)) {
           setMessages(prev => {
-            const existingIds = new Set(prev.map(m => m.id))
-            const filtered = newMessages.filter(m => !existingIds.has(m.id))
-            return [...prev, ...filtered]
+            // Keep any in-flight temporary messages that haven't finished sending
+            const tempMessages = prev.filter(m => m.id?.startsWith?.('temp-') || m.isPending || m.isFailed)
+            const map = new Map()
+
+            // Update or add messages from the server (this updates readAt!)
+            newMessages.forEach(m => map.set(m.id, m))
+
+            // Keep in-flight or failed messages
+            tempMessages.forEach(m => {
+              if (!map.has(m.id)) {
+                map.set(m.id, m)
+              }
+            })
+
+            return Array.from(map.values()).sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            )
           })
         }
       } catch (err) {
@@ -164,7 +176,9 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
       senderId: currentUserId,
       content,
       createdAt: new Date().toISOString(),
-      readAt: null
+      readAt: null,
+      isPending: true,
+      isFailed: false,
     }
 
     setMessages(prev => [...prev, tempMessage])
@@ -186,12 +200,17 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
       }
       const savedMessage = await res.json()
 
-      setMessages(prev => prev.map(m => m.id === tempId ? savedMessage : m))
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...savedMessage, isPending: false, isFailed: false } : m))
 
     } catch (err) {
-      setMessages(prev => prev.filter(m => m.id !== tempId))
-      throw err
+      console.error('Failed to send message:', err)
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, isPending: false, isFailed: true } : m))
     }
+  }
+
+  const handleRetryMessage = async (failedMsg) => {
+    setMessages(prev => prev.filter(m => m.id !== failedMsg.id))
+    await handleSendMessage(failedMsg.content)
   }
 
   return (
@@ -269,16 +288,18 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
               const prevMsg = messages[index - 1]
               const nextMsg = messages[index + 1]
               
-              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId
-              const isLastInGroup = !nextMsg || nextMsg.senderId !== msg.senderId
-              const isLastMessage = index === messages.length - 1
-              
-              const showSeen = isLastMessage && msg.senderId === currentUserId && msg.readAt
+              const msgDate = new Date(msg.createdAt)
+              const prevMsgDate = prevMsg ? new Date(prevMsg.createdAt) : null
+              const nextMsgDate = nextMsg ? new Date(nextMsg.createdAt) : null
+
+              const isTimeApart = nextMsgDate && !isNaN(nextMsgDate) && !isNaN(msgDate) && (nextMsgDate - msgDate > 5 * 60 * 1000)
+              const isPrevTimeApart = prevMsgDate && !isNaN(prevMsgDate) && !isNaN(msgDate) && (msgDate - prevMsgDate > 5 * 60 * 1000)
+
+              const isFirstInGroup = !prevMsg || prevMsg.senderId !== msg.senderId || isPrevTimeApart
+              const isLastInGroup = !nextMsg || nextMsg.senderId !== msg.senderId || isTimeApart
               const showTimestamp = isLastInGroup
 
               // Date separator logic
-              const msgDate = new Date(msg.createdAt)
-              const prevMsgDate = prevMsg ? new Date(prevMsg.createdAt) : null
               const showDateSeparator = !prevMsgDate || !isSameDay(msgDate, prevMsgDate)
 
               return (
@@ -294,8 +315,8 @@ export default function ChatWindow({ connection, currentUserId, onBack }) {
                     message={msg}
                     isMine={msg.senderId === currentUserId}
                     isFirstInGroup={isFirstInGroup}
-                    showSeen={showSeen}
                     showTimestamp={showTimestamp}
+                    onRetry={handleRetryMessage}
                   />
                 </div>
               )

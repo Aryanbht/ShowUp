@@ -37,11 +37,20 @@ export async function GET(req, { params }) {
       whereClause.createdAt = { gt: new Date(after) }
     }
 
-    const messages = await prisma.message.findMany({
-      where: whereClause,
-      orderBy: { createdAt: 'asc' },
-      take: after ? undefined : 100
-    })
+    let messages
+    if (after) {
+      messages = await prisma.message.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'asc' },
+      })
+    } else {
+      const recent = await prisma.message.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      })
+      messages = recent.reverse()
+    }
 
     return NextResponse.json(messages)
   } catch (error) {
