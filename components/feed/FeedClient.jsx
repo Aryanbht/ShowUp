@@ -63,12 +63,11 @@ export default function FeedClient() {
 
     async function fetchRecommendedTeammates() {
       try {
-        const res = await fetch('/api/teammates')
+        const res = await fetch('/api/teammates/suggested?limit=2')
         if (res.ok) {
           const data = await res.json()
-          if (data && data.length > 0) {
-            const shuffled = data.sort(() => 0.5 - Math.random())
-            setRecommendedTeammates(shuffled.slice(0, 2))
+          if (Array.isArray(data)) {
+            setRecommendedTeammates(data)
           }
         }
       } catch (err) {
@@ -217,7 +216,11 @@ export default function FeedClient() {
                       </div>
                     </div>
                     <div className="w-fit flex-shrink-0">
-                      <ConnectionButton targetUserId={user.id} />
+                      <ConnectionButton
+                        targetUserId={user.id}
+                        initialStatus={user.connectionStatus}
+                        initialConnectionId={user.connectionId}
+                      />
                     </div>
                   </div>
                 ))

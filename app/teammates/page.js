@@ -25,7 +25,7 @@ export default function TeammatesPage() {
         const res = await fetch('/api/teammates')
         if (res.ok) {
           const data = await res.json()
-          setTeammates(data)
+          setTeammates(Array.isArray(data) ? data : data.teammates || [])
         }
       } catch {}
       setLoading(false)

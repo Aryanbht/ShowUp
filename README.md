@@ -4,6 +4,8 @@
 
 A full-stack Next.js 14 platform where students share projects, explore a feed, find hackathon teammates, and connect with each other.
 
+📖 **For detailed architecture, landing scroll engine mechanics, and system workflows, see [WORKFLOW.md](./WORKFLOW.md).**
+
 ---
 
 ## Tech Stack
